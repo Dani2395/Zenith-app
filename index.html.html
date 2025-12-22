@@ -1,0 +1,1982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zenith</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" id="manifest-link">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Zenith">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%236366f1' width='100' height='100' rx='20'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>Z</text></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #13131a;
+            --glass: rgba(26, 26, 36, 0.8);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --text: #e5e7eb;
+            --text-dim: #9ca3af;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        /* Responsive Layout */
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: clamp(10px, 3vw, 20px);
+        }
+        
+        /* Install Banner */
+        .install-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.5);
+            display: none;
+            z-index: 9999;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .install-banner.show { display: block; }
+        
+        .install-banner button {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 8px 4px 0;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* Holiday Backgrounds */
+        .holiday-bg {
+            position: fixed;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            z-index: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .holiday-bg.christmas { background-image: url('https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=1920'); }
+        .holiday-bg.winter { background-image: url('https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=1920'); }
+        
+        .holiday-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            display: none;
+        }
+        
+        .holiday-overlay.active { display: block; }
+        
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 1em;
+            animation: fall linear infinite;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8);
+        }
+        
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
+        
+        .fireplace {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 200px;
+            background: linear-gradient(to top, #8B4513 0%, #654321 100%);
+            border-radius: 20px 20px 0 0;
+            display: none;
+            z-index: 10;
+        }
+        
+        .fireplace.active { display: block; }
+        
+        @media (max-width: 768px) {
+            .fireplace { width: 200px; height: 150px; }
+        }
+        
+        .fire {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 80px;
+        }
+        
+        .flame {
+            position: absolute;
+            bottom: 0;
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(to top, #ff6b00, #ffed4e);
+            border-radius: 50% 50% 0 0;
+            animation: flicker 1s ease-in-out infinite alternate;
+        }
+        
+        .flame:nth-child(1) { left: 10px; }
+        .flame:nth-child(2) { left: 30px; animation-delay: 0.3s; }
+        .flame:nth-child(3) { left: 50px; animation-delay: 0.6s; }
+        
+        @keyframes flicker {
+            0% { transform: scaleY(1); opacity: 1; }
+            100% { transform: scaleY(1.2); opacity: 0.8; }
+        }
+        
+        .bg-anim {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15), transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.15), transparent 50%);
+            animation: pulse 20s ease infinite;
+            z-index: 1;
+        }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+        
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: clamp(12px, 3vw, 24px);
+            padding: clamp(12px, 3vw, 24px);
+            margin-bottom: clamp(10px, 3vw, 20px);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: clamp(36px, 8vw, 48px);
+            height: clamp(36px, 8vw, 48px);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+        }
+        
+        .logo-text {
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .search-bar {
+            flex: 1;
+            min-width: 200px;
+            max-width: 500px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 48px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 16px center;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .quick-add {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            touch-action: manipulation;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); color: var(--text); border: 1px solid var(--border); }
+        .btn-icon { 
+            width: clamp(36px, 8vw, 40px); 
+            height: clamp(36px, 8vw, 40px); 
+            padding: 0; 
+            justify-content: center; 
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: clamp(10px, 3vw, 20px);
+        }
+        
+        @media (min-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(10px, 3vw, 20px);
+        }
+        
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: clamp(12px, 3vw, 24px);
+            padding: clamp(12px, 3vw, 24px);
+        }
+        
+        .card-title {
+            font-size: clamp(16px, 3vw, 18px);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        /* Weather */
+        .weather-day {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .weather-icon-big {
+            font-size: clamp(36px, 8vw, 48px);
+        }
+        
+        .weather-temp-big {
+            font-size: clamp(24px, 6vw, 32px);
+            font-weight: 700;
+        }
+        
+        .weather-desc-day {
+            font-size: clamp(12px, 3vw, 14px);
+            color: var(--text-dim);
+        }
+        
+        .weather-details {
+            font-size: clamp(10px, 2.5vw, 12px);
+            color: var(--text-dim);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        /* Mood Tracker */
+        .mood-emojis {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 4px;
+        }
+        
+        .mood-emoji {
+            font-size: clamp(24px, 6vw, 32px);
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.5;
+            padding: clamp(4px, 2vw, 8px);
+            border-radius: 12px;
+            touch-action: manipulation;
+        }
+        
+        .mood-emoji:hover, .mood-emoji:active {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        
+        .mood-emoji.selected {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .mood-note {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: clamp(12px, 3vw, 13px);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        /* Calendar */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: clamp(2px, 1vw, 4px);
+        }
+        
+        .calendar-day-label {
+            text-align: center;
+            font-size: clamp(9px, 2vw, 11px);
+            font-weight: 600;
+            color: var(--text-dim);
+            padding: clamp(4px, 2vw, 8px);
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: clamp(4px, 2vw, 8px);
+            font-size: clamp(11px, 2.5vw, 13px);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            touch-action: manipulation;
+        }
+        
+        .calendar-day:hover, .calendar-day:active { background: rgba(255, 255, 255, 0.08); }
+        .calendar-day.today { background: var(--primary); color: white; font-weight: 700; }
+        .calendar-day.selected { background: rgba(99, 102, 241, 0.3); border: 2px solid var(--primary); }
+        .calendar-day.other-month { opacity: 0.3; }
+        
+        /* Priority & Habits */
+        .priority-item, .habit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: clamp(8px, 2vw, 12px);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+        
+        .priority-number {
+            width: clamp(28px, 6vw, 32px);
+            height: clamp(28px, 6vw, 32px);
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: clamp(12px, 3vw, 14px);
+            flex-shrink: 0;
+        }
+        
+        .priority-content, .habit-name {
+            flex: 1;
+            font-size: clamp(12px, 3vw, 14px);
+        }
+        
+        .checkbox, .habit-check {
+            width: clamp(18px, 4vw, 20px);
+            height: clamp(18px, 4vw, 20px);
+            border: 2px solid var(--text-dim);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+        
+        .habit-check {
+            width: clamp(28px, 6vw, 32px);
+            height: clamp(28px, 6vw, 32px);
+            border-radius: 8px;
+        }
+        
+        .checkbox.checked, .habit-check.done {
+            background: var(--success);
+            border-color: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkbox.checked::after, .habit-check.done::after { 
+            content: '✓'; 
+            color: white; 
+            font-size: clamp(12px, 3vw, 14px); 
+        }
+        
+        /* Timeline */
+        .timeline-date {
+            font-size: clamp(18px, 4vw, 24px);
+            font-weight: 700;
+        }
+        
+        .timeline-hour {
+            display: grid;
+            grid-template-columns: clamp(60px, 15vw, 80px) 1fr;
+            gap: clamp(8px, 3vw, 16px);
+        }
+        
+        .hour-label {
+            font-size: clamp(11px, 2.5vw, 13px);
+            color: var(--text-dim);
+            font-weight: 600;
+            padding-top: 4px;
+        }
+        
+        .timeline-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(8px, 2vw, 12px);
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 2vw, 12px);
+            transition: all 0.3s;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        .timeline-item:active { background: rgba(255, 255, 255, 0.05); transform: translateX(4px); }
+        
+        .timeline-item.task { border-left: 4px solid var(--primary); }
+        .timeline-item.note { border-left: 4px solid var(--warning); }
+        .timeline-item.event { border-left: 4px solid var(--success); }
+        .timeline-item.overdue { border-left: 4px solid var(--danger); background: rgba(239, 68, 68, 0.1); }
+        
+        .timeline-icon {
+            font-size: clamp(16px, 4vw, 20px);
+        }
+        
+        .timeline-title {
+            font-size: clamp(12px, 3vw, 14px);
+            font-weight: 600;
+        }
+        
+        .timeline-desc {
+            font-size: clamp(10px, 2.5vw, 12px);
+            color: var(--text-dim);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal.show { display: flex; }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: clamp(16px, 4vw, 24px);
+            padding: clamp(16px, 4vw, 32px);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title { font-size: clamp(20px, 4vw, 24px); font-weight: 700; }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: clamp(10px, 2vw, 12px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: clamp(12px, 3vw, 14px);
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .empty {
+            text-align: center;
+            padding: clamp(20px, 5vw, 40px);
+            color: var(--text-dim);
+            font-size: clamp(12px, 3vw, 14px);
+        }
+        
+        .completed { text-decoration: line-through; opacity: 0.5; }
+        
+        /* Notification Permission Banner */
+        .notif-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 16px 24px;
+            border-radius: 16px;
+            display: none;
+            z-index: 9999;
+            max-width: 90%;
+        }
+        
+        .notif-banner.show { display: block; }
+    </style>
+</head>
+<body>
+    <div id="holiday-bg" class="holiday-bg"></div>
+    <div class="bg-anim"></div>
+    <div id="holiday-overlay" class="holiday-overlay"></div>
+    <div id="fireplace" class="fireplace">
+        <div class="fire">
+            <div class="flame"></div>
+            <div class="flame"></div>
+            <div class="flame"></div>
+        </div>
+    </div>
+    
+    <!-- Install Banner -->
+    <div id="install-banner" class="install-banner">
+        <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">📱 Install Zenith</div>
+        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Add to your home screen for the full app experience!</div>
+        <button onclick="installApp()">Install Now</button>
+        <button onclick="dismissInstall()">Maybe Later</button>
+    </div>
+    
+    <!-- Notification Permission Banner -->
+    <div id="notif-banner" class="notif-banner">
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">🔔 Enable Notifications</div>
+        <div style="font-size: 13px; margin-bottom: 12px;">Get reminders for upcoming events and overdue tasks</div>
+        <button class="btn btn-primary" onclick="enableNotifications()">Enable</button>
+        <button class="btn btn-secondary" onclick="dismissNotifBanner()">Later</button>
+    </div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">Z</div>
+                <div class="logo-text">Zenith</div>
+            </div>
+            <div class="search-bar">
+                <input type="text" class="search-input" id="search" placeholder="Search..." onkeyup="searchAll()">
+            </div>
+            <div class="quick-add">
+                <button class="btn btn-icon btn-secondary" onclick="openTaskModal()" title="Add Task">✓</button>
+                <button class="btn btn-icon btn-secondary" onclick="openNoteModal()" title="Add Note">📝</button>
+                <button class="btn btn-icon btn-secondary" onclick="openEventModal()" title="Add Event">📅</button>
+                <button class="btn btn-icon btn-secondary" onclick="openHabitModal()" title="Add Habit">⭐</button>
+            </div>
+        </header>
+        
+        <div class="main-grid">
+            <div class="sidebar">
+                <!-- Weather -->
+                <div class="card">
+                    <div class="weather-day">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 12px;">
+                            Weather for <span id="weather-date">Today</span>
+                        </div>
+                        <div class="weather-main">
+                            <div class="weather-icon-big" id="weather-icon-day">☀️</div>
+                            <div style="flex: 1;">
+                                <div class="weather-temp-big" id="temp-day">--°</div>
+                                <div class="weather-desc-day" id="weather-desc-day">Loading...</div>
+                                <div class="weather-details">
+                                    <span id="feels-like">Feels: --°</span>
+                                    <span id="humidity">Humidity: --%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mood Tracker -->
+                <div class="card">
+                    <div style="padding: 16px; background: rgba(255, 255, 255, 0.03); border-radius: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; margin-bottom: 12px; color: var(--text-dim);">
+                            How are you feeling on <span id="mood-date">this day</span>?
+                        </div>
+                        <div class="mood-emojis" id="mood-emojis">
+                            <div class="mood-emoji" data-mood="😄" onclick="selectMood('😄')">😄</div>
+                            <div class="mood-emoji" data-mood="😊" onclick="selectMood('😊')">😊</div>
+                            <div class="mood-emoji" data-mood="😐" onclick="selectMood('😐')">😐</div>
+                            <div class="mood-emoji" data-mood="😔" onclick="selectMood('😔')">😔</div>
+                            <div class="mood-emoji" data-mood="😢" onclick="selectMood('😢')">😢</div>
+                        </div>
+                        <textarea id="mood-note" class="mood-note" placeholder="Why?" onchange="saveMood()"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Calendar -->
+                <div class="card">
+                    <div class="card-title">📅 Calendar</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div style="font-size: 14px; font-weight: 600;" id="cal-month"></div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-icon btn-secondary" onclick="prevMonth()" style="width: 32px; height: 32px; font-size: 16px;">‹</button>
+                            <button class="btn btn-icon btn-secondary" onclick="today()" style="width: 32px; height: 32px; font-size: 16px;">•</button>
+                            <button class="btn btn-icon btn-secondary" onclick="nextMonth()" style="width: 32px; height: 32px; font-size: 16px;">›</button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendar"></div>
+                </div>
+                
+                <!-- Top 5 Priority -->
+                <div class="card">
+                    <div class="card-title">
+                        🔥 Top 5 for <span id="priority-date">Today</span>
+                        <button class="btn btn-icon btn-secondary" onclick="openPriorityModal()" style="margin-left: auto; width: 32px; height: 32px; padding: 0;">+</button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px;" id="priority-list"></div>
+                </div>
+                
+                <!-- Habits -->
+                <div class="card">
+                    <div class="card-title">⭐ Habits for <span id="habit-date">Today</span></div>
+                    <div style="display: grid; gap: 12px;" id="habits-list"></div>
+                </div>
+            </div>
+            
+            <!-- Timeline -->
+            <div class="card" style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div class="timeline-date" id="timeline-date"></div>
+                    <button class="btn btn-secondary" onclick="openSpecialDayModal()">+ Special Day</button>
+                </div>
+                <div id="overdue-alert"></div>
+                <div style="display: flex; flex-direction: column; gap: 16px;" id="timeline"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals (same structure, just ensuring they're included) -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="modal-title">Add Task</h2>
+                <button style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: none; color: var(--text); cursor: pointer; font-size: 24px;" onclick="closeModal('task-modal')">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Title *</label>
+                <input type="text" id="task-name" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Description</label>
+                <textarea id="task-desc" style="min-height: 100px;"></textarea>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Priority</label>
+                <select id="task-priority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Date</label>
+                <input type="date" id="task-date">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Time</label>
+                <input type="time" id="task-time">
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTask()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="note-modal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="modal-title">Add Note</h2>
+                <button style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: none; color: var(--text); cursor: pointer; font-size: 24px;" onclick="closeModal('note-modal')">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Title *</label>
+                <input type="text" id="note-name" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Content *</label>
+                <textarea id="note-text" style="min-height: 200px;" required></textarea>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Date</label>
+                <input type="date" id="note-date">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Time</label>
+                <input type="time" id="note-time">
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('note-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveNote()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="modal-title">Add Event</h2>
+                <button style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: none; color: var(--text); cursor: pointer; font-size: 24px;" onclick="closeModal('event-modal')">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Title *</label>
+                <input type="text" id="event-name" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Description</label>
+                <textarea id="event-desc"></textarea>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Date *</label>
+                <input type="date" id="event-date" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Time *</label>
+                <input type="time" id="event-time" required>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('event-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEvent()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="priority-modal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="modal-title">Add to Top 5</h2>
+                <button style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: none; color: var(--text); cursor: pointer; font-size: 24px;" onclick="closeModal('priority-modal')">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Task *</label>
+                <input type="text" id="priority-task" required>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('priority-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="savePriority()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="habit-modal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="modal-title">Add Habit</h2>
+                <button style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: none; color: var(--text); cursor: pointer; font-size: 24px;" onclick="closeModal('habit-modal')">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Habit Name *</label>
+                <input type="text" id="habit-name" required>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('habit-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveHabit()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="special-modal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 class="modal-title">Add Special Day</h2>
+                <button style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: none; color: var(--text); cursor: pointer; font-size: 24px;" onclick="closeModal('special-modal')">×</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Type</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 8px;" id="special-type-grid">
+                    <div style="padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 24px; cursor: pointer; text-align: center;" data-type="christmas" onclick="selectSpecialType('christmas')">🎄</div>
+                    <div style="padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 24px; cursor: pointer; text-align: center;" data-type="newyear" onclick="selectSpecialType('newyear')">🎆</div>
+                    <div style="padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 24px; cursor: pointer; text-align: center;" data-type="valentine" onclick="selectSpecialType('valentine')">💝</div>
+                    <div style="padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 24px; cursor: pointer; text-align: center;" data-type="halloween" onclick="selectSpecialType('halloween')">🎃</div>
+                    <div style="padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 24px; cursor: pointer; text-align: center;" data-type="birthday" onclick="selectSpecialType('birthday')">🎂</div>
+                    <div style="padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 24px; cursor: pointer; text-align: center;" data-type="party" onclick="selectSpecialType('party')">🎉</div>
+                </div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Name *</label>
+                <input type="text" id="special-name" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">Date *</label>
+                <input type="date" id="special-date" required>
+            </div>
+            <input type="hidden" id="special-type" value="christmas">
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('special-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSpecialDay()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let tasks = [];
+        let notes = [];
+        let events = [];
+        let priorities = {};
+        let habits = [];
+        let habitCompletions = {};
+        let specialDays = [];
+        let moods = {};
+        let weatherCache = {};
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let userLocation = null;
+        let selectedSpecialType = 'christmas';
+        let deferredPrompt = null;
+        
+        // PWA & Notification Setup
+        function init() {
+            loadAll();
+            setupPWA();
+            setupNotifications();
+            getLocation();
+            renderCalendar();
+            renderPriorities();
+            renderHabits();
+            renderTimeline();
+            renderMood();
+            updateTimelineDate();
+            loadWeatherForDay(selectedDate);
+            checkHolidayAnimations();
+            scheduleNotificationCheck();
+        }
+        
+        // PWA Setup
+        function setupPWA() {
+            // Create manifest dynamically
+            const manifest = {
+                "name": "Zenith Productivity Hub",
+                "short_name": "Zenith",
+                "description": "Your all-in-one productivity companion",
+                "start_url": window.location.href,
+                "display": "standalone",
+                "background_color": "#0a0a0f",
+                "theme_color": "#6366f1",
+                "orientation": "any",
+                "icons": [
+                    {
+                        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%236366f1' width='192' height='192' rx='40'/><text x='96' y='140' font-size='120' text-anchor='middle' fill='white' font-family='Arial Black'>Z</text></svg>",
+                        "sizes": "192x192",
+                        "type": "image/svg+xml",
+                        "purpose": "any maskable"
+                    },
+                    {
+                        "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%236366f1' width='512' height='512' rx='100'/><text x='256' y='380' font-size='320' text-anchor='middle' fill='white' font-family='Arial Black'>Z</text></svg>",
+                        "sizes": "512x512",
+                        "type": "image/svg+xml"
+                    }
+                ]
+            };
+            
+            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const manifestURL = URL.createObjectURL(blob);
+            document.getElementById('manifest-link').setAttribute('href', manifestURL);
+            
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', e => {
+                        self.skipWaiting();
+                    });
+                    
+                    self.addEventListener('activate', e => {
+                        e.waitUntil(clients.claim());
+                    });
+                    
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(
+                            caches.match(e.request).then(response => {
+                                return response || fetch(e.request);
+                            })
+                        );
+                    });
+                    
+                    self.addEventListener('notificationclick', e => {
+                        e.notification.close();
+                        e.waitUntil(
+                            clients.openWindow('/')
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swURL = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swURL).then(reg => {
+                    console.log('Service Worker registered');
+                }).catch(err => {
+                    console.log('Service Worker registration failed:', err);
+                });
+            }
+            
+            // Install prompt
+            window.addEventListener('beforeinstallprompt', e => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('install-banner').classList.add('show');
+            });
+            
+            window.addEventListener('appinstalled', () => {
+                console.log('App installed');
+                deferredPrompt = null;
+                document.getElementById('install-banner').classList.remove('show');
+            });
+        }
+        
+        async function installApp() {
+            if (!deferredPrompt) {
+                alert('App is already installed or installation is not available');
+                return;
+            }
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('User accepted install');
+            }
+            
+            deferredPrompt = null;
+            document.getElementById('install-banner').classList.remove('show');
+        }
+        
+        function dismissInstall() {
+            document.getElementById('install-banner').classList.remove('show');
+        }
+        
+        // Notifications
+        function setupNotifications() {
+            if (!('Notification' in window)) return;
+            
+            const notifAsked = localStorage.getItem('zenith-notif-asked');
+            
+            if (!notifAsked && Notification.permission === 'default') {
+                setTimeout(() => {
+                    document.getElementById('notif-banner').classList.add('show');
+                }, 3000);
+            }
+        }
+        
+        async function enableNotifications() {
+            localStorage.setItem('zenith-notif-asked', 'true');
+            document.getElementById('notif-banner').classList.remove('show');
+            
+            if (!('Notification' in window)) {
+                alert('Notifications not supported on this device');
+                return;
+            }
+            
+            const permission = await Notification.requestPermission();
+            
+            if (permission === 'granted') {
+                new Notification('🎉 Notifications Enabled!', {
+                    body: 'You will now receive reminders for events and tasks',
+                    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%236366f1' width='100' height='100' rx='20'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>Z</text></svg>",
+                    badge: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%236366f1' width='100' height='100' rx='20'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>Z</text></svg>"
+                });
+            }
+        }
+        
+        function dismissNotifBanner() {
+            localStorage.setItem('zenith-notif-asked', 'true');
+            document.getElementById('notif-banner').classList.remove('show');
+        }
+        
+        function scheduleNotificationCheck() {
+            checkUpcomingEvents();
+            setInterval(checkUpcomingEvents, 60000); // Check every minute
+        }
+        
+        function checkUpcomingEvents() {
+            if (Notification.permission !== 'granted') return;
+            
+            const now = new Date();
+            const today = formatDate(now);
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            
+            // Check events happening in next hour
+            events.forEach(e => {
+                if (e.date === today && e.time) {
+                    const [hours, minutes] = e.time.split(':').map(Number);
+                    const eventTime = hours * 60 + minutes;
+                    const diff = eventTime - currentTime;
+                    
+                    if (diff > 0 && diff <= 60) {
+                        const key = 'notif-' + e.date + '-' + e.name;
+                        if (!sessionStorage.getItem(key)) {
+                            new Notification('📅 Upcoming Event', {
+                                body: `${e.name} in ${diff} minutes`,
+                                icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%236366f1' width='100' height='100' rx='20'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>Z</text></svg>",
+                                tag: key
+                            });
+                            sessionStorage.setItem(key, 'sent');
+                        }
+                    }
+                }
+            });
+            
+            // Check overdue tasks
+            const overdue = tasks.filter(t => t.date && t.date < today && !t.done);
+            if (overdue.length > 0) {
+                const key = 'notif-overdue-' + today;
+                if (!sessionStorage.getItem(key)) {
+                    new Notification('⚠️ Overdue Tasks', {
+                        body: `You have ${overdue.length} overdue task${overdue.length > 1 ? 's' : ''}`,
+                        icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23ef4444' width='100' height='100' rx='20'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>!</text></svg>",
+                        tag: key
+                    });
+                    sessionStorage.setItem(key, 'sent');
+                }
+            }
+        }
+        
+        // Storage
+        function loadAll() {
+            tasks = JSON.parse(localStorage.getItem('zenith-tasks') || '[]');
+            notes = JSON.parse(localStorage.getItem('zenith-notes') || '[]');
+            events = JSON.parse(localStorage.getItem('zenith-events') || '[]');
+            priorities = JSON.parse(localStorage.getItem('zenith-priorities') || '{}');
+            habits = JSON.parse(localStorage.getItem('zenith-habits') || '[]');
+            habitCompletions = JSON.parse(localStorage.getItem('zenith-habit-completions') || '{}');
+            specialDays = JSON.parse(localStorage.getItem('zenith-special') || '[]');
+            moods = JSON.parse(localStorage.getItem('zenith-moods') || '{}');
+            weatherCache = JSON.parse(localStorage.getItem('zenith-weather-cache') || '{}');
+        }
+        
+        function save(type) {
+            const data = {
+                tasks, notes, events, priorities, habits,
+                'habit-completions': habitCompletions,
+                special: specialDays,
+                moods,
+                'weather-cache': weatherCache
+            }[type];
+            localStorage.setItem('zenith-' + type, JSON.stringify(data));
+        }
+        
+        // Location & Weather
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
+                        };
+                        loadWeatherForDay(selectedDate);
+                    },
+                    error => {
+                        loadWeatherForDay(selectedDate);
+                    }
+                );
+            }
+        }
+        
+        async function loadWeatherForDay(date) {
+            const dateStr = formatDate(date);
+            const today = formatDate(new Date());
+            
+            if (weatherCache[dateStr] && Date.now() - weatherCache[dateStr].timestamp < 3600000) {
+                displayWeatherForDay(weatherCache[dateStr].data, dateStr);
+                return;
+            }
+            
+            if (dateStr < today) {
+                document.getElementById('weather-desc-day').textContent = 'Past date';
+                return;
+            }
+            
+            try {
+                let url;
+                if (userLocation) {
+                    url = `https://wttr.in/${userLocation.lat},${userLocation.lon}?format=j1`;
+                } else {
+                    url = 'https://wttr.in/?format=j1';
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                const daysFromToday = Math.floor((new Date(dateStr) - new Date(today)) / (1000 * 60 * 60 * 24));
+                
+                let weatherData;
+                if (daysFromToday === 0) {
+                    weatherData = {
+                        temp: data.current_condition[0].temp_F,
+                        feelsLike: data.current_condition[0].FeelsLikeF,
+                        humidity: data.current_condition[0].humidity,
+                        desc: data.current_condition[0].weatherDesc[0].value,
+                        code: data.current_condition[0].weatherCode
+                    };
+                } else if (daysFromToday > 0 && daysFromToday < 3 && data.weather[daysFromToday]) {
+                    const dayData = data.weather[daysFromToday];
+                    weatherData = {
+                        temp: dayData.avgtempF,
+                        feelsLike: dayData.avgtempF,
+                        humidity: dayData.hourly[4].humidity,
+                        desc: dayData.hourly[4].weatherDesc[0].value,
+                        code: dayData.hourly[4].weatherCode
+                    };
+                } else {
+                    document.getElementById('weather-desc-day').textContent = 'Forecast unavailable';
+                    return;
+                }
+                
+                weatherCache[dateStr] = {
+                    data: weatherData,
+                    timestamp: Date.now()
+                };
+                save('weather-cache');
+                
+                displayWeatherForDay(weatherData, dateStr);
+            } catch (e) {
+                document.getElementById('weather-desc-day').textContent = 'Unavailable';
+            }
+        }
+        
+        function displayWeatherForDay(data, dateStr) {
+            document.getElementById('temp-day').textContent = Math.round(data.temp) + '°F';
+            document.getElementById('weather-desc-day').textContent = data.desc;
+            document.getElementById('feels-like').textContent = 'Feels: ' + Math.round(data.feelsLike) + '°F';
+            document.getElementById('humidity').textContent = 'Humidity: ' + data.humidity + '%';
+            
+            const icon = getWeatherIcon(data.code, data.desc);
+            document.getElementById('weather-icon-day').textContent = icon;
+            
+            const isToday = dateStr === formatDate(new Date());
+            document.getElementById('weather-date').textContent = isToday ? 'Today' : dateStr;
+            
+            checkLiveWeatherEffects(data.desc);
+        }
+        
+        function checkLiveWeatherEffects(desc) {
+            const dateStr = formatDate(selectedDate);
+            const special = specialDays.find(s => s.date === dateStr);
+            
+            if (special) {
+                checkHolidayAnimations();
+                return;
+            }
+            
+            const overlay = document.getElementById('holiday-overlay');
+            const fireplace = document.getElementById('fireplace');
+            const bg = document.getElementById('holiday-bg');
+            const d = desc.toLowerCase();
+            
+            overlay.innerHTML = '';
+            overlay.classList.remove('active');
+            fireplace.classList.remove('active');
+            bg.className = 'holiday-bg';
+            
+            if (d.includes('snow')) {
+                overlay.classList.add('active');
+                bg.classList.add('winter');
+                for (let i = 0; i < 50; i++) {
+                    const snow = document.createElement('div');
+                    snow.className = 'snowflake';
+                    snow.textContent = '❄';
+                    snow.style.left = Math.random() * 100 + '%';
+                    snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    snow.style.opacity = Math.random();
+                    snow.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                    overlay.appendChild(snow);
+                }
+                fireplace.classList.add('active');
+            } else if (d.includes('rain')) {
+                overlay.classList.add('active');
+                for (let i = 0; i < 100; i++) {
+                    const rain = document.createElement('div');
+                    rain.className = 'snowflake';
+                    rain.textContent = '💧';
+                    rain.style.left = Math.random() * 100 + '%';
+                    rain.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+                    rain.style.opacity = Math.random() * 0.5 + 0.3;
+                    rain.style.fontSize = (Math.random() * 5 + 10) + 'px';
+                    overlay.appendChild(rain);
+                }
+            }
+        }
+        
+        function getWeatherIcon(code, desc) {
+            const d = desc.toLowerCase();
+            if (d.includes('snow')) return '❄️';
+            if (d.includes('rain') || d.includes('drizzle')) return '🌧️';
+            if (d.includes('cloud') || d.includes('overcast')) return '☁️';
+            if (d.includes('storm') || d.includes('thunder')) return '⛈️';
+            if (d.includes('fog') || d.includes('mist')) return '🌫️';
+            if (d.includes('clear') || d.includes('sunny')) return '☀️';
+            return '🌤️';
+        }
+        
+        // Mood
+        function selectMood(emoji) {
+            const dateStr = formatDate(selectedDate);
+            document.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
+            event.target.classList.add('selected');
+            
+            if (!moods[dateStr]) moods[dateStr] = {};
+            moods[dateStr].emoji = emoji;
+            save('moods');
+            renderCalendar();
+        }
+        
+        function saveMood() {
+            const dateStr = formatDate(selectedDate);
+            const note = document.getElementById('mood-note').value;
+            
+            if (!moods[dateStr]) moods[dateStr] = {};
+            moods[dateStr].note = note;
+            save('moods');
+        }
+        
+        function renderMood() {
+            const dateStr = formatDate(selectedDate);
+            const mood = moods[dateStr];
+            
+            document.querySelectorAll('.mood-emoji').forEach(e => e.classList.remove('selected'));
+            
+            if (mood && mood.emoji) {
+                const emoji = document.querySelector(`[data-mood="${mood.emoji}"]`);
+                if (emoji) emoji.classList.add('selected');
+                document.getElementById('mood-note').value = mood.note || '';
+            } else {
+                document.getElementById('mood-note').value = '';
+            }
+            
+            const isToday = dateStr === formatDate(new Date());
+            document.getElementById('mood-date').textContent = isToday ? 'today' : 'this day';
+        }
+        
+        // Holiday Animations
+        function checkHolidayAnimations() {
+            const today = formatDate(selectedDate);
+            const special = specialDays.find(s => s.date === today);
+            
+            const overlay = document.getElementById('holiday-overlay');
+            const fireplace = document.getElementById('fireplace');
+            const bg = document.getElementById('holiday-bg');
+            
+            overlay.innerHTML = '';
+            overlay.classList.remove('active');
+            fireplace.classList.remove('active');
+            bg.className = 'holiday-bg';
+            
+            if (!special) {
+                const dateStr = formatDate(selectedDate);
+                if (weatherCache[dateStr]) {
+                    checkLiveWeatherEffects(weatherCache[dateStr].data.desc);
+                }
+                return;
+            }
+            
+            bg.classList.add(special.type);
+            overlay.classList.add('active');
+            
+            if (special.type === 'christmas') {
+                for (let i = 0; i < 50; i++) {
+                    const snow = document.createElement('div');
+                    snow.className = 'snowflake';
+                    snow.textContent = ['❄', '❅', '❆'][Math.floor(Math.random() * 3)];
+                    snow.style.left = Math.random() * 100 + '%';
+                    snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    snow.style.opacity = Math.random();
+                    snow.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                    overlay.appendChild(snow);
+                }
+                fireplace.classList.add('active');
+            }
+        }
+        
+        function selectSpecialType(type) {
+            selectedSpecialType = type;
+            document.getElementById('special-type').value = type;
+            document.querySelectorAll('#special-type-grid > div').forEach(o => {
+                o.style.borderColor = 'var(--border)';
+                o.style.background = 'transparent';
+            });
+            event.target.style.borderColor = 'var(--primary)';
+            event.target.style.background = 'rgba(99, 102, 241, 0.2)';
+        }
+        
+        // Modals
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+        
+        function openTaskModal() {
+            document.getElementById('task-name').value = '';
+            document.getElementById('task-desc').value = '';
+            document.getElementById('task-priority').value = 'medium';
+            document.getElementById('task-date').value = '';
+            document.getElementById('task-time').value = '';
+            openModal('task-modal');
+        }
+        
+        function openNoteModal() {
+            document.getElementById('note-name').value = '';
+            document.getElementById('note-text').value = '';
+            document.getElementById('note-date').value = '';
+            document.getElementById('note-time').value = '';
+            openModal('note-modal');
+        }
+        
+        function openEventModal() {
+            document.getElementById('event-name').value = '';
+            document.getElementById('event-desc').value = '';
+            document.getElementById('event-date').value = '';
+            document.getElementById('event-time').value = '';
+            openModal('event-modal');
+        }
+        
+        function openPriorityModal() {
+            document.getElementById('priority-task').value = '';
+            openModal('priority-modal');
+        }
+        
+        function openHabitModal() {
+            document.getElementById('habit-name').value = '';
+            openModal('habit-modal');
+        }
+        
+        function openSpecialDayModal() {
+            document.getElementById('special-name').value = '';
+            document.getElementById('special-date').value = '';
+            document.querySelectorAll('#special-type-grid > div').forEach(o => {
+                o.style.borderColor = 'var(--border)';
+                o.style.background = 'transparent';
+            });
+            openModal('special-modal');
+        }
+        
+        // Calendar
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('cal-month').textContent = 
+                currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let html = dayLabels.map(d => `<div class="calendar-day-label">${d}</div>`).join('');
+            
+            const today = new Date();
+            const todayStr = formatDate(today);
+            const selectedStr = formatDate(selectedDate);
+            
+            for (let i = firstDay - 1; i >= 0; i--) {
+                html += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = formatDate(new Date(year, month, day));
+                const hasEvents = hasItemsOnDate(dateStr);
+                const mood = moods[dateStr];
+                const isToday = dateStr === todayStr;
+                const isSelected = dateStr === selectedStr;
+                
+                let classes = 'calendar-day';
+                if (isToday) classes += ' today';
+                if (isSelected) classes += ' selected';
+                if (hasEvents) classes += ' has-events';
+                
+                html += `<div class="${classes}" onclick="selectDate('${dateStr}')">${day}</div>`;
+            }
+            
+            const remainingDays = 42 - (firstDay + daysInMonth);
+            for (let i = 1; i <= remainingDays; i++) {
+                html += `<div class="calendar-day other-month">${i}</div>`;
+            }
+            
+            document.getElementById('calendar').innerHTML = html;
+        }
+        
+        function prevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+        
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+        
+        function today() {
+            currentDate = new Date();
+            selectedDate = new Date();
+            renderCalendar();
+            renderPriorities();
+            renderHabits();
+            renderTimeline();
+            renderMood();
+            updateTimelineDate();
+            loadWeatherForDay(selectedDate);
+            checkHolidayAnimations();
+        }
+        
+        function selectDate(dateStr) {
+            selectedDate = new Date(dateStr + 'T12:00:00');
+            renderCalendar();
+            renderPriorities();
+            renderHabits();
+            renderTimeline();
+            renderMood();
+            updateTimelineDate();
+            loadWeatherForDay(selectedDate);
+            checkHolidayAnimations();
+        }
+        
+        function hasItemsOnDate(dateStr) {
+            return tasks.some(t => t.date === dateStr) ||
+                   notes.some(n => n.date === dateStr) ||
+                   events.some(e => e.date === dateStr);
+        }
+        
+        // Timeline
+        function updateTimelineDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('timeline-date').textContent = 
+                selectedDate.toLocaleDateString('en-US', options);
+            
+            const dateStr = formatDate(selectedDate);
+            const isToday = dateStr === formatDate(new Date());
+            document.getElementById('priority-date').textContent = isToday ? 'Today' : dateStr;
+            document.getElementById('habit-date').textContent = isToday ? 'Today' : dateStr;
+        }
+        
+        function renderTimeline() {
+            const dateStr = formatDate(selectedDate);
+            const today = formatDate(new Date());
+            
+            const dayTasks = tasks.filter(t => t.date === dateStr);
+            const datelessTasks = tasks.filter(t => !t.date);
+            const dayNotes = notes.filter(n => n.date === dateStr);
+            const dayEvents = events.filter(e => e.date === dateStr);
+            const special = specialDays.filter(s => s.date === dateStr);
+            const overdueTasks = tasks.filter(t => t.date && t.date < today && !t.done);
+            
+            let html = '';
+            
+            if (overdueTasks.length > 0 && dateStr === today) {
+                html += `
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 24px;">⚠️</div>
+                        <div style="flex: 1; font-size: 14px;">
+                            <strong>${overdueTasks.length} overdue task${overdueTasks.length > 1 ? 's' : ''}!</strong>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let items = [];
+            
+            dayTasks.forEach(t => items.push({
+                type: 'task',
+                time: t.time || '00:00',
+                title: t.name,
+                desc: t.desc,
+                priority: t.priority,
+                done: t.done,
+                data: t
+            }));
+            
+            dayNotes.forEach(n => items.push({
+                type: 'note',
+                time: n.time || '00:00',
+                title: n.name,
+                desc: n.text ? n.text.substring(0, 100) : '',
+                data: n
+            }));
+            
+            dayEvents.forEach(e => items.push({
+                type: 'event',
+                time: e.time,
+                title: e.name,
+                desc: e.desc,
+                data: e
+            }));
+            
+            special.forEach(s => items.push({
+                type: s.type,
+                time: '00:00',
+                title: s.name,
+                desc: getSpecialDescription(s.type),
+                data: s
+            }));
+            
+            items.sort((a, b) => a.time.localeCompare(b.time));
+            
+            if (items.length > 0) {
+                html += '<div style="font-size: 16px; font-weight: 700; color: var(--text-dim); margin: 24px 0 12px 0;">📅 SCHEDULED</div>';
+                
+                const hours = {};
+                items.forEach(item => {
+                    const hour = item.time.split(':')[0];
+                    if (!hours[hour]) hours[hour] = [];
+                    hours[hour].push(item);
+                });
+                
+                for (let h = 0; h < 24; h++) {
+                    const hour = h.toString().padStart(2, '0');
+                    const hourItems = hours[hour] || [];
+                    
+                    if (hourItems.length > 0) {
+                        html += `
+                            <div class="timeline-hour">
+                                <div class="hour-label">${formatHour(h)}</div>
+                                <div style="display: flex; flex-direction: column; gap: 8px; border-left: 2px solid var(--border); padding-left: 16px; min-height: 60px;">
+                                    ${hourItems.map(item => renderTimelineItem(item)).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            if (datelessTasks.length > 0) {
+                html += '<div style="font-size: 16px; font-weight: 700; color: var(--text-dim); margin: 24px 0 12px 0;">📋 TASKS (NO DATE)</div>';
+                datelessTasks.forEach(t => {
+                    html += renderTimelineItem({
+                        type: 'task',
+                        time: '',
+                        title: t.name,
+                        desc: t.desc,
+                        priority: t.priority,
+                        done: t.done,
+                        data: t
+                    });
+                });
+            }
+            
+            if (overdueTasks.length > 0 && dateStr === today) {
+                html += '<div style="font-size: 16px; font-weight: 700; color: var(--text-dim); margin: 24px 0 12px 0;">⚠️ OVERDUE</div>';
+                overdueTasks.forEach(t => {
+                    html += renderTimelineItem({
+                        type: 'task',
+                        time: t.time || '',
+                        title: t.name,
+                        desc: t.desc + ' (Due: ' + t.date + ')',
+                        priority: t.priority,
+                        done: t.done,
+                        overdue: true,
+                        data: t
+                    });
+                });
+            }
+            
+            if (items.length === 0 && datelessTasks.length === 0) {
+                html += '<div class="empty">No items for this day</div>';
+            }
+            
+            document.getElementById('timeline').innerHTML = html;
+        }
+        
+        function getSpecialDescription(type) {
+            const descriptions = {
+                christmas: '🎄 Merry Christmas!',
+                newyear: '🎆 Happy New Year!',
+                valentine: '💝 Happy Valentine\'s Day!',
+                halloween: '🎃 Happy Halloween!',
+                birthday: '🎂 Happy Birthday!',
+                party: '🎉 Party Time!'
+            };
+            return descriptions[type] || '🎉 Special Day!';
+        }
+        
+        function renderTimelineItem(item) {
+            const typeClass = item.overdue ? 'overdue' : item.type;
+            const icons = {
+                task: '✓', note: '📝', event: '📅',
+                christmas: '🎄', newyear: '🎆', valentine: '💝',
+                halloween: '🎃', birthday: '🎂', party: '🎉'
+            };
+            const icon = icons[item.type] || '✓';
+            
+            let badges = '';
+            if (item.priority) {
+                const colors = {
+                    high: 'rgba(239, 68, 68, 0.2)',
+                    medium: 'rgba(245, 158, 11, 0.2)',
+                    low: 'rgba(16, 185, 129, 0.2)'
+                };
+                badges = `<span style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: ${colors[item.priority] || colors.medium};">${item.priority}</span>`;
+            }
+            
+            return `
+                <div class="timeline-item ${typeClass}">
+                    ${item.type === 'task' ? 
+                        `<div class="checkbox ${item.done ? 'checked' : ''}" onclick="toggleTaskDone('${item.data.name.replace(/'/g, "\\'")}')"></div>` : 
+                        ''
+                    }
+                    <div class="timeline-icon">${icon}</div>
+                    <div style="flex: 1;">
+                        <div class="timeline-title ${item.done ? 'completed' : ''}">${item.title} ${badges}</div>
+                        ${item.desc ? `<div class="timeline-desc">${item.desc}</div>` : ''}
+                    </div>
+                    ${item.time ? `<div style="font-size: 12px; color: var(--text-dim); font-weight: 600;">${item.time}</div>` : ''}
+                </div>
+            `;
+        }
+        
+        function toggleTaskDone(name) {
+            const task = tasks.find(t => t.name === name);
+            if (task) {
+                task.done = !task.done;
+                save('tasks');
+                renderTimeline();
+            }
+        }
+        
+        // Priorities
+        function renderPriorities() {
+            const dateStr = formatDate(selectedDate);
+            const dayPriorities = priorities[dateStr] || [];
+            
+            const list = document.getElementById('priority-list');
+            
+            if (dayPriorities.length === 0) {
+                list.innerHTML = '<div class="empty" style="padding: 20px;">No priorities for this day</div>';
+                return;
+            }
+            
+            list.innerHTML = dayPriorities.slice(0, 5).map((p, i) => `
+                <div class="priority-item">
+                    <div class="priority-number">${i + 1}</div>
+                    <div class="priority-content ${p.done ? 'completed' : ''}">${p.task}</div>
+                    <div class="checkbox ${p.done ? 'checked' : ''}" onclick="togglePriority(${i})"></div>
+                </div>
+            `).join('');
+        }
+        
+        function savePriority() {
+            const task = document.getElementById('priority-task').value.trim();
+            if (!task) return;
+            
+            const dateStr = formatDate(selectedDate);
+            if (!priorities[dateStr]) priorities[dateStr] = [];
+            
+            if (priorities[dateStr].length >= 5) {
+                alert('Maximum 5 priorities per day!');
+                return;
+            }
+            
+            priorities[dateStr].push({ task, done: false });
+            save('priorities');
+            renderPriorities();
+            closeModal('priority-modal');
+        }
+        
+        function togglePriority(i) {
+            const dateStr = formatDate(selectedDate);
+            priorities[dateStr][i].done = !priorities[dateStr][i].done;
+            save('priorities');
+            renderPriorities();
+        }
+        
+        // Habits
+        function renderHabits() {
+            const list = document.getElementById('habits-list');
+            const dateStr = formatDate(selectedDate);
+            
+            if (habits.length === 0) {
+                list.innerHTML = '<div class="empty" style="padding: 20px;">No habits tracked</div>';
+                return;
+            }
+            
+            list.innerHTML = habits.map((h, i) => {
+                const key = dateStr + '-' + h.name;
+                const done = habitCompletions[key] || false;
+                
+                return `
+                    <div class="habit-item">
+                        <div class="habit-name">${h.name}</div>
+                        <div class="habit-check ${done ? 'done' : ''}" onclick="toggleHabit(${i})"></div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function saveHabit() {
+            const name = document.getElementById('habit-name').value.trim();
+            if (!name) return;
+            
+            habits.push({ name });
+            save('habits');
+            renderHabits();
+            closeModal('habit-modal');
+        }
+        
+        function toggleHabit(i) {
+            const dateStr = formatDate(selectedDate);
+            const habit = habits[i];
+            const key = dateStr + '-' + habit.name;
+            
+            habitCompletions[key] = !habitCompletions[key];
+            save('habit-completions');
+            renderHabits();
+        }
+        
+        // Save Functions
+        function saveTask() {
+            const name = document.getElementById('task-name').value.trim();
+            if (!name) return;
+            
+            tasks.push({
+                name,
+                desc: document.getElementById('task-desc').value,
+                priority: document.getElementById('task-priority').value,
+                date: document.getElementById('task-date').value,
+                time: document.getElementById('task-time').value,
+                done: false
+            });
+            
+            save('tasks');
+            renderCalendar();
+            renderTimeline();
+            closeModal('task-modal');
+        }
+        
+        function saveNote() {
+            const name = document.getElementById('note-name').value.trim();
+            const text = document.getElementById('note-text').value.trim();
+            if (!name || !text) return;
+            
+            notes.push({
+                name,
+                text,
+                date: document.getElementById('note-date').value,
+                time: document.getElementById('note-time').value
+            });
+            
+            save('notes');
+            renderCalendar();
+            renderTimeline();
+            closeModal('note-modal');
+        }
+        
+        function saveEvent() {
+            const name = document.getElementById('event-name').value.trim();
+            const date = document.getElementById('event-date').value;
+            const time = document.getElementById('event-time').value;
+            if (!name || !date || !time) return;
+            
+            events.push({
+                name,
+                desc: document.getElementById('event-desc').value,
+                date,
+                time
+            });
+            
+            save('events');
+            renderCalendar();
+            renderTimeline();
+            closeModal('event-modal');
+        }
+        
+        function saveSpecialDay() {
+            const name = document.getElementById('special-name').value.trim();
+            const date = document.getElementById('special-date').value;
+            const type = document.getElementById('special-type').value;
+            if (!name || !date) return;
+            
+            specialDays.push({ name, date, type });
+            
+            save('special');
+            renderCalendar();
+            renderTimeline();
+            checkHolidayAnimations();
+            closeModal('special-modal');
+        }
+        
+        // Search
+        function searchAll() {
+            const query = document.getElementById('search').value.toLowerCase();
+            if (!query) {
+                renderTimeline();
+                return;
+            }
+            
+            const results = [];
+            
+            tasks.forEach(t => {
+                if (t.name.toLowerCase().includes(query) || 
+                    (t.desc && t.desc.toLowerCase().includes(query))) {
+                    results.push({
+                        type: 'task',
+                        time: t.time || '',
+                        title: t.name,
+                        desc: t.desc,
+                        date: t.date,
+                        priority: t.priority,
+                        done: t.done
+                    });
+                }
+            });
+            
+            notes.forEach(n => {
+                if (n.name.toLowerCase().includes(query) || 
+                    n.text.toLowerCase().includes(query)) {
+                    results.push({
+                        type: 'note',
+                        time: n.time || '',
+                        title: n.name,
+                        desc: n.text ? n.text.substring(0, 100) : '',
+                        date: n.date
+                    });
+                }
+            });
+            
+            events.forEach(e => {
+                if (e.name.toLowerCase().includes(query) || 
+                    (e.desc && e.desc.toLowerCase().includes(query))) {
+                    results.push({
+                        type: 'event',
+                        time: e.time,
+                        title: e.name,
+                        desc: e.desc,
+                        date: e.date
+                    });
+                }
+            });
+            
+            let html = '';
+            if (results.length === 0) {
+                html = '<div class="empty">No results found</div>';
+            } else {
+                html = '<div style="font-size: 16px; font-weight: 700; color: var(--text-dim); margin: 24px 0 12px 0;">🔍 SEARCH RESULTS</div>';
+                html += results.map(item => `
+                    <div class="timeline-item ${item.type}">
+                        <div class="timeline-icon">
+                            ${item.type === 'task' ? '✓' : item.type === 'note' ? '📝' : '📅'}
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="timeline-title">${item.title}</div>
+                            ${item.desc ? `<div class="timeline-desc">${item.desc}</div>` : ''}
+                            ${item.date ? `<div class="timeline-desc">📅 ${item.date}</div>` : ''}
+                        </div>
+                        ${item.time ? `<div style="font-size: 12px; color: var(--text-dim); font-weight: 600;">${item.time}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('timeline').innerHTML = html;
+        }
+        
+        // Utils
+        function formatDate(date) {
+            const d = new Date(date);
+            return d.getFullYear() + '-' + 
+                   String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(d.getDate()).padStart(2, '0');
+        }
+        
+        function formatHour(h) {
+            if (h === 0) return '12 AM';
+            if (h === 12) return '12 PM';
+            if (h > 12) return (h - 12) + ' PM';
+            return h + ' AM';
+        }
+        
+        // Start
+        init();
+    </script>
+</body>
+</html>
