@@ -848,8 +848,8 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h1 style="font-size: 24px; font-weight: 700;">🎁 Gift Ideas</h1>
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-secondary" onclick="toggleGiftsLock()" id="gifts-lock-btn">
-                            <span id="gifts-lock-icon">🔓</span> <span id="gifts-lock-text">Unlock</span>
+                        <button class="btn btn-secondary" onclick="alert('Button clicked!'); toggleGiftsLock();" id="gifts-lock-btn">
+                            <span id="gifts-lock-icon">🔓</span> <span id="gifts-lock-text">Lock</span>
                         </button>
                         <button class="btn btn-primary" onclick="openModal('gift-modal')">+ Add Person</button>
                     </div>
@@ -861,6 +861,7 @@
                     <p style="color: var(--text-dim); margin-bottom: 24px;">Enter your PIN to view gift ideas</p>
                     <input type="password" id="gifts-pin-input" placeholder="Enter 4-digit PIN" maxlength="4" style="width: 200px; text-align: center; font-size: 24px; letter-spacing: 8px;">
                     <button class="btn btn-primary" onclick="unlockGifts()" style="display: block; margin: 16px auto 0;">Unlock</button>
+                    <button class="btn btn-secondary" onclick="resetGiftsPin()" style="display: block; margin: 8px auto 0; font-size: 12px;">Forgot PIN? Reset</button>
                 </div>
                 
                 <div id="gifts-unlocked-view">
@@ -991,6 +992,8 @@
             </select>
             <input type="number" id="book-pages" placeholder="Total pages">
             <input type="number" id="book-current-page" placeholder="Current page (if reading)">
+            <textarea id="book-thoughts" placeholder="Your thoughts about this book (optional)" style="min-height: 80px; margin-top: 8px;"></textarea>
+            <textarea id="book-quotes" placeholder="Favorite quotes (optional - one per line)" style="min-height: 100px; margin-top: 8px;"></textarea>
             <div style="display: flex; gap: 12px; margin-top: 16px;">
                 <button class="btn btn-secondary" onclick="closeModal('book-modal')">Cancel</button>
                 <button class="btn btn-primary" onclick="saveBook()">Save Book</button>
@@ -1190,6 +1193,12 @@
         
         // ==================== TAB SWITCHING ====================
         function switchTab(tab) {
+            // Auto-relock gifts when leaving the tab
+            if (currentTab === 'gifts' && tab !== 'gifts' && giftsPin) {
+                giftsLocked = true;
+                localStorage.setItem('gifts-locked', 'true');
+            }
+            
             currentTab = tab;
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -1417,11 +1426,57 @@
             if (!note) return;
             
             if (note.locked) {
-                if (!confirm('This is a private note. View it?')) return;
+                let notesPin = localStorage.getItem('notes-pin') || '';
+                
+                // If no PIN is set, set one now
+                if (!notesPin) {
+                    const newPin = prompt('This note is locked. Set a 4-digit PIN for locked notes:');
+                    if (!newPin) return;
+                    
+                    if (newPin.length !== 4 || isNaN(newPin)) {
+                        alert('PIN must be exactly 4 digits (e.g., 1234)');
+                        return;
+                    }
+                    
+                    localStorage.setItem('notes-pin', newPin);
+                    notesPin = newPin;
+                    alert('PIN set! Remember it to view locked notes. ✅');
+                }
+                
+                // Ask for PIN
+                const enteredPin = prompt('🔒 Enter PIN to view locked note:');
+                if (!enteredPin) return;
+                
+                // Check PIN
+                if (enteredPin === notesPin) {
+                    // Correct PIN - show note
+                } else {
+                    alert('❌ Incorrect PIN');
+                    return;
+                }
             }
             
-            alert(`${note.name}\n\n${note.text}`);
+            // Show note with images and voice if available
+            let content = `${note.name}\n\n${note.text}`;
+            
+            if (note.images && note.images.length > 0) {
+                content += '\n\n📷 Has ' + note.images.length + ' image(s)';
+            }
+            
+            if (note.voice) {
+                content += '\n🎤 Has voice note';
+            }
+            
+            alert(content);
         }
+        
+        function resetNotesPin() {
+            if (confirm('Reset notes PIN? You will need to set a new PIN to view locked notes.')) {
+                localStorage.removeItem('notes-pin');
+                alert('Notes PIN reset! ✅');
+            }
+        }
+        
         
         function renderNotes() {
             const list = document.getElementById('notes-list');
@@ -1451,10 +1506,36 @@
                             </div>
                             ${note.date ? `<div style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">📅 ${note.date}</div>` : ''}
                         </div>
-                        <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})" style="flex-shrink: 0;">🗑️</button>
+                        <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                            ${note.locked ? `<button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); unlockNote(${note.id})" title="Unlock">🔓</button>` : ''}
+                            <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})">🗑️</button>
+                        </div>
                     </div>
                 </div>
             `).join('');
+        }
+        
+        function unlockNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            
+            const notesPin = localStorage.getItem('notes-pin');
+            if (!notesPin) {
+                alert('No PIN set for locked notes');
+                return;
+            }
+            
+            const enteredPin = prompt('Enter PIN to unlock this note:');
+            if (!enteredPin) return;
+            
+            if (enteredPin === notesPin) {
+                note.locked = false;
+                save();
+                renderNotes();
+                alert('Note unlocked! ✅');
+            } else {
+                alert('❌ Incorrect PIN');
+            }
         }
         
         // ==================== PRIORITIES ====================
@@ -1702,12 +1783,16 @@
                 status: document.getElementById('book-status').value,
                 totalPages: parseInt(document.getElementById('book-pages').value) || 0,
                 currentPage: parseInt(document.getElementById('book-current-page').value) || 0,
+                thoughts: document.getElementById('book-thoughts').value,
+                quotes: document.getElementById('book-quotes').value,
                 rating: 0,
                 dateAdded: formatDate(new Date())
             });
             
             save();
             closeModal('book-modal');
+            document.getElementById('book-thoughts').value = '';
+            document.getElementById('book-quotes').value = '';
             renderBooks();
         }
         
@@ -1766,6 +1851,20 @@
                             <span onclick="rateBook(${book.id}, 4)" style="cursor: pointer; font-size: 18px;">${book.rating >= 4 ? '⭐' : '☆'}</span>
                             <span onclick="rateBook(${book.id}, 5)" style="cursor: pointer; font-size: 18px;">${book.rating >= 5 ? '⭐' : '☆'}</span>
                         </div>
+                        ${book.thoughts ? `
+                            <div style="margin-top: 12px; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 4px;">💭 My Thoughts:</div>
+                                <div style="font-size: 13px; line-height: 1.5;">${book.thoughts}</div>
+                            </div>
+                        ` : ''}
+                        ${book.quotes ? `
+                            <div style="margin-top: 8px; padding: 12px; background: rgba(168, 85, 247, 0.1); border-radius: 8px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--secondary); margin-bottom: 4px;">📖 Favorite Quotes:</div>
+                                ${book.quotes.split('\n').filter(q => q.trim()).map(quote => `
+                                    <div style="font-size: 13px; font-style: italic; margin-top: 4px; padding-left: 12px; border-left: 2px solid var(--secondary);">"${quote.trim()}"</div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
                     </div>
                 `).join('');
             }
@@ -1827,7 +1926,7 @@
         
         // ==================== GIFTS ====================
         let giftPeople = JSON.parse(localStorage.getItem('gift-people') || '[]');
-        let giftsLocked = JSON.parse(localStorage.getItem('gifts-locked') || 'false');
+        let giftsLocked = localStorage.getItem('gifts-locked') === 'true';
         let giftsPin = localStorage.getItem('gifts-pin') || '';
         let currentGiftPersonId = null;
         let currentGiftItemImage = null;
@@ -3036,106 +3135,150 @@
                     other: '✨'
                 };
                 
+                const isExpanded = person.expanded !== false; // Default to expanded
+                
                 return `
-                    <div class="item" style="margin-bottom: 24px; border: 2px solid var(--border); border-radius: 16px; padding: 16px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h3 style="font-size: 18px; font-weight: 700;">${tagEmojis[person.tag]} ${person.name}</h3>
-                            <div style="display: flex; gap: 8px;">
+                    <div class="item" style="margin-bottom: 16px; border: 2px solid var(--border); border-radius: 16px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleGiftPerson(${person.id})">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 20px; transition: transform 0.3s; ${isExpanded ? 'transform: rotate(90deg);' : ''}">${isExpanded ? '▶' : '▶'}</span>
+                                <h3 style="font-size: 18px; font-weight: 700; margin: 0;">${tagEmojis[person.tag]} ${person.name}</h3>
+                                <span style="background: var(--glass); padding: 4px 8px; border-radius: 6px; font-size: 12px;">${person.gifts.length} ${person.gifts.length === 1 ? 'gift' : 'gifts'}</span>
+                            </div>
+                            <div style="display: flex; gap: 8px;" onclick="event.stopPropagation()">
                                 <button class="btn btn-icon btn-primary" onclick="openGiftItemModal(${person.id})" title="Add gift">+</button>
                                 <button class="btn btn-icon btn-secondary" onclick="deleteGiftPerson(${person.id})" title="Delete person">🗑️</button>
                             </div>
                         </div>
                         
-                        ${person.gifts.length === 0 ? '<p style="color: var(--text-dim); font-size: 14px;">No gift ideas yet</p>' : `
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
-                                ${person.gifts.map(gift => `
-                                    <div class="item" style="padding: 12px;">
-                                        ${gift.image ? `<img src="${gift.image}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;">` : ''}
-                                        <div style="font-weight: 600; margin-bottom: 4px;">${gift.name}</div>
-                                        ${gift.event ? `<div style="font-size: 12px; color: var(--secondary); margin-bottom: 4px;">${gift.event}</div>` : ''}
-                                        ${gift.price ? `<div style="color: var(--primary); font-size: 14px; margin-bottom: 4px;">${gift.price}</div>` : ''}
-                                        ${gift.notes ? `<div style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;">${gift.notes}</div>` : ''}
-                                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                            ${gift.link ? `<a href="${gift.link}" target="_blank" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; text-decoration: none;">🔗 Link</a>` : ''}
-                                            <button class="btn btn-primary" onclick="markGiftPurchased(${person.id}, ${gift.id})" style="padding: 4px 8px; font-size: 12px;">
-                                                ✅ Purchased
-                                            </button>
-                                            <button class="btn btn-secondary" onclick="deleteGiftItem(${person.id}, ${gift.id})" style="padding: 4px 8px; font-size: 12px;">🗑️</button>
+                        <div style="display: ${isExpanded ? 'block' : 'none'}; margin-top: 16px;">
+                            ${person.gifts.length === 0 ? '<p style="color: var(--text-dim); font-size: 14px;">No gift ideas yet</p>' : `
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                                    ${person.gifts.map(gift => `
+                                        <div class="item" style="padding: 12px;">
+                                            ${gift.image ? `<img src="${gift.image}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;">` : ''}
+                                            <div style="font-weight: 600; margin-bottom: 4px;">${gift.name}</div>
+                                            ${gift.event ? `<div style="font-size: 12px; color: var(--secondary); margin-bottom: 4px;">${gift.event}</div>` : ''}
+                                            ${gift.price ? `<div style="color: var(--primary); font-size: 14px; margin-bottom: 4px;">${gift.price}</div>` : ''}
+                                            ${gift.notes ? `<div style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;">${gift.notes}</div>` : ''}
+                                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                                ${gift.link ? `<a href="${gift.link}" target="_blank" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; text-decoration: none;">🔗 Link</a>` : ''}
+                                                <button class="btn btn-primary" onclick="markGiftPurchased(${person.id}, ${gift.id})" style="padding: 4px 8px; font-size: 12px;">
+                                                    ✅ Purchased
+                                                </button>
+                                                <button class="btn btn-secondary" onclick="deleteGiftItem(${person.id}, ${gift.id})" style="padding: 4px 8px; font-size: 12px;">🗑️</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `}
+                                    `).join('')}
+                                </div>
+                            `}
+                        </div>
                     </div>
                 `;
             }).join('');
         }
         
+        function toggleGiftPerson(personId) {
+            const person = giftPeople.find(p => p.id === personId);
+            if (!person) return;
+            
+            person.expanded = person.expanded === false ? true : false;
+            save();
+            renderGifts();
+        }
+        
         function toggleGiftsLock() {
-            if (giftsLocked) {
-                // Currently locked, show unlock prompt
-                document.getElementById('gifts-unlocked-view').style.display = 'none';
-                document.getElementById('gifts-locked-view').style.display = 'block';
-            } else {
-                // Currently unlocked, set PIN and lock
-                const pin = prompt('Set a 4-digit PIN to lock gift ideas:');
-                if (!pin) return;
-                
-                if (pin.length !== 4 || isNaN(pin)) {
-                    alert('PIN must be exactly 4 digits');
-                    return;
-                }
-                
-                giftsPin = pin;
-                giftsLocked = true;
-                localStorage.setItem('gifts-pin', giftsPin);
-                localStorage.setItem('gifts-locked', JSON.stringify(giftsLocked));
-                
-                document.getElementById('gifts-unlocked-view').style.display = 'none';
-                document.getElementById('gifts-locked-view').style.display = 'block';
-                updateLockButton();
+            alert('BUTTON WORKS! The function is running!');
+            
+            const isCurrentlyLocked = localStorage.getItem('gifts-locked') === 'true';
+            alert('Currently locked: ' + isCurrentlyLocked);
+            
+            if (isCurrentlyLocked) {
+                alert('Already locked. Enter PIN below to unlock.');
+                return;
             }
+            
+            const pin = prompt('Enter a 4-digit PIN to lock gifts:');
+            alert('You entered: ' + (pin || 'nothing'));
+            
+            if (!pin) {
+                alert('No PIN entered, cancelled');
+                return;
+            }
+            
+            if (pin.length !== 4) {
+                alert('PIN must be 4 digits, you entered ' + pin.length);
+                return;
+            }
+            
+            if (isNaN(pin)) {
+                alert('PIN must be numbers only');
+                return;
+            }
+            
+            alert('Saving PIN...');
+            localStorage.setItem('gifts-pin', pin);
+            localStorage.setItem('gifts-locked', 'true');
+            
+            alert('PIN saved! Reloading...');
+            location.reload();
         }
         
         function unlockGifts() {
             const enteredPin = document.getElementById('gifts-pin-input').value;
+            const savedPin = localStorage.getItem('gifts-pin');
             
-            if (enteredPin === giftsPin) {
-                giftsLocked = false;
-                localStorage.setItem('gifts-locked', JSON.stringify(giftsLocked));
-                
-                document.getElementById('gifts-unlocked-view').style.display = 'block';
-                document.getElementById('gifts-locked-view').style.display = 'none';
-                document.getElementById('gifts-pin-input').value = '';
-                updateLockButton();
+            if (enteredPin === savedPin) {
+                // Correct!
+                localStorage.setItem('gifts-locked', 'false');
+                location.reload(); // Simple - just reload
             } else {
-                alert('Incorrect PIN');
+                // Wrong!
+                alert('❌ Wrong PIN');
                 document.getElementById('gifts-pin-input').value = '';
+            }
+        }
+        
+        function resetGiftsPin() {
+            if (confirm('Reset gifts PIN? This will unlock gifts.')) {
+                localStorage.setItem('gifts-locked', 'false');
+                localStorage.removeItem('gifts-pin');
+                location.reload();
             }
         }
         
         function updateLockButton() {
             const icon = document.getElementById('gifts-lock-icon');
             const text = document.getElementById('gifts-lock-text');
+            const isLocked = localStorage.getItem('gifts-locked') === 'true';
             
-            if (giftsLocked) {
-                icon.textContent = '🔒';
-                text.textContent = 'Locked';
-            } else {
-                icon.textContent = '🔓';
-                text.textContent = 'Lock';
+            if (icon && text) {
+                if (isLocked) {
+                    icon.textContent = '🔒';
+                    text.textContent = 'Locked';
+                } else {
+                    icon.textContent = '🔓';
+                    text.textContent = 'Lock';
+                }
             }
         }
         
         function checkGiftsLockState() {
-            if (giftsLocked) {
+            const isLocked = localStorage.getItem('gifts-locked') === 'true';
+            
+            if (isLocked) {
+                // Show locked view
                 document.getElementById('gifts-unlocked-view').style.display = 'none';
                 document.getElementById('gifts-locked-view').style.display = 'block';
+                document.getElementById('gifts-lock-icon').textContent = '🔒';
+                document.getElementById('gifts-lock-text').textContent = 'Locked';
             } else {
+                // Show unlocked view
                 document.getElementById('gifts-unlocked-view').style.display = 'block';
                 document.getElementById('gifts-locked-view').style.display = 'none';
+                document.getElementById('gifts-lock-icon').textContent = '🔓';
+                document.getElementById('gifts-lock-text').textContent = 'Lock';
             }
-            updateLockButton();
         }
         
         // ==================== INITIALIZATION ====================
@@ -3200,6 +3343,16 @@
         
         // Start the app
         init();
+        
+        // TEST: Show alert on page load
+        alert('✅ PAGE LOADED! JavaScript is working!');
+        
+        // TEST: Verify toggleGiftsLock function exists
+        if (typeof toggleGiftsLock === 'function') {
+            alert('✅ toggleGiftsLock function EXISTS!');
+        } else {
+            alert('❌ toggleGiftsLock function MISSING!');
+        }
     </script>
 </body>
 </html>
