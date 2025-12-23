@@ -608,6 +608,10 @@
             <span class="nav-icon">🎯</span>
             <span>Goals</span>
         </div>
+        <div class="nav-tab" onclick="switchTab('gifts')">
+            <span class="nav-icon">🎁</span>
+            <span>Gifts</span>
+        </div>
     </nav>
     
     <div class="container">
@@ -837,6 +841,33 @@
                 <div class="scrollable" id="goals-list"></div>
             </div>
         </div>
+        
+        <!-- GIFTS TAB -->
+        <div id="gifts-tab" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h1 style="font-size: 24px; font-weight: 700;">🎁 Gift Ideas</h1>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="toggleGiftsLock()" id="gifts-lock-btn">
+                            <span id="gifts-lock-icon">🔓</span> <span id="gifts-lock-text">Unlock</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('gift-modal')">+ Add Person</button>
+                    </div>
+                </div>
+                
+                <div id="gifts-locked-view" style="display: none; text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 16px;">🔒</div>
+                    <h2 style="margin-bottom: 8px;">Gift Ideas Locked</h2>
+                    <p style="color: var(--text-dim); margin-bottom: 24px;">Enter your PIN to view gift ideas</p>
+                    <input type="password" id="gifts-pin-input" placeholder="Enter 4-digit PIN" maxlength="4" style="width: 200px; text-align: center; font-size: 24px; letter-spacing: 8px;">
+                    <button class="btn btn-primary" onclick="unlockGifts()" style="display: block; margin: 16px auto 0;">Unlock</button>
+                </div>
+                
+                <div id="gifts-unlocked-view">
+                    <div class="scrollable" id="gifts-list"></div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- MODALS -->
@@ -1043,6 +1074,55 @@
             <button class="btn btn-secondary" onclick="closeModal('quick-capture-modal')" style="width: 100%;">Cancel</button>
         </div>
     </div>
+    
+    <div id="gift-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Person</h2>
+            <input type="text" id="gift-person-name" placeholder="Person's name (e.g., Mom, Dad, James) *">
+            <select id="gift-person-tag">
+                <option value="family">👨‍👩‍👧 Family</option>
+                <option value="friend">👥 Friend</option>
+                <option value="coworker">💼 Coworker</option>
+                <option value="other">✨ Other</option>
+            </select>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="closeModal('gift-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveGiftPerson()">Add Person</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="gift-item-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Gift Idea</h2>
+            <input type="text" id="gift-item-name" placeholder="Gift idea *">
+            <textarea id="gift-item-notes" placeholder="Notes (optional)" style="min-height: 80px;"></textarea>
+            <select id="gift-item-event">
+                <option value="">No specific event</option>
+                <option value="🎂 Birthday">🎂 Birthday</option>
+                <option value="🎄 Christmas">🎄 Christmas</option>
+                <option value="💝 Valentine's Day">💝 Valentine's Day</option>
+                <option value="👔 Father's Day">👔 Father's Day</option>
+                <option value="💐 Mother's Day">💐 Mother's Day</option>
+                <option value="🎓 Graduation">🎓 Graduation</option>
+                <option value="💍 Anniversary">💍 Anniversary</option>
+                <option value="👶 Baby Shower">👶 Baby Shower</option>
+                <option value="🏠 Housewarming">🏠 Housewarming</option>
+                <option value="🎉 Other">🎉 Other</option>
+            </select>
+            <input type="text" id="gift-item-price" placeholder="Price (optional)">
+            <input type="url" id="gift-item-link" placeholder="Link (optional)">
+            <label class="btn btn-secondary" style="cursor: pointer; width: 100%; text-align: center; margin-bottom: 16px;">
+                📷 Add Image
+                <input type="file" id="gift-item-image" accept="image/*" onchange="handleGiftImage()" style="display: none;">
+            </label>
+            <div id="gift-item-preview" style="max-height: 150px; overflow: hidden; border-radius: 8px; margin-bottom: 16px;"></div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="closeModal('gift-item-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveGiftItem()">Save Gift</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ==================== DATA STORAGE ====================
@@ -1083,6 +1163,7 @@
             localStorage.setItem('habit-completions', JSON.stringify(habitCompletions));
             localStorage.setItem('custom-holidays', JSON.stringify(customHolidays));
             localStorage.setItem('notification-settings', JSON.stringify(notificationSettings));
+            localStorage.setItem('gift-people', JSON.stringify(giftPeople));
             
             triggerSync();
         }
@@ -1124,6 +1205,10 @@
             if (tab === 'shopping') renderShopping();
             if (tab === 'books') renderBooks();
             if (tab === 'goals') renderGoals();
+            if (tab === 'gifts') {
+                checkGiftsLockState();
+                renderGifts();
+            }
         }
         
         // ==================== MODAL FUNCTIONS ====================
@@ -1739,6 +1824,13 @@
         let currentGoalFilter = 'all';
         let customHolidays = JSON.parse(localStorage.getItem('custom-holidays') || '[]');
         let notificationSettings = JSON.parse(localStorage.getItem('notification-settings') || '{"tasks": true, "events": true, "overdue": true, "habits": true}');
+        
+        // ==================== GIFTS ====================
+        let giftPeople = JSON.parse(localStorage.getItem('gift-people') || '[]');
+        let giftsLocked = JSON.parse(localStorage.getItem('gifts-locked') || 'false');
+        let giftsPin = localStorage.getItem('gifts-pin') || '';
+        let currentGiftPersonId = null;
+        let currentGiftItemImage = null;
         
         function saveGoal() {
             const title = document.getElementById('goal-title').value;
@@ -2828,6 +2920,222 @@
             });
             
             save();
+        }
+        
+        
+        // ==================== GIFTS ====================
+        function saveGiftPerson() {
+            const name = document.getElementById('gift-person-name').value.trim();
+            const tag = document.getElementById('gift-person-tag').value;
+            if (!name) return alert('Please enter person name');
+            
+            giftPeople.push({
+                id: Date.now(),
+                name,
+                tag,
+                gifts: []
+            });
+            
+            save();
+            closeModal('gift-modal');
+            document.getElementById('gift-person-name').value = '';
+            renderGifts();
+        }
+        
+        function openGiftItemModal(personId) {
+            currentGiftPersonId = personId;
+            openModal('gift-item-modal');
+        }
+        
+        function handleGiftImage() {
+            const file = document.getElementById('gift-item-image').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentGiftItemImage = e.target.result;
+                document.getElementById('gift-item-preview').innerHTML = `
+                    <img src="${currentGiftItemImage}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function saveGiftItem() {
+            const name = document.getElementById('gift-item-name').value.trim();
+            if (!name) return alert('Please enter gift idea');
+            
+            const person = giftPeople.find(p => p.id === currentGiftPersonId);
+            if (!person) return;
+            
+            person.gifts.push({
+                id: Date.now(),
+                name,
+                notes: document.getElementById('gift-item-notes').value,
+                event: document.getElementById('gift-item-event').value,
+                price: document.getElementById('gift-item-price').value,
+                link: document.getElementById('gift-item-link').value,
+                image: currentGiftItemImage
+            });
+            
+            currentGiftItemImage = null;
+            save();
+            closeModal('gift-item-modal');
+            document.getElementById('gift-item-name').value = '';
+            document.getElementById('gift-item-notes').value = '';
+            document.getElementById('gift-item-event').value = '';
+            document.getElementById('gift-item-price').value = '';
+            document.getElementById('gift-item-link').value = '';
+            document.getElementById('gift-item-preview').innerHTML = '';
+            renderGifts();
+        }
+        
+        function markGiftPurchased(personId, giftId) {
+            if (!confirm('Mark as purchased? This will remove the gift from the list.')) return;
+            
+            const person = giftPeople.find(p => p.id === personId);
+            if (!person) return;
+            
+            person.gifts = person.gifts.filter(g => g.id !== giftId);
+            save();
+            renderGifts();
+        }
+        
+        function deleteGiftItem(personId, giftId) {
+            if (!confirm('Delete this gift idea?')) return;
+            
+            const person = giftPeople.find(p => p.id === personId);
+            if (!person) return;
+            
+            person.gifts = person.gifts.filter(g => g.id !== giftId);
+            save();
+            renderGifts();
+        }
+        
+        function deleteGiftPerson(personId) {
+            if (!confirm('Delete this person and all their gift ideas?')) return;
+            
+            giftPeople = giftPeople.filter(p => p.id !== personId);
+            save();
+            renderGifts();
+        }
+        
+        function renderGifts() {
+            const container = document.getElementById('gifts-list');
+            
+            if (giftPeople.length === 0) {
+                container.innerHTML = '<div class="empty">No people added yet. Click "+ Add Person" to start!</div>';
+                return;
+            }
+            
+            container.innerHTML = giftPeople.map(person => {
+                const tagEmojis = {
+                    family: '👨‍👩‍👧',
+                    friend: '👥',
+                    coworker: '💼',
+                    other: '✨'
+                };
+                
+                return `
+                    <div class="item" style="margin-bottom: 24px; border: 2px solid var(--border); border-radius: 16px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 style="font-size: 18px; font-weight: 700;">${tagEmojis[person.tag]} ${person.name}</h3>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-icon btn-primary" onclick="openGiftItemModal(${person.id})" title="Add gift">+</button>
+                                <button class="btn btn-icon btn-secondary" onclick="deleteGiftPerson(${person.id})" title="Delete person">🗑️</button>
+                            </div>
+                        </div>
+                        
+                        ${person.gifts.length === 0 ? '<p style="color: var(--text-dim); font-size: 14px;">No gift ideas yet</p>' : `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                                ${person.gifts.map(gift => `
+                                    <div class="item" style="padding: 12px;">
+                                        ${gift.image ? `<img src="${gift.image}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;">` : ''}
+                                        <div style="font-weight: 600; margin-bottom: 4px;">${gift.name}</div>
+                                        ${gift.event ? `<div style="font-size: 12px; color: var(--secondary); margin-bottom: 4px;">${gift.event}</div>` : ''}
+                                        ${gift.price ? `<div style="color: var(--primary); font-size: 14px; margin-bottom: 4px;">${gift.price}</div>` : ''}
+                                        ${gift.notes ? `<div style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;">${gift.notes}</div>` : ''}
+                                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                            ${gift.link ? `<a href="${gift.link}" target="_blank" class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; text-decoration: none;">🔗 Link</a>` : ''}
+                                            <button class="btn btn-primary" onclick="markGiftPurchased(${person.id}, ${gift.id})" style="padding: 4px 8px; font-size: 12px;">
+                                                ✅ Purchased
+                                            </button>
+                                            <button class="btn btn-secondary" onclick="deleteGiftItem(${person.id}, ${gift.id})" style="padding: 4px 8px; font-size: 12px;">🗑️</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function toggleGiftsLock() {
+            if (giftsLocked) {
+                // Currently locked, show unlock prompt
+                document.getElementById('gifts-unlocked-view').style.display = 'none';
+                document.getElementById('gifts-locked-view').style.display = 'block';
+            } else {
+                // Currently unlocked, set PIN and lock
+                const pin = prompt('Set a 4-digit PIN to lock gift ideas:');
+                if (!pin) return;
+                
+                if (pin.length !== 4 || isNaN(pin)) {
+                    alert('PIN must be exactly 4 digits');
+                    return;
+                }
+                
+                giftsPin = pin;
+                giftsLocked = true;
+                localStorage.setItem('gifts-pin', giftsPin);
+                localStorage.setItem('gifts-locked', JSON.stringify(giftsLocked));
+                
+                document.getElementById('gifts-unlocked-view').style.display = 'none';
+                document.getElementById('gifts-locked-view').style.display = 'block';
+                updateLockButton();
+            }
+        }
+        
+        function unlockGifts() {
+            const enteredPin = document.getElementById('gifts-pin-input').value;
+            
+            if (enteredPin === giftsPin) {
+                giftsLocked = false;
+                localStorage.setItem('gifts-locked', JSON.stringify(giftsLocked));
+                
+                document.getElementById('gifts-unlocked-view').style.display = 'block';
+                document.getElementById('gifts-locked-view').style.display = 'none';
+                document.getElementById('gifts-pin-input').value = '';
+                updateLockButton();
+            } else {
+                alert('Incorrect PIN');
+                document.getElementById('gifts-pin-input').value = '';
+            }
+        }
+        
+        function updateLockButton() {
+            const icon = document.getElementById('gifts-lock-icon');
+            const text = document.getElementById('gifts-lock-text');
+            
+            if (giftsLocked) {
+                icon.textContent = '🔒';
+                text.textContent = 'Locked';
+            } else {
+                icon.textContent = '🔓';
+                text.textContent = 'Lock';
+            }
+        }
+        
+        function checkGiftsLockState() {
+            if (giftsLocked) {
+                document.getElementById('gifts-unlocked-view').style.display = 'none';
+                document.getElementById('gifts-locked-view').style.display = 'block';
+            } else {
+                document.getElementById('gifts-unlocked-view').style.display = 'block';
+                document.getElementById('gifts-locked-view').style.display = 'none';
+            }
+            updateLockButton();
         }
         
         // ==================== INITIALIZATION ====================
