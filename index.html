@@ -791,34 +791,88 @@
     <div class="container">
         <!-- HOME TAB -->
         <div id="home-tab" class="tab-content active">
-            <!-- EDIT MODE CONTROLS -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 16px; background: var(--glass); border-radius: 12px; border: 2px solid var(--border);">
+            <!-- Pinned Notes -->
+            <div style="position: relative; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="font-size: 16px; font-weight: 700;">📌 Pinned Notes</h3>
+                    <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 6px 12px; font-size: 12px;">Manage</button>
+                </div>
+                <div id="pinned-carousel" style="min-height: 150px;">
+                    <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 20px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 20px solid rgba(255, 223, 0, 0.3);">
+                        <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 15px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
+                        <p style="color: #333; font-size: 14px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6;">No pinned notes yet. Pin a note from the Notes tab!</p>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 12px;" id="pinned-nav">
+                    <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 32px; height: 32px;">‹</button>
+                    <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 12px; font-size: 12px;">1 / 1</span>
+                    <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 32px; height: 32px;">›</button>
+                </div>
+            </div>
+            
+            <div class="grid-2">
                 <div>
-                    <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">🏠 Home Dashboard</h2>
-                    <p style="font-size: 13px; color: var(--text-dim); margin: 0;">Customize your personal workspace</p>
+                    <!-- Weather -->
+                    <div class="card">
+                        <div class="card-title">🌤️ Weather</div>
+                        <div id="weather-widget">
+                            <div style="font-size: 32px;" id="weather-temp">--°</div>
+                            <div id="weather-desc">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mood Tracker -->
+                    <div class="card">
+                        <div class="card-title">😊 How are you feeling?</div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <div class="mood-emoji" onclick="selectMood('😄')">😄<span class="mood-count" id="mood-count-1">0</span></div>
+                            <div class="mood-emoji" onclick="selectMood('😊')">😊<span class="mood-count" id="mood-count-2">0</span></div>
+                            <div class="mood-emoji" onclick="selectMood('😐')">😐<span class="mood-count" id="mood-count-3">0</span></div>
+                            <div class="mood-emoji" onclick="selectMood('😔')">😔<span class="mood-count" id="mood-count-4">0</span></div>
+                            <div class="mood-emoji" onclick="selectMood('😢')">😢<span class="mood-count" id="mood-count-5">0</span></div>
+                        </div>
+                        <textarea id="mood-note" placeholder="Add note (optional)" style="min-height: 60px;"></textarea>
+                        <button class="btn btn-primary" onclick="saveMood()" style="width: 100%;">Log Mood</button>
+                        <div id="mood-entries" class="mood-entries"></div>
+                    </div>
+                    
+                    <!-- Mini Calendar -->
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div style="font-size: 14px; font-weight: 600;" id="mini-cal-month"></div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-icon btn-secondary" onclick="prevMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">‹</button>
+                                <button class="btn btn-icon btn-secondary" onclick="todayMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">•</button>
+                                <button class="btn btn-icon btn-secondary" onclick="nextMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">›</button>
+                            </div>
+                        </div>
+                        <div id="mini-calendar" class="calendar-grid"></div>
+                    </div>
+                    
+                    <!-- Top 5 Priorities -->
+                    <div class="card">
+                        <div class="card-title">
+                            🔥 Top 5 Priorities
+                            <button class="btn btn-icon btn-secondary" onclick="openModal('priority-modal')" style="margin-left: auto;">+</button>
+                        </div>
+                        <div id="priorities-list"></div>
+                    </div>
+                    
+                    <!-- Habits Summary -->
+                    <div class="card">
+                        <div class="card-title">⭐ Today's Habits</div>
+                        <div id="habits-summary"></div>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary" onclick="openWidgetLibrary()" id="widget-library-btn" style="display: none;">
-                        📦 Add Widget
-                    </button>
-                    <button class="btn btn-secondary" onclick="openLayoutPresets()" id="layout-presets-btn" style="display: none;">
-                        🎨 Layouts
-                    </button>
-                    <button class="btn btn-primary" onclick="toggleEditMode()" id="edit-mode-btn">
-                        <span id="edit-mode-icon">🔓</span> <span id="edit-mode-text">Edit Mode</span>
-                    </button>
+                
+                <div>
+                    <!-- Timeline -->
+                    <div class="card">
+                        <div class="card-title">📋 Today's Schedule</div>
+                        <div id="overdue-alert"></div>
+                        <div class="scrollable" id="timeline"></div>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- EDIT MODE BANNER -->
-            <div id="edit-mode-banner" style="display: none; padding: 12px 20px; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 8px; margin-bottom: 20px; text-align: center;">
-                <div style="font-weight: 600; margin-bottom: 4px;">✏️ Edit Mode Active</div>
-                <div style="font-size: 13px; opacity: 0.9;">Drag widgets to rearrange • Click ⚙️ to configure • Click ✕ to hide</div>
-            </div>
-            
-            <!-- WIDGETS CONTAINER -->
-            <div id="home-widgets-container">
-                <!-- Widgets will be dynamically rendered here -->
             </div>
         </div>
         
@@ -2904,346 +2958,18 @@
         
         // ==================== PINNED NOTES CAROUSEL ====================
         
-        // ==================== HOME DASHBOARD & WIDGET MANAGEMENT ====================
-        let editMode = false;
-        let homeWidgets = JSON.parse(localStorage.getItem('home-widgets') || 'null');
-        
-        // Default widget configuration
-        const DEFAULT_WIDGETS = [
-            { id: 'pinned-notes', name: '📌 Pinned Notes', enabled: true, order: 0, size: 'full' },
-            { id: 'weather', name: '🌤️ Weather', enabled: true, order: 1, size: 'half' },
-            { id: 'mood', name: '😊 Mood Tracker', enabled: true, order: 2, size: 'half' },
-            { id: 'mini-calendar', name: '📅 Mini Calendar', enabled: true, order: 3, size: 'half' },
-            { id: 'priorities', name: '🔥 Top 5 Priorities', enabled: true, order: 4, size: 'half' },
-            { id: 'habits-summary', name: '⭐ Habits Summary', enabled: true, order: 5, size: 'half' },
-            { id: 'timeline', name: '📋 Timeline', enabled: true, order: 6, size: 'half' }
-        ];
-        
-        // Initialize widgets if first time
-        if (!homeWidgets) {
-            homeWidgets = DEFAULT_WIDGETS;
-            localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
-        }
-        
-        // Always ensure custom-blocks widget exists at the top
-        if (!homeWidgets.find(w => w.id === 'custom-blocks')) {
-            homeWidgets.unshift({ id: 'custom-blocks', name: '✨ Custom Blocks', enabled: true, order: 0, size: 'full' });
-            // Reorder other widgets
-            homeWidgets.forEach((w, i) => {
-                if (w.id !== 'custom-blocks') w.order = i;
-            });
-            localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
-        }
-        
-        function toggleEditMode() {
-            editMode = !editMode;
-            
-            // Update button
-            const icon = document.getElementById('edit-mode-icon');
-            const text = document.getElementById('edit-mode-text');
-            if (icon) icon.textContent = editMode ? '🔒' : '🔓';
-            if (text) text.textContent = editMode ? 'Lock' : 'Edit Mode';
-            
-            // Show/hide controls
-            const banner = document.getElementById('edit-mode-banner');
-            const widgetLibBtn = document.getElementById('widget-library-btn');
-            const layoutBtn = document.getElementById('layout-presets-btn');
-            
-            if (banner) banner.style.display = editMode ? 'block' : 'none';
-            if (widgetLibBtn) widgetLibBtn.style.display = editMode ? 'block' : 'none';
-            if (layoutBtn) layoutBtn.style.display = editMode ? 'block' : 'none';
-            
-            // Re-render widgets with/without edit controls
-            renderHomeWidgets();
-        }
+        // ==================== HOME PAGE RENDERING ====================
         
         function renderHomeWidgets() {
-            const container = document.getElementById('home-widgets-container');
-            
-            // Sort by order
-            const sortedWidgets = [...homeWidgets].sort((a, b) => a.order - b.order);
-            const enabledWidgets = sortedWidgets.filter(w => w.enabled);
-            
-            let html = '';
-            
-            // Create grid layout
-            let currentRow = [];
-            
-            enabledWidgets.forEach((widget, index) => {
-                if (widget.size === 'full') {
-                    // Render any pending half-width widgets first
-                    if (currentRow.length > 0) {
-                        html += `<div class="grid-2">${currentRow.join('')}</div>`;
-                        currentRow = [];
-                    }
-                    // Render full-width widget
-                    html += renderWidget(widget);
-                } else if (widget.size === 'half') {
-                    currentRow.push(renderWidget(widget));
-                    
-                    // If we have 2 half widgets or this is the last widget, render row
-                    if (currentRow.length === 2 || index === enabledWidgets.length - 1) {
-                        html += `<div class="grid-2">${currentRow.join('')}</div>`;
-                        currentRow = [];
-                    }
-                }
-            });
-            
-            container.innerHTML = html || '<div class="empty">No widgets enabled. Click "📦 Add Widget" to add some!</div>';
-            
-            // Render widget-specific content
-            enabledWidgets.forEach(widget => {
-                if (widget.id === 'custom-blocks') renderCustomBlocks();
-                if (widget.id === 'pinned-notes') renderPinnedNotes();
-                if (widget.id === 'weather') loadWeather();
-                if (widget.id === 'mood') renderMoodEntries();
-                if (widget.id === 'mini-calendar') renderMiniCalendar();
-                if (widget.id === 'priorities') renderPriorities();
-                if (widget.id === 'habits-summary') renderHabitsSummary();
-                if (widget.id === 'timeline') renderTimeline();
-            });
+            // Render all home widgets
+            renderPriorities();
+            renderHabitsSummary();
+            renderTimeline();
+            renderMoodEntries();
+            renderMiniCalendar();
+            renderPinnedNotes();
+            loadWeather();
         }
-        
-        function renderWidget(widget) {
-            const editControls = editMode ? `
-                <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; z-index: 10;">
-                    <button class="btn btn-icon btn-secondary" onclick="moveWidget('${widget.id}', 'up')" style="width: 28px; height: 28px; font-size: 14px;">↑</button>
-                    <button class="btn btn-icon btn-secondary" onclick="moveWidget('${widget.id}', 'down')" style="width: 28px; height: 28px; font-size: 14px;">↓</button>
-                    <button class="btn btn-icon btn-secondary" onclick="toggleWidgetSize('${widget.id}')" style="width: 28px; height: 28px; font-size: 12px;">${widget.size === 'full' ? '⊟' : '⊡'}</button>
-                    <button class="btn btn-icon btn-secondary" onclick="toggleWidget('${widget.id}')" style="width: 28px; height: 28px; font-size: 14px;">✕</button>
-                </div>
-            ` : '';
-            
-            const widgetContent = getWidgetContent(widget.id);
-            
-            return `
-                <div style="position: relative;">
-                    ${editControls}
-                    ${widgetContent}
-                </div>
-            `;
-        }
-        
-        function getWidgetContent(widgetId) {
-            switch(widgetId) {
-                case 'custom-blocks':
-                    return `
-                        <div class="card" style="padding: 0;">
-                            <div style="padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                                <h3 style="font-size: 16px; font-weight: 700;">✨ Custom Blocks</h3>
-                                <button class="btn btn-primary" onclick="openAddCustomBlock()" style="padding: 6px 12px; font-size: 13px;">+ Add Block</button>
-                            </div>
-                            <div id="custom-blocks-container" style="padding: 16px;">
-                                <!-- Custom blocks rendered here -->
-                            </div>
-                        </div>
-                    `;
-                
-                case 'pinned-notes':
-                    return `
-                        <div style="position: relative; margin-bottom: 20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <h3 style="font-size: 16px; font-weight: 700;">📌 Pinned Notes</h3>
-                                <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 6px 12px; font-size: 12px;">Manage</button>
-                            </div>
-                            <div id="pinned-carousel" style="min-height: 150px;">
-                                <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 20px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 20px solid rgba(255, 223, 0, 0.3);">
-                                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 15px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
-                                    <p style="color: #333; font-size: 14px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6;">No pinned notes yet. Pin a note from the Notes tab!</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; justify-content: center; gap: 8px; margin-top: 12px;" id="pinned-nav">
-                                <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 32px; height: 32px;">‹</button>
-                                <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 12px; font-size: 12px;">1 / 1</span>
-                                <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 32px; height: 32px;">›</button>
-                            </div>
-                        </div>
-                    `;
-                
-                case 'weather':
-                    return `
-                        <div class="card">
-                            <div class="card-title">🌤️ Weather</div>
-                            <div id="weather-widget">
-                                <div style="font-size: 32px;" id="weather-temp">--°</div>
-                                <div id="weather-desc">Loading...</div>
-                            </div>
-                        </div>
-                    `;
-                
-                case 'mood':
-                    return `
-                        <div class="card">
-                            <div class="card-title">😊 How are you feeling?</div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                                <div class="mood-emoji" onclick="selectMood('😄')">😄<span class="mood-count" id="mood-count-1">0</span></div>
-                                <div class="mood-emoji" onclick="selectMood('😊')">😊<span class="mood-count" id="mood-count-2">0</span></div>
-                                <div class="mood-emoji" onclick="selectMood('😐')">😐<span class="mood-count" id="mood-count-3">0</span></div>
-                                <div class="mood-emoji" onclick="selectMood('😔')">😔<span class="mood-count" id="mood-count-4">0</span></div>
-                                <div class="mood-emoji" onclick="selectMood('😢')">😢<span class="mood-count" id="mood-count-5">0</span></div>
-                            </div>
-                            <textarea id="mood-note" placeholder="Add note (optional)" style="min-height: 60px;"></textarea>
-                            <button class="btn btn-primary" onclick="saveMood()" style="width: 100%;">Log Mood</button>
-                            <div id="mood-entries" class="mood-entries"></div>
-                        </div>
-                    `;
-                
-                case 'mini-calendar':
-                    return `
-                        <div class="card">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <div style="font-size: 14px; font-weight: 600;" id="mini-cal-month"></div>
-                                <div style="display: flex; gap: 8px;">
-                                    <button class="btn btn-icon btn-secondary" onclick="prevMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">‹</button>
-                                    <button class="btn btn-icon btn-secondary" onclick="todayMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">•</button>
-                                    <button class="btn btn-icon btn-secondary" onclick="nextMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">›</button>
-                                </div>
-                            </div>
-                            <div id="mini-calendar" class="calendar-grid"></div>
-                        </div>
-                    `;
-                
-                case 'priorities':
-                    return `
-                        <div class="card">
-                            <div class="card-title">
-                                🔥 Top 5 Priorities
-                                <button class="btn btn-icon btn-secondary" onclick="openModal('priority-modal')" style="margin-left: auto;">+</button>
-                            </div>
-                            <div id="priorities-list"></div>
-                        </div>
-                    `;
-                
-                case 'habits-summary':
-                    return `
-                        <div class="card">
-                            <div class="card-title">⭐ Today's Habits</div>
-                            <div id="habits-summary"></div>
-                        </div>
-                    `;
-                
-                case 'timeline':
-                    return `
-                        <div class="card">
-                            <div class="card-title">📋 Today's Schedule</div>
-                            <div id="overdue-alert"></div>
-                            <div class="scrollable" id="timeline"></div>
-                        </div>
-                    `;
-                
-                default:
-                    return '<div class="card">Unknown widget</div>';
-            }
-        }
-        
-        function moveWidget(widgetId, direction) {
-            const widgetIndex = homeWidgets.findIndex(w => w.id === widgetId);
-            if (widgetIndex === -1) return;
-            
-            const widget = homeWidgets[widgetIndex];
-            const targetIndex = direction === 'up' ? widgetIndex - 1 : widgetIndex + 1;
-            
-            if (targetIndex < 0 || targetIndex >= homeWidgets.length) return;
-            
-            // Swap orders
-            const tempOrder = widget.order;
-            widget.order = homeWidgets[targetIndex].order;
-            homeWidgets[targetIndex].order = tempOrder;
-            
-            localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
-            renderHomeWidgets();
-        }
-        
-        function toggleWidget(widgetId) {
-            const widget = homeWidgets.find(w => w.id === widgetId);
-            if (widget) {
-                widget.enabled = !widget.enabled;
-                localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
-                renderHomeWidgets();
-            }
-        }
-        
-        function toggleWidgetSize(widgetId) {
-            const widget = homeWidgets.find(w => w.id === widgetId);
-            if (widget) {
-                widget.size = widget.size === 'full' ? 'half' : 'full';
-                localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
-                renderHomeWidgets();
-            }
-        }
-        
-        function openWidgetLibrary() {
-            // Add custom-blocks widget if not exists
-            if (!homeWidgets.find(w => w.id === 'custom-blocks')) {
-                homeWidgets.unshift({ id: 'custom-blocks', name: '✨ Custom Blocks', enabled: true, order: 0, size: 'full' });
-                // Reorder other widgets
-                homeWidgets.forEach((w, i) => {
-                    if (w.id !== 'custom-blocks') w.order = i;
-                });
-                localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
-            }
-            
-            const list = document.getElementById('widget-library-list');
-            list.innerHTML = homeWidgets.map(widget => `
-                <div class="item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
-                    <div>
-                        <div style="font-weight: 600;">${widget.name}</div>
-                        <div style="font-size: 12px; color: var(--text-dim);">Size: ${widget.size === 'full' ? 'Full Width' : 'Half Width'}</div>
-                    </div>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" ${widget.enabled ? 'checked' : ''} onchange="toggleWidget('${widget.id}')">
-                        <span style="font-size: 12px;">${widget.enabled ? 'Visible' : 'Hidden'}</span>
-                    </label>
-                </div>
-            `).join('');
-            openModal('widget-library-modal');
-        }
-        
-        function openLayoutPresets() {
-            openModal('layout-presets-modal');
-        }
-        
-        function applyLayoutPreset(preset) {
-            // Add custom-blocks if not exists
-            if (!homeWidgets.find(w => w.id === 'custom-blocks')) {
-                homeWidgets.push({ id: 'custom-blocks', name: '✨ Custom Blocks', enabled: false, order: 0, size: 'full' });
-            }
-            
-            switch(preset) {
-                case 'default':
-                    homeWidgets.forEach(w => {
-                        if (w.id === 'custom-blocks') w.enabled = true;
-                        else w.enabled = true;
-                    });
-                    break;
-                
-                case 'productivity':
-                    homeWidgets.forEach(w => {
-                        w.enabled = ['custom-blocks', 'priorities', 'habits-summary', 'timeline'].includes(w.id);
-                    });
-                    break;
-                
-                case 'wellness':
-                    homeWidgets.forEach(w => {
-                        w.enabled = ['custom-blocks', 'mood', 'habits-summary', 'weather', 'pinned-notes'].includes(w.id);
-                    });
-                    break;
-                
-                case 'minimal':
-                    homeWidgets.forEach(w => {
-                        w.enabled = ['custom-blocks', 'priorities', 'timeline'].includes(w.id);
-                    });
-                    break;
-            }
-            
-            localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
-            closeModal('layout-presets-modal');
-            renderHomeWidgets();
-        }
-        
-        // Keep old widget carousel functions for quick view widget
-        let currentWidgetType = 'tasks';
-        let currentWidgetIndex = 0;
         
         // ==================== CUSTOM BLOCKS SYSTEM ====================
         let customBlocks = JSON.parse(localStorage.getItem('custom-blocks') || '[]');
