@@ -848,7 +848,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h1 style="font-size: 24px; font-weight: 700;">🎁 Gift Ideas</h1>
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-secondary" onclick="alert('Button clicked!'); toggleGiftsLock();" id="gifts-lock-btn">
+                        <button class="btn btn-secondary" onclick="toggleGiftsLock()" id="gifts-lock-btn">
                             <span id="gifts-lock-icon">🔓</span> <span id="gifts-lock-text">Lock</span>
                         </button>
                         <button class="btn btn-primary" onclick="openModal('gift-modal')">+ Add Person</button>
@@ -3188,39 +3188,28 @@
         }
         
         function toggleGiftsLock() {
-            alert('BUTTON WORKS! The function is running!');
-            
             const isCurrentlyLocked = localStorage.getItem('gifts-locked') === 'true';
-            alert('Currently locked: ' + isCurrentlyLocked);
             
             if (isCurrentlyLocked) {
-                alert('Already locked. Enter PIN below to unlock.');
+                alert('Gifts are locked. Enter PIN below to unlock.');
                 return;
             }
             
             const pin = prompt('Enter a 4-digit PIN to lock gifts:');
-            alert('You entered: ' + (pin || 'nothing'));
-            
-            if (!pin) {
-                alert('No PIN entered, cancelled');
-                return;
-            }
+            if (!pin) return;
             
             if (pin.length !== 4) {
-                alert('PIN must be 4 digits, you entered ' + pin.length);
+                alert('PIN must be exactly 4 digits');
                 return;
             }
             
             if (isNaN(pin)) {
-                alert('PIN must be numbers only');
+                alert('PIN must be numbers only (0-9)');
                 return;
             }
             
-            alert('Saving PIN...');
             localStorage.setItem('gifts-pin', pin);
             localStorage.setItem('gifts-locked', 'true');
-            
-            alert('PIN saved! Reloading...');
             location.reload();
         }
         
@@ -3343,16 +3332,6 @@
         
         // Start the app
         init();
-        
-        // TEST: Show alert on page load
-        alert('✅ PAGE LOADED! JavaScript is working!');
-        
-        // TEST: Verify toggleGiftsLock function exists
-        if (typeof toggleGiftsLock === 'function') {
-            alert('✅ toggleGiftsLock function EXISTS!');
-        } else {
-            alert('❌ toggleGiftsLock function MISSING!');
-        }
     </script>
 </body>
 </html>
