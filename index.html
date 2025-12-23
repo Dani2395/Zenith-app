@@ -92,96 +92,132 @@
             margin-bottom: 4px;
         }
         
-        /* DROPDOWN NAVIGATION */
-        .nav-dropdown {
-            position: relative;
-        }
-        
-        .dropdown-arrow {
-            font-size: 10px;
-            margin-left: 4px;
-            transition: transform 0.3s;
-            display: inline-block;
-        }
-        
-        .nav-dropdown:hover .dropdown-arrow {
-            transform: rotate(180deg);
-        }
-        
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            min-width: 200px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            z-index: 2000;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        
-        .nav-dropdown:hover .dropdown-menu {
-            display: block;
-            animation: dropdownSlide 0.2s ease;
-        }
-        
-        @keyframes dropdownSlide {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .dropdown-item {
-            padding: 12px 16px;
+        /* HAMBURGER MENU */
+        .hamburger-btn {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
             cursor: pointer;
-            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .hamburger-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .hamburger-btn span {
+            display: block;
+            width: 24px;
+            height: 3px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translateY(10px);
+        }
+        
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translateY(-10px);
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--bg-card);
+            z-index: 2000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-content {
+            height: 100%;
+        }
+        
+        .sidebar-nav {
+            padding: 8px 0;
+        }
+        
+        .sidebar-section {
+            padding: 16px 20px 8px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+        }
+        
+        .sidebar-item {
+            padding: 14px 20px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            font-weight: 500;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
             color: var(--text);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 15px;
+            font-weight: 500;
+            border-left: 3px solid transparent;
         }
         
-        .dropdown-item:last-child {
-            border-bottom: none;
+        .sidebar-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-left-color: var(--primary);
         }
         
-        .dropdown-item:hover {
+        .sidebar-item.active {
             background: rgba(99, 102, 241, 0.15);
+            border-left-color: var(--primary);
             color: var(--primary);
         }
         
-        .dropdown-icon {
-            font-size: 18px;
+        .sidebar-icon {
+            font-size: 22px;
+            width: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        /* Mobile: Make dropdowns full-width overlay */
-        @media (max-width: 768px) {
-            .dropdown-menu {
-                left: 0;
-                right: 0;
-                width: 100vw;
-                min-width: 100vw;
-                border-radius: 0;
-                border-left: none;
-                border-right: none;
-                margin-top: 0;
-            }
-            
-            .nav-dropdown:hover .dropdown-menu {
-                position: fixed;
-                top: 70px;
-            }
+        /* SIDEBAR OVERLAY */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: all;
         }
         
         /* TAB CONTENT */
@@ -668,51 +704,89 @@
     
     <!-- TOP NAVIGATION -->
     <nav class="top-nav">
-        <div class="nav-tab active" onclick="switchTab('home')">
-            <span class="nav-icon">🏠</span>
-            <span>Home</span>
-        </div>
-        
-        <div class="nav-tab nav-dropdown" id="work-dropdown">
-            <span class="nav-icon">📋</span>
-            <span>Work</span>
-            <span class="dropdown-arrow">▼</span>
-            <div class="dropdown-menu" id="work-menu">
-                <div class="dropdown-item" onclick="switchTab('tasks'); closeDropdowns();">
-                    <span class="dropdown-icon">✅</span> Tasks
-                </div>
-                <div class="dropdown-item" onclick="switchTab('calendar'); closeDropdowns();">
-                    <span class="dropdown-icon">📅</span> Calendar
-                </div>
-                <div class="dropdown-item" onclick="switchTab('goals'); closeDropdowns();">
-                    <span class="dropdown-icon">🎯</span> Goals
-                </div>
-                <div class="dropdown-item" onclick="switchTab('habits'); closeDropdowns();">
-                    <span class="dropdown-icon">⭐</span> Habits
-                </div>
+        <div style="display: flex; align-items: center; gap: 16px; padding: 0 20px; width: 100%;">
+            <!-- Hamburger Button -->
+            <button id="hamburger-btn" class="hamburger-btn" onclick="toggleSidebar()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <!-- App Title -->
+            <div style="font-size: 20px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Zenith
             </div>
-        </div>
-        
-        <div class="nav-tab nav-dropdown" id="life-dropdown">
-            <span class="nav-icon">🎨</span>
-            <span>Life</span>
-            <span class="dropdown-arrow">▼</span>
-            <div class="dropdown-menu" id="life-menu">
-                <div class="dropdown-item" onclick="switchTab('notes'); closeDropdowns();">
-                    <span class="dropdown-icon">📝</span> Notes
-                </div>
-                <div class="dropdown-item" onclick="switchTab('books'); closeDropdowns();">
-                    <span class="dropdown-icon">📚</span> Books
-                </div>
-                <div class="dropdown-item" onclick="switchTab('gifts'); closeDropdowns();">
-                    <span class="dropdown-icon">🎁</span> Gifts
-                </div>
-                <div class="dropdown-item" onclick="switchTab('shopping'); closeDropdowns();">
-                    <span class="dropdown-icon">🛒</span> Shopping
-                </div>
+            
+            <!-- Current Tab Name -->
+            <div id="current-tab-name" style="font-size: 14px; color: var(--text-dim); margin-left: auto;">
+                Home
             </div>
         </div>
     </nav>
+    
+    <!-- SIDEBAR MENU -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-content">
+            <!-- Sidebar Header -->
+            <div style="padding: 24px 20px; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 24px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">
+                    Zenith
+                </div>
+                <div style="font-size: 13px; color: var(--text-dim);">
+                    Your productivity hub
+                </div>
+            </div>
+            
+            <!-- Navigation Items -->
+            <div class="sidebar-nav">
+                <div class="sidebar-item active" onclick="switchTab('home'); closeSidebar();">
+                    <span class="sidebar-icon">🏠</span>
+                    <span>Home</span>
+                </div>
+                
+                <!-- Work Section -->
+                <div class="sidebar-section">Work</div>
+                <div class="sidebar-item" onclick="switchTab('tasks'); closeSidebar();">
+                    <span class="sidebar-icon">✅</span>
+                    <span>Tasks</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('calendar'); closeSidebar();">
+                    <span class="sidebar-icon">📅</span>
+                    <span>Calendar</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('goals'); closeSidebar();">
+                    <span class="sidebar-icon">🎯</span>
+                    <span>Goals</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('habits'); closeSidebar();">
+                    <span class="sidebar-icon">⭐</span>
+                    <span>Habits</span>
+                </div>
+                
+                <!-- Life Section -->
+                <div class="sidebar-section">Life</div>
+                <div class="sidebar-item" onclick="switchTab('notes'); closeSidebar();">
+                    <span class="sidebar-icon">📝</span>
+                    <span>Notes</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('books'); closeSidebar();">
+                    <span class="sidebar-icon">📚</span>
+                    <span>Books</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('gifts'); closeSidebar();">
+                    <span class="sidebar-icon">🎁</span>
+                    <span>Gifts</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('shopping'); closeSidebar();">
+                    <span class="sidebar-icon">🛒</span>
+                    <span>Shopping</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay (closes sidebar when clicked) -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
     
     <div class="container">
         <!-- HOME TAB -->
@@ -772,21 +846,24 @@
         
         <!-- NOTES TAB -->
         <div id="notes-tab" class="tab-content">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h1 style="font-size: 24px; font-weight: 700;">📝 Notes</h1>
-                    <button class="btn btn-primary" onclick="openModal('note-modal')">+ Add Note</button>
+            <div id="notes-container" style="height: calc(100vh - 140px);">
+                <!-- List View (default) -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h1 style="font-size: 24px; font-weight: 700;">📝 Notes</h1>
+                        <button class="btn btn-primary" onclick="openModal('note-modal')">+ Add Note</button>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-btn active" onclick="filterNotes('all')">All</div>
+                        <div class="filter-btn" onclick="filterNotes('locked')">🔒 Locked</div>
+                        <div class="filter-btn" onclick="filterNotes('unlocked')">Unlocked</div>
+                    </div>
+                    
+                    <input type="text" id="note-search" placeholder="Search notes..." oninput="searchNotes()">
+                    
+                    <div class="scrollable" id="notes-list"></div>
                 </div>
-                
-                <div class="filters">
-                    <div class="filter-btn active" onclick="filterNotes('all')">All</div>
-                    <div class="filter-btn" onclick="filterNotes('locked')">🔒 Locked</div>
-                    <div class="filter-btn" onclick="filterNotes('unlocked')">Unlocked</div>
-                </div>
-                
-                <input type="text" id="note-search" placeholder="Search notes..." oninput="searchNotes()">
-                
-                <div class="scrollable" id="notes-list"></div>
             </div>
         </div>
         
@@ -1288,28 +1365,36 @@
             
             currentTab = tab;
             
-            // Remove active from all tabs
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            // Remove active from all sidebar items
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             
-            // Add active to clicked tab (handle both direct tabs and dropdown items)
-            const directTab = document.querySelector(`.nav-tab[onclick*="switchTab('${tab}')"]`);
-            if (directTab && !directTab.classList.contains('nav-dropdown')) {
-                directTab.classList.add('active');
-            } else {
-                // If it's in a dropdown, highlight the dropdown parent
-                const workTabs = ['tasks', 'calendar', 'goals', 'habits'];
-                const lifeTabs = ['notes', 'books', 'gifts', 'shopping'];
-                
-                if (workTabs.includes(tab)) {
-                    document.getElementById('work-dropdown').classList.add('active');
-                } else if (lifeTabs.includes(tab)) {
-                    document.getElementById('life-dropdown').classList.add('active');
+            // Find and activate the corresponding sidebar item
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.onclick && item.onclick.toString().includes(`'${tab}'`)) {
+                    item.classList.add('active');
                 }
-            }
+            });
+            
+            // Update current tab name in header
+            const tabNames = {
+                'home': 'Home',
+                'tasks': 'Tasks',
+                'notes': 'Notes',
+                'calendar': 'Calendar',
+                'habits': 'Habits',
+                'shopping': 'Shopping',
+                'books': 'Books',
+                'goals': 'Goals',
+                'gifts': 'Gifts'
+            };
+            const tabNameEl = document.getElementById('current-tab-name');
+            if (tabNameEl) tabNameEl.textContent = tabNames[tab] || 'Zenith';
             
             // Show the tab content
-            document.getElementById(`${tab}-tab`).classList.add('active');
+            const tabContent = document.getElementById(`${tab}-tab`);
+            if (tabContent) tabContent.classList.add('active');
             
             // Render content for the tab
             if (tab === 'tasks') renderTasks();
@@ -1323,6 +1408,26 @@
                 checkGiftsLockState();
                 renderGifts();
             }
+        }
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const hamburger = document.getElementById('hamburger-btn');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const hamburger = document.getElementById('hamburger-btn');
+            
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            hamburger.classList.remove('active');
         }
         
         function closeDropdowns() {
@@ -1562,10 +1667,132 @@
             renderNotes();
         }
         
-        function viewNote(id) {
+        let currentEditingNote = null;
+        
+        function renderNotes() {
+            const container = document.getElementById('notes-container');
+            const search = document.getElementById('note-search').value.toLowerCase();
+            
+            let filtered = notes.filter(note => {
+                if (search && !note.name.toLowerCase().includes(search)) return false;
+                if (currentNoteFilter === 'locked') return note.locked;
+                if (currentNoteFilter === 'unlocked') return !note.locked;
+                return true;
+            });
+            
+            // If editing a note, show editor
+            if (currentEditingNote) {
+                const note = notes.find(n => n.id === currentEditingNote);
+                if (note) {
+                    container.innerHTML = `
+                        <div style="height: 100%; display: flex; flex-direction: column;">
+                            <!-- Note Editor Header -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--glass); border-bottom: 1px solid var(--border); border-radius: 12px 12px 0 0;">
+                                <button class="btn btn-secondary" onclick="closeNoteEditor()" style="padding: 8px 16px;">
+                                    ← Back to Notes
+                                </button>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-icon btn-secondary" onclick="toggleNoteLock(${note.id})" title="${note.locked ? 'Unlock' : 'Lock'} Note">
+                                        ${note.locked ? '🔓' : '🔒'}
+                                    </button>
+                                    <button class="btn btn-icon btn-secondary" onclick="toggleNotePin(${note.id})" title="${note.pinned ? 'Unpin' : 'Pin'} Note">
+                                        ${note.pinned ? '📌' : '📍'}
+                                    </button>
+                                    <button class="btn btn-primary" onclick="saveNoteEdit()" style="padding: 8px 20px;">
+                                        💾 Save
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Note Editor Body -->
+                            <div style="flex: 1; padding: 24px; background: var(--bg-card); overflow-y: auto;">
+                                <input type="text" id="edit-note-name" value="${note.name}" placeholder="Note title..." style="font-size: 24px; font-weight: 700; background: transparent; border: none; border-bottom: 2px solid transparent; padding: 8px 0; margin-bottom: 16px; transition: border-color 0.3s;" onfocus="this.style.borderBottomColor='var(--primary)'" onblur="this.style.borderBottomColor='transparent'">
+                                
+                                <textarea id="edit-note-text" placeholder="Start writing..." style="min-height: 400px; background: transparent; border: none; padding: 0; font-size: 15px; line-height: 1.6; resize: vertical;">${note.text}</textarea>
+                                
+                                ${note.images && note.images.length > 0 ? `
+                                    <div style="margin-top: 20px;">
+                                        <div style="font-weight: 600; margin-bottom: 12px;">📷 Images:</div>
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;">
+                                            ${note.images.map((img, idx) => `
+                                                <div style="position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 1;">
+                                                    <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <button onclick="removeNoteImage(${note.id}, ${idx})" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 12px;">✕</button>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                
+                                ${note.voice ? `
+                                    <div style="margin-top: 20px; padding: 16px; background: var(--glass); border-radius: 8px; display: flex; align-items: center; gap: 12px;">
+                                        <span style="font-size: 24px;">🎤</span>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 600; margin-bottom: 4px;">Voice Note</div>
+                                            <audio controls src="${note.voice}" style="width: 100%; max-width: 400px;"></audio>
+                                        </div>
+                                        <button onclick="removeNoteVoice(${note.id})" class="btn btn-icon btn-secondary">🗑️</button>
+                                    </div>
+                                ` : ''}
+                                
+                                <div style="margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button class="btn btn-secondary" onclick="document.getElementById('note-image-input-${note.id}').click()">
+                                        📷 Add Image
+                                    </button>
+                                    <input type="file" id="note-image-input-${note.id}" accept="image/*" style="display: none;" onchange="addImageToNote(${note.id}, this)">
+                                    
+                                    <button class="btn btn-secondary" onclick="startVoiceNote(${note.id})">
+                                        🎤 Add Voice Note
+                                    </button>
+                                </div>
+                                
+                                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-dim);">
+                                    ${note.date ? `Created: ${note.date}` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+            
+            // List view
+            const list = document.getElementById('notes-list');
+            
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty">No notes found</div>';
+                return;
+            }
+            
+            list.innerHTML = filtered.map(note => `
+                <div class="item ${note.locked ? 'note-locked' : ''}" onclick="openNoteEditor(${note.id})" style="cursor: pointer;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">
+                                ${note.locked ? '🔒 ' : ''}${note.pinned ? '📌 ' : ''}${note.name}
+                            </div>
+                            <div class="note-content" style="font-size: 13px; color: var(--text-dim); line-height: 1.5;">
+                                ${note.text.substring(0, 120)}${note.text.length > 120 ? '...' : ''}
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--text-dim);">
+                                ${note.date ? `<span>📅 ${note.date}</span>` : ''}
+                                ${note.images && note.images.length > 0 ? `<span>📷 ${note.images.length}</span>` : ''}
+                                ${note.voice ? `<span>🎤</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                            <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function openNoteEditor(id) {
             const note = notes.find(n => n.id === id);
             if (!note) return;
             
+            // Check if locked
             if (note.locked) {
                 let notesPin = localStorage.getItem('notes-pin') || '';
                 
@@ -1580,80 +1807,132 @@
                     }
                     
                     localStorage.setItem('notes-pin', newPin);
-                    notesPin = newPin;
                     alert('PIN set! Remember it to view locked notes. ✅');
                 }
                 
                 // Ask for PIN
-                const enteredPin = prompt('🔒 Enter PIN to view locked note:');
+                const enteredPin = prompt('🔒 Enter PIN to open locked note:');
                 if (!enteredPin) return;
                 
                 // Check PIN
-                if (enteredPin === notesPin) {
-                    // Correct PIN - show note
+                if (enteredPin !== localStorage.getItem('notes-pin')) {
+                    alert('❌ Incorrect PIN');
+                    return;
+                }
+            }
+            
+            currentEditingNote = id;
+            renderNotes();
+        }
+        
+        function closeNoteEditor() {
+            currentEditingNote = null;
+            renderNotes();
+        }
+        
+        function saveNoteEdit() {
+            const note = notes.find(n => n.id === currentEditingNote);
+            if (!note) return;
+            
+            note.name = document.getElementById('edit-note-name').value || 'Untitled Note';
+            note.text = document.getElementById('edit-note-text').value;
+            note.date = formatDate(new Date());
+            
+            save();
+            closeNoteEditor();
+        }
+        
+        function toggleNoteLock(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            
+            if (!note.locked) {
+                // Locking - need PIN
+                let notesPin = localStorage.getItem('notes-pin');
+                if (!notesPin) {
+                    notesPin = prompt('Set a 4-digit PIN for locked notes:');
+                    if (!notesPin) return;
+                    
+                    if (notesPin.length !== 4 || isNaN(notesPin)) {
+                        alert('PIN must be exactly 4 digits');
+                        return;
+                    }
+                    
+                    localStorage.setItem('notes-pin', notesPin);
+                }
+                note.locked = true;
+                alert('Note locked! 🔒');
+            } else {
+                // Unlocking
+                const pin = prompt('Enter PIN to unlock:');
+                if (pin === localStorage.getItem('notes-pin')) {
+                    note.locked = false;
+                    alert('Note unlocked! 🔓');
                 } else {
                     alert('❌ Incorrect PIN');
                     return;
                 }
             }
             
-            // Show note with images and voice if available
-            let content = `${note.name}\n\n${note.text}`;
-            
-            if (note.images && note.images.length > 0) {
-                content += '\n\n📷 Has ' + note.images.length + ' image(s)';
-            }
-            
-            if (note.voice) {
-                content += '\n🎤 Has voice note';
-            }
-            
-            alert(content);
+            save();
+            renderNotes();
         }
         
-        function resetNotesPin() {
-            if (confirm('Reset notes PIN? You will need to set a new PIN to view locked notes.')) {
-                localStorage.removeItem('notes-pin');
-                alert('Notes PIN reset! ✅');
+        function toggleNotePin(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            
+            note.pinned = !note.pinned;
+            save();
+            renderNotes();
+            renderPinnedNotes();
+        }
+        
+        function removeNoteImage(noteId, imageIndex) {
+            const note = notes.find(n => n.id === noteId);
+            if (!note || !note.images) return;
+            
+            if (confirm('Remove this image?')) {
+                note.images.splice(imageIndex, 1);
+                save();
+                renderNotes();
             }
         }
         
-        
-        function renderNotes() {
-            const list = document.getElementById('notes-list');
-            const search = document.getElementById('note-search').value.toLowerCase();
+        function removeNoteVoice(noteId) {
+            const note = notes.find(n => n.id === noteId);
+            if (!note) return;
             
-            let filtered = notes.filter(note => {
-                if (search && !note.name.toLowerCase().includes(search)) return false;
-                if (currentNoteFilter === 'locked') return note.locked;
-                if (currentNoteFilter === 'unlocked') return !note.locked;
-                return true;
-            });
-            
-            if (filtered.length === 0) {
-                list.innerHTML = '<div class="empty">No notes found</div>';
-                return;
+            if (confirm('Remove voice note?')) {
+                note.voice = null;
+                save();
+                renderNotes();
             }
+        }
+        
+        function addImageToNote(noteId, input) {
+            if (!input.files || !input.files[0]) return;
             
-            list.innerHTML = filtered.map(note => `
-                <div class="item ${note.locked ? 'note-locked' : ''}" onclick="viewNote(${note.id})">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 15px;">
-                                ${note.locked ? '🔒 ' : ''}${note.name}
-                            </div>
-                            <div class="note-content" style="font-size: 13px; color: var(--text-dim); margin-top: 4px;">
-                                ${note.text.substring(0, 100)}${note.text.length > 100 ? '...' : ''}
-                            </div>
-                            ${note.date ? `<div style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">📅 ${note.date}</div>` : ''}
-                        </div>
-                        <div style="display: flex; gap: 4px; flex-shrink: 0;">
-                            ${note.locked ? `<button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); unlockNote(${note.id})" title="Unlock">🔓</button>` : ''}
-                            <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})">🗑️</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            const note = notes.find(n => n.id === noteId);
+            if (!note) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (!note.images) note.images = [];
+                note.images.push(e.target.result);
+                save();
+                renderNotes();
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+        
+        function startVoiceNote(noteId) {
+            alert('Voice recording feature coming soon! 🎤');
+        }
+        
+        function viewNote(id) {
+            // Legacy function - redirect to editor
+            openNoteEditor(id);
         }
         
         function unlockNote(id) {
@@ -2660,13 +2939,19 @@
             editMode = !editMode;
             
             // Update button
-            document.getElementById('edit-mode-icon').textContent = editMode ? '🔒' : '🔓';
-            document.getElementById('edit-mode-text').textContent = editMode ? 'Lock' : 'Edit Mode';
+            const icon = document.getElementById('edit-mode-icon');
+            const text = document.getElementById('edit-mode-text');
+            if (icon) icon.textContent = editMode ? '🔒' : '🔓';
+            if (text) text.textContent = editMode ? 'Lock' : 'Edit Mode';
             
             // Show/hide controls
-            document.getElementById('edit-mode-banner').style.display = editMode ? 'block' : 'none';
-            document.getElementById('widget-library-btn').style.display = editMode ? 'block' : 'none';
-            document.getElementById('layout-presets-btn').style.display = editMode ? 'block' : 'none';
+            const banner = document.getElementById('edit-mode-banner');
+            const widgetLibBtn = document.getElementById('widget-library-btn');
+            const layoutBtn = document.getElementById('layout-presets-btn');
+            
+            if (banner) banner.style.display = editMode ? 'block' : 'none';
+            if (widgetLibBtn) widgetLibBtn.style.display = editMode ? 'block' : 'none';
+            if (layoutBtn) layoutBtn.style.display = editMode ? 'block' : 'none';
             
             // Re-render widgets with/without edit controls
             renderHomeWidgets();
