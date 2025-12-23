@@ -92,6 +92,98 @@
             margin-bottom: 4px;
         }
         
+        /* DROPDOWN NAVIGATION */
+        .nav-dropdown {
+            position: relative;
+        }
+        
+        .dropdown-arrow {
+            font-size: 10px;
+            margin-left: 4px;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+        
+        .nav-dropdown:hover .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 200px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            z-index: 2000;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .nav-dropdown:hover .dropdown-menu {
+            display: block;
+            animation: dropdownSlide 0.2s ease;
+        }
+        
+        @keyframes dropdownSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+        }
+        
+        .dropdown-icon {
+            font-size: 18px;
+        }
+        
+        /* Mobile: Make dropdowns full-width overlay */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                left: 0;
+                right: 0;
+                width: 100vw;
+                min-width: 100vw;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                margin-top: 0;
+            }
+            
+            .nav-dropdown:hover .dropdown-menu {
+                position: fixed;
+                top: 70px;
+            }
+        }
+        
         /* TAB CONTENT */
         .tab-content {
             display: none;
@@ -580,125 +672,79 @@
             <span class="nav-icon">🏠</span>
             <span>Home</span>
         </div>
-        <div class="nav-tab" onclick="switchTab('tasks')">
-            <span class="nav-icon">✅</span>
-            <span>Tasks</span>
+        
+        <div class="nav-tab nav-dropdown" id="work-dropdown">
+            <span class="nav-icon">📋</span>
+            <span>Work</span>
+            <span class="dropdown-arrow">▼</span>
+            <div class="dropdown-menu" id="work-menu">
+                <div class="dropdown-item" onclick="switchTab('tasks'); closeDropdowns();">
+                    <span class="dropdown-icon">✅</span> Tasks
+                </div>
+                <div class="dropdown-item" onclick="switchTab('calendar'); closeDropdowns();">
+                    <span class="dropdown-icon">📅</span> Calendar
+                </div>
+                <div class="dropdown-item" onclick="switchTab('goals'); closeDropdowns();">
+                    <span class="dropdown-icon">🎯</span> Goals
+                </div>
+                <div class="dropdown-item" onclick="switchTab('habits'); closeDropdowns();">
+                    <span class="dropdown-icon">⭐</span> Habits
+                </div>
+            </div>
         </div>
-        <div class="nav-tab" onclick="switchTab('notes')">
-            <span class="nav-icon">📝</span>
-            <span>Notes</span>
-        </div>
-        <div class="nav-tab" onclick="switchTab('calendar')">
-            <span class="nav-icon">📅</span>
-            <span>Calendar</span>
-        </div>
-        <div class="nav-tab" onclick="switchTab('habits')">
-            <span class="nav-icon">⭐</span>
-            <span>Habits</span>
-        </div>
-        <div class="nav-tab" onclick="switchTab('shopping')">
-            <span class="nav-icon">🛒</span>
-            <span>Shop</span>
-        </div>
-        <div class="nav-tab" onclick="switchTab('books')">
-            <span class="nav-icon">📚</span>
-            <span>Books</span>
-        </div>
-        <div class="nav-tab" onclick="switchTab('goals')">
-            <span class="nav-icon">🎯</span>
-            <span>Goals</span>
-        </div>
-        <div class="nav-tab" onclick="switchTab('gifts')">
-            <span class="nav-icon">🎁</span>
-            <span>Gifts</span>
+        
+        <div class="nav-tab nav-dropdown" id="life-dropdown">
+            <span class="nav-icon">🎨</span>
+            <span>Life</span>
+            <span class="dropdown-arrow">▼</span>
+            <div class="dropdown-menu" id="life-menu">
+                <div class="dropdown-item" onclick="switchTab('notes'); closeDropdowns();">
+                    <span class="dropdown-icon">📝</span> Notes
+                </div>
+                <div class="dropdown-item" onclick="switchTab('books'); closeDropdowns();">
+                    <span class="dropdown-icon">📚</span> Books
+                </div>
+                <div class="dropdown-item" onclick="switchTab('gifts'); closeDropdowns();">
+                    <span class="dropdown-icon">🎁</span> Gifts
+                </div>
+                <div class="dropdown-item" onclick="switchTab('shopping'); closeDropdowns();">
+                    <span class="dropdown-icon">🛒</span> Shopping
+                </div>
+            </div>
         </div>
     </nav>
     
     <div class="container">
         <!-- HOME TAB -->
         <div id="home-tab" class="tab-content active">
-            <!-- PINNED NOTES CAROUSEL -->
-            <div style="position: relative; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="font-size: 16px; font-weight: 700;">📌 Pinned Notes</h3>
-                    <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 6px 12px; font-size: 12px;">Manage</button>
+            <!-- EDIT MODE CONTROLS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 16px; background: var(--glass); border-radius: 12px; border: 2px solid var(--border);">
+                <div>
+                    <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">🏠 Home Dashboard</h2>
+                    <p style="font-size: 13px; color: var(--text-dim); margin: 0;">Customize your personal workspace</p>
                 </div>
-                <div id="pinned-carousel" style="min-height: 150px;">
-                    <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 20px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 20px solid rgba(255, 223, 0, 0.3);">
-                        <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 15px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
-                        <p style="color: #333; font-size: 14px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6;">No pinned notes yet. Pin a note from the Notes tab!</p>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 12px;" id="pinned-nav">
-                    <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 32px; height: 32px;">‹</button>
-                    <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 12px; font-size: 12px;">1 / 1</span>
-                    <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 32px; height: 32px;">›</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" onclick="openWidgetLibrary()" id="widget-library-btn" style="display: none;">
+                        📦 Add Widget
+                    </button>
+                    <button class="btn btn-secondary" onclick="openLayoutPresets()" id="layout-presets-btn" style="display: none;">
+                        🎨 Layouts
+                    </button>
+                    <button class="btn btn-primary" onclick="toggleEditMode()" id="edit-mode-btn">
+                        <span id="edit-mode-icon">🔓</span> <span id="edit-mode-text">Edit Mode</span>
+                    </button>
                 </div>
             </div>
             
-            <div class="grid-2">
-                <div>
-                    <!-- Weather -->
-                    <div class="card">
-                        <div class="card-title">🌤️ Weather</div>
-                        <div id="weather-widget">
-                            <div style="font-size: 32px;" id="weather-temp">--°</div>
-                            <div id="weather-desc">Loading...</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Mood Tracker -->
-                    <div class="card">
-                        <div class="card-title">😊 How are you feeling?</div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                            <div class="mood-emoji" onclick="selectMood('😄')">😄<span class="mood-count" id="mood-count-1">0</span></div>
-                            <div class="mood-emoji" onclick="selectMood('😊')">😊<span class="mood-count" id="mood-count-2">0</span></div>
-                            <div class="mood-emoji" onclick="selectMood('😐')">😐<span class="mood-count" id="mood-count-3">0</span></div>
-                            <div class="mood-emoji" onclick="selectMood('😔')">😔<span class="mood-count" id="mood-count-4">0</span></div>
-                            <div class="mood-emoji" onclick="selectMood('😢')">😢<span class="mood-count" id="mood-count-5">0</span></div>
-                        </div>
-                        <textarea id="mood-note" placeholder="Add note (optional)" style="min-height: 60px;"></textarea>
-                        <button class="btn btn-primary" onclick="saveMood()" style="width: 100%;">Log Mood</button>
-                        <div id="mood-entries" class="mood-entries"></div>
-                    </div>
-                    
-                    <!-- Mini Calendar -->
-                    <div class="card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <div style="font-size: 14px; font-weight: 600;" id="mini-cal-month"></div>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn btn-icon btn-secondary" onclick="prevMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">‹</button>
-                                <button class="btn btn-icon btn-secondary" onclick="todayMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">•</button>
-                                <button class="btn btn-icon btn-secondary" onclick="nextMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">›</button>
-                            </div>
-                        </div>
-                        <div id="mini-calendar" class="calendar-grid"></div>
-                    </div>
-                    
-                    <!-- Top 5 Priorities -->
-                    <div class="card">
-                        <div class="card-title">
-                            🔥 Top 5 Priorities
-                            <button class="btn btn-icon btn-secondary" onclick="openModal('priority-modal')" style="margin-left: auto;">+</button>
-                        </div>
-                        <div id="priorities-list"></div>
-                    </div>
-                    
-                    <!-- Habits Summary -->
-                    <div class="card">
-                        <div class="card-title">⭐ Today's Habits</div>
-                        <div id="habits-summary"></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <!-- Timeline -->
-                    <div class="card">
-                        <div class="card-title">📋 Today's Schedule</div>
-                        <div id="overdue-alert"></div>
-                        <div class="scrollable" id="timeline"></div>
-                    </div>
-                </div>
+            <!-- EDIT MODE BANNER -->
+            <div id="edit-mode-banner" style="display: none; padding: 12px 20px; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                <div style="font-weight: 600; margin-bottom: 4px;">✏️ Edit Mode Active</div>
+                <div style="font-size: 13px; opacity: 0.9;">Drag widgets to rearrange • Click ⚙️ to configure • Click ✕ to hide</div>
+            </div>
+            
+            <!-- WIDGETS CONTAINER -->
+            <div id="home-widgets-container">
+                <!-- Widgets will be dynamically rendered here -->
             </div>
         </div>
         
@@ -872,6 +918,47 @@
     </div>
     
     <!-- MODALS -->
+    
+    <!-- Widget Library Modal -->
+    <div id="widget-library-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>📦 Widget Library</h2>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Choose widgets to show on your home page</p>
+            <div id="widget-library-list" style="display: grid; gap: 12px;">
+                <!-- Will be populated dynamically -->
+            </div>
+            <button class="btn btn-secondary" onclick="closeModal('widget-library-modal')" style="width: 100%; margin-top: 16px;">Done</button>
+        </div>
+    </div>
+    
+    <!-- Layout Presets Modal -->
+    <div id="layout-presets-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>🎨 Layout Presets</h2>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Choose a pre-made layout or keep your custom one</p>
+            <div style="display: grid; gap: 12px;">
+                <div class="item" onclick="applyLayoutPreset('default')" style="cursor: pointer; padding: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">🏠 Default - Everything</div>
+                    <div style="font-size: 13px; color: var(--text-dim);">All widgets visible including custom blocks</div>
+                </div>
+                <div class="item" onclick="applyLayoutPreset('productivity')" style="cursor: pointer; padding: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">🚀 Productivity Focus</div>
+                    <div style="font-size: 13px; color: var(--text-dim);">Custom blocks, priorities, habits, timeline only</div>
+                </div>
+                <div class="item" onclick="applyLayoutPreset('wellness')" style="cursor: pointer; padding: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">🧘 Wellness Focus</div>
+                    <div style="font-size: 13px; color: var(--text-dim);">Custom blocks, mood, habits, weather, notes only</div>
+                </div>
+                <div class="item" onclick="applyLayoutPreset('minimal')" style="cursor: pointer; padding: 16px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">✨ Minimal</div>
+                    <div style="font-size: 13px; color: var(--text-dim);">Custom blocks, priorities, timeline only</div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="closeModal('layout-presets-modal')" style="width: 100%; margin-top: 16px;">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- ORIGINAL MODALS START HERE -->
     <div id="task-modal" class="modal">
         <div class="modal-content">
             <h2>Add Task</h2>
@@ -1200,10 +1287,28 @@
             }
             
             currentTab = tab;
+            
+            // Remove active from all tabs
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             
-            document.querySelector(`.nav-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+            // Add active to clicked tab (handle both direct tabs and dropdown items)
+            const directTab = document.querySelector(`.nav-tab[onclick*="switchTab('${tab}')"]`);
+            if (directTab && !directTab.classList.contains('nav-dropdown')) {
+                directTab.classList.add('active');
+            } else {
+                // If it's in a dropdown, highlight the dropdown parent
+                const workTabs = ['tasks', 'calendar', 'goals', 'habits'];
+                const lifeTabs = ['notes', 'books', 'gifts', 'shopping'];
+                
+                if (workTabs.includes(tab)) {
+                    document.getElementById('work-dropdown').classList.add('active');
+                } else if (lifeTabs.includes(tab)) {
+                    document.getElementById('life-dropdown').classList.add('active');
+                }
+            }
+            
+            // Show the tab content
             document.getElementById(`${tab}-tab`).classList.add('active');
             
             // Render content for the tab
@@ -1219,6 +1324,42 @@
                 renderGifts();
             }
         }
+        
+        function closeDropdowns() {
+            // Dropdowns close automatically on hover-out, but this function
+            // is called when clicking a dropdown item to ensure clean behavior
+            // on mobile devices
+        }
+        
+        // Mobile dropdown toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers for mobile dropdown toggle
+            document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+                dropdown.addEventListener('click', function(e) {
+                    // Only on mobile (touch devices)
+                    if (window.innerWidth <= 768) {
+                        e.stopPropagation();
+                        const menu = this.querySelector('.dropdown-menu');
+                        const isOpen = menu.style.display === 'block';
+                        
+                        // Close all dropdowns first
+                        document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+                        
+                        // Toggle this one
+                        if (!isOpen) {
+                            menu.style.display = 'block';
+                        }
+                    }
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+                }
+            });
+        });
         
         // ==================== MODAL FUNCTIONS ====================
         function openModal(modalId) {
@@ -2483,6 +2624,788 @@
         }
         
         // ==================== PINNED NOTES CAROUSEL ====================
+        
+        // ==================== HOME DASHBOARD & WIDGET MANAGEMENT ====================
+        let editMode = false;
+        let homeWidgets = JSON.parse(localStorage.getItem('home-widgets') || 'null');
+        
+        // Default widget configuration
+        const DEFAULT_WIDGETS = [
+            { id: 'pinned-notes', name: '📌 Pinned Notes', enabled: true, order: 0, size: 'full' },
+            { id: 'weather', name: '🌤️ Weather', enabled: true, order: 1, size: 'half' },
+            { id: 'mood', name: '😊 Mood Tracker', enabled: true, order: 2, size: 'half' },
+            { id: 'mini-calendar', name: '📅 Mini Calendar', enabled: true, order: 3, size: 'half' },
+            { id: 'priorities', name: '🔥 Top 5 Priorities', enabled: true, order: 4, size: 'half' },
+            { id: 'habits-summary', name: '⭐ Habits Summary', enabled: true, order: 5, size: 'half' },
+            { id: 'timeline', name: '📋 Timeline', enabled: true, order: 6, size: 'half' }
+        ];
+        
+        // Initialize widgets if first time
+        if (!homeWidgets) {
+            homeWidgets = DEFAULT_WIDGETS;
+            localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
+        }
+        
+        // Always ensure custom-blocks widget exists at the top
+        if (!homeWidgets.find(w => w.id === 'custom-blocks')) {
+            homeWidgets.unshift({ id: 'custom-blocks', name: '✨ Custom Blocks', enabled: true, order: 0, size: 'full' });
+            // Reorder other widgets
+            homeWidgets.forEach((w, i) => {
+                if (w.id !== 'custom-blocks') w.order = i;
+            });
+            localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
+        }
+        
+        function toggleEditMode() {
+            editMode = !editMode;
+            
+            // Update button
+            document.getElementById('edit-mode-icon').textContent = editMode ? '🔒' : '🔓';
+            document.getElementById('edit-mode-text').textContent = editMode ? 'Lock' : 'Edit Mode';
+            
+            // Show/hide controls
+            document.getElementById('edit-mode-banner').style.display = editMode ? 'block' : 'none';
+            document.getElementById('widget-library-btn').style.display = editMode ? 'block' : 'none';
+            document.getElementById('layout-presets-btn').style.display = editMode ? 'block' : 'none';
+            
+            // Re-render widgets with/without edit controls
+            renderHomeWidgets();
+        }
+        
+        function renderHomeWidgets() {
+            const container = document.getElementById('home-widgets-container');
+            
+            // Sort by order
+            const sortedWidgets = [...homeWidgets].sort((a, b) => a.order - b.order);
+            const enabledWidgets = sortedWidgets.filter(w => w.enabled);
+            
+            let html = '';
+            
+            // Create grid layout
+            let currentRow = [];
+            
+            enabledWidgets.forEach((widget, index) => {
+                if (widget.size === 'full') {
+                    // Render any pending half-width widgets first
+                    if (currentRow.length > 0) {
+                        html += `<div class="grid-2">${currentRow.join('')}</div>`;
+                        currentRow = [];
+                    }
+                    // Render full-width widget
+                    html += renderWidget(widget);
+                } else if (widget.size === 'half') {
+                    currentRow.push(renderWidget(widget));
+                    
+                    // If we have 2 half widgets or this is the last widget, render row
+                    if (currentRow.length === 2 || index === enabledWidgets.length - 1) {
+                        html += `<div class="grid-2">${currentRow.join('')}</div>`;
+                        currentRow = [];
+                    }
+                }
+            });
+            
+            container.innerHTML = html || '<div class="empty">No widgets enabled. Click "📦 Add Widget" to add some!</div>';
+            
+            // Render widget-specific content
+            enabledWidgets.forEach(widget => {
+                if (widget.id === 'custom-blocks') renderCustomBlocks();
+                if (widget.id === 'pinned-notes') renderPinnedNotes();
+                if (widget.id === 'weather') loadWeather();
+                if (widget.id === 'mood') renderMoodEntries();
+                if (widget.id === 'mini-calendar') renderMiniCalendar();
+                if (widget.id === 'priorities') renderPriorities();
+                if (widget.id === 'habits-summary') renderHabitsSummary();
+                if (widget.id === 'timeline') renderTimeline();
+            });
+        }
+        
+        function renderWidget(widget) {
+            const editControls = editMode ? `
+                <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; z-index: 10;">
+                    <button class="btn btn-icon btn-secondary" onclick="moveWidget('${widget.id}', 'up')" style="width: 28px; height: 28px; font-size: 14px;">↑</button>
+                    <button class="btn btn-icon btn-secondary" onclick="moveWidget('${widget.id}', 'down')" style="width: 28px; height: 28px; font-size: 14px;">↓</button>
+                    <button class="btn btn-icon btn-secondary" onclick="toggleWidgetSize('${widget.id}')" style="width: 28px; height: 28px; font-size: 12px;">${widget.size === 'full' ? '⊟' : '⊡'}</button>
+                    <button class="btn btn-icon btn-secondary" onclick="toggleWidget('${widget.id}')" style="width: 28px; height: 28px; font-size: 14px;">✕</button>
+                </div>
+            ` : '';
+            
+            const widgetContent = getWidgetContent(widget.id);
+            
+            return `
+                <div style="position: relative;">
+                    ${editControls}
+                    ${widgetContent}
+                </div>
+            `;
+        }
+        
+        function getWidgetContent(widgetId) {
+            switch(widgetId) {
+                case 'custom-blocks':
+                    return `
+                        <div class="card" style="padding: 0;">
+                            <div style="padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="font-size: 16px; font-weight: 700;">✨ Custom Blocks</h3>
+                                <button class="btn btn-primary" onclick="openAddCustomBlock()" style="padding: 6px 12px; font-size: 13px;">+ Add Block</button>
+                            </div>
+                            <div id="custom-blocks-container" style="padding: 16px;">
+                                <!-- Custom blocks rendered here -->
+                            </div>
+                        </div>
+                    `;
+                
+                case 'pinned-notes':
+                    return `
+                        <div style="position: relative; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h3 style="font-size: 16px; font-weight: 700;">📌 Pinned Notes</h3>
+                                <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 6px 12px; font-size: 12px;">Manage</button>
+                            </div>
+                            <div id="pinned-carousel" style="min-height: 150px;">
+                                <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 20px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 20px solid rgba(255, 223, 0, 0.3);">
+                                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 15px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
+                                    <p style="color: #333; font-size: 14px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6;">No pinned notes yet. Pin a note from the Notes tab!</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: center; gap: 8px; margin-top: 12px;" id="pinned-nav">
+                                <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 32px; height: 32px;">‹</button>
+                                <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 12px; font-size: 12px;">1 / 1</span>
+                                <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 32px; height: 32px;">›</button>
+                            </div>
+                        </div>
+                    `;
+                
+                case 'weather':
+                    return `
+                        <div class="card">
+                            <div class="card-title">🌤️ Weather</div>
+                            <div id="weather-widget">
+                                <div style="font-size: 32px;" id="weather-temp">--°</div>
+                                <div id="weather-desc">Loading...</div>
+                            </div>
+                        </div>
+                    `;
+                
+                case 'mood':
+                    return `
+                        <div class="card">
+                            <div class="card-title">😊 How are you feeling?</div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <div class="mood-emoji" onclick="selectMood('😄')">😄<span class="mood-count" id="mood-count-1">0</span></div>
+                                <div class="mood-emoji" onclick="selectMood('😊')">😊<span class="mood-count" id="mood-count-2">0</span></div>
+                                <div class="mood-emoji" onclick="selectMood('😐')">😐<span class="mood-count" id="mood-count-3">0</span></div>
+                                <div class="mood-emoji" onclick="selectMood('😔')">😔<span class="mood-count" id="mood-count-4">0</span></div>
+                                <div class="mood-emoji" onclick="selectMood('😢')">😢<span class="mood-count" id="mood-count-5">0</span></div>
+                            </div>
+                            <textarea id="mood-note" placeholder="Add note (optional)" style="min-height: 60px;"></textarea>
+                            <button class="btn btn-primary" onclick="saveMood()" style="width: 100%;">Log Mood</button>
+                            <div id="mood-entries" class="mood-entries"></div>
+                        </div>
+                    `;
+                
+                case 'mini-calendar':
+                    return `
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <div style="font-size: 14px; font-weight: 600;" id="mini-cal-month"></div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-icon btn-secondary" onclick="prevMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">‹</button>
+                                    <button class="btn btn-icon btn-secondary" onclick="todayMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">•</button>
+                                    <button class="btn btn-icon btn-secondary" onclick="nextMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">›</button>
+                                </div>
+                            </div>
+                            <div id="mini-calendar" class="calendar-grid"></div>
+                        </div>
+                    `;
+                
+                case 'priorities':
+                    return `
+                        <div class="card">
+                            <div class="card-title">
+                                🔥 Top 5 Priorities
+                                <button class="btn btn-icon btn-secondary" onclick="openModal('priority-modal')" style="margin-left: auto;">+</button>
+                            </div>
+                            <div id="priorities-list"></div>
+                        </div>
+                    `;
+                
+                case 'habits-summary':
+                    return `
+                        <div class="card">
+                            <div class="card-title">⭐ Today's Habits</div>
+                            <div id="habits-summary"></div>
+                        </div>
+                    `;
+                
+                case 'timeline':
+                    return `
+                        <div class="card">
+                            <div class="card-title">📋 Today's Schedule</div>
+                            <div id="overdue-alert"></div>
+                            <div class="scrollable" id="timeline"></div>
+                        </div>
+                    `;
+                
+                default:
+                    return '<div class="card">Unknown widget</div>';
+            }
+        }
+        
+        function moveWidget(widgetId, direction) {
+            const widgetIndex = homeWidgets.findIndex(w => w.id === widgetId);
+            if (widgetIndex === -1) return;
+            
+            const widget = homeWidgets[widgetIndex];
+            const targetIndex = direction === 'up' ? widgetIndex - 1 : widgetIndex + 1;
+            
+            if (targetIndex < 0 || targetIndex >= homeWidgets.length) return;
+            
+            // Swap orders
+            const tempOrder = widget.order;
+            widget.order = homeWidgets[targetIndex].order;
+            homeWidgets[targetIndex].order = tempOrder;
+            
+            localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
+            renderHomeWidgets();
+        }
+        
+        function toggleWidget(widgetId) {
+            const widget = homeWidgets.find(w => w.id === widgetId);
+            if (widget) {
+                widget.enabled = !widget.enabled;
+                localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
+                renderHomeWidgets();
+            }
+        }
+        
+        function toggleWidgetSize(widgetId) {
+            const widget = homeWidgets.find(w => w.id === widgetId);
+            if (widget) {
+                widget.size = widget.size === 'full' ? 'half' : 'full';
+                localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
+                renderHomeWidgets();
+            }
+        }
+        
+        function openWidgetLibrary() {
+            // Add custom-blocks widget if not exists
+            if (!homeWidgets.find(w => w.id === 'custom-blocks')) {
+                homeWidgets.unshift({ id: 'custom-blocks', name: '✨ Custom Blocks', enabled: true, order: 0, size: 'full' });
+                // Reorder other widgets
+                homeWidgets.forEach((w, i) => {
+                    if (w.id !== 'custom-blocks') w.order = i;
+                });
+                localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
+            }
+            
+            const list = document.getElementById('widget-library-list');
+            list.innerHTML = homeWidgets.map(widget => `
+                <div class="item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px;">
+                    <div>
+                        <div style="font-weight: 600;">${widget.name}</div>
+                        <div style="font-size: 12px; color: var(--text-dim);">Size: ${widget.size === 'full' ? 'Full Width' : 'Half Width'}</div>
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" ${widget.enabled ? 'checked' : ''} onchange="toggleWidget('${widget.id}')">
+                        <span style="font-size: 12px;">${widget.enabled ? 'Visible' : 'Hidden'}</span>
+                    </label>
+                </div>
+            `).join('');
+            openModal('widget-library-modal');
+        }
+        
+        function openLayoutPresets() {
+            openModal('layout-presets-modal');
+        }
+        
+        function applyLayoutPreset(preset) {
+            // Add custom-blocks if not exists
+            if (!homeWidgets.find(w => w.id === 'custom-blocks')) {
+                homeWidgets.push({ id: 'custom-blocks', name: '✨ Custom Blocks', enabled: false, order: 0, size: 'full' });
+            }
+            
+            switch(preset) {
+                case 'default':
+                    homeWidgets.forEach(w => {
+                        if (w.id === 'custom-blocks') w.enabled = true;
+                        else w.enabled = true;
+                    });
+                    break;
+                
+                case 'productivity':
+                    homeWidgets.forEach(w => {
+                        w.enabled = ['custom-blocks', 'priorities', 'habits-summary', 'timeline'].includes(w.id);
+                    });
+                    break;
+                
+                case 'wellness':
+                    homeWidgets.forEach(w => {
+                        w.enabled = ['custom-blocks', 'mood', 'habits-summary', 'weather', 'pinned-notes'].includes(w.id);
+                    });
+                    break;
+                
+                case 'minimal':
+                    homeWidgets.forEach(w => {
+                        w.enabled = ['custom-blocks', 'priorities', 'timeline'].includes(w.id);
+                    });
+                    break;
+            }
+            
+            localStorage.setItem('home-widgets', JSON.stringify(homeWidgets));
+            closeModal('layout-presets-modal');
+            renderHomeWidgets();
+        }
+        
+        // Keep old widget carousel functions for quick view widget
+        let currentWidgetType = 'tasks';
+        let currentWidgetIndex = 0;
+        
+        // ==================== CUSTOM BLOCKS SYSTEM ====================
+        let customBlocks = JSON.parse(localStorage.getItem('custom-blocks') || '[]');
+        
+        // Block templates
+        const BLOCK_TEMPLATES = {
+            'current-book': {
+                name: '📖 Current Book',
+                icon: '📖',
+                fields: [
+                    { id: 'title', label: 'Book Title', type: 'text' },
+                    { id: 'author', label: 'Author', type: 'text' },
+                    { id: 'page', label: 'Current Page', type: 'number' },
+                    { id: 'total', label: 'Total Pages', type: 'number' },
+                    { id: 'rating', label: 'Rating', type: 'stars' },
+                    { id: 'quote', label: 'Favorite Quote', type: 'textarea' }
+                ]
+            },
+            'quick-notes': {
+                name: '📝 Quick Notes',
+                icon: '📝',
+                fields: [
+                    { id: 'title', label: 'Title', type: 'text' },
+                    { id: 'content', label: 'Content', type: 'textarea' }
+                ]
+            },
+            'goals-progress': {
+                name: '🎯 Goal Progress',
+                icon: '🎯',
+                fields: [
+                    { id: 'goal', label: 'Goal Name', type: 'text' },
+                    { id: 'progress', label: 'Progress %', type: 'number' },
+                    { id: 'notes', label: 'Notes', type: 'textarea' }
+                ]
+            },
+            'habit-tracker': {
+                name: '⭐ Habit Streak',
+                icon: '⭐',
+                fields: [
+                    { id: 'habit', label: 'Habit Name', type: 'text' },
+                    { id: 'streak', label: 'Current Streak', type: 'number' },
+                    { id: 'goal', label: 'Goal Streak', type: 'number' }
+                ]
+            },
+            'motivational': {
+                name: '💪 Motivation',
+                icon: '💪',
+                fields: [
+                    { id: 'quote', label: 'Quote', type: 'textarea' },
+                    { id: 'author', label: 'Author', type: 'text' }
+                ]
+            },
+            'custom': {
+                name: '✨ Custom Block',
+                icon: '✨',
+                fields: [
+                    { id: 'title', label: 'Title', type: 'text' },
+                    { id: 'content', label: 'Content', type: 'textarea' }
+                ]
+            }
+        };
+        
+        function openAddCustomBlock() {
+            const modal = document.getElementById('custom-block-modal');
+            if (!modal) {
+                // Create modal dynamically
+                const modalHTML = `
+                    <div id="custom-block-modal" class="modal">
+                        <div class="modal-content" style="max-width: 500px;">
+                            <h2>✨ Add Custom Block</h2>
+                            <p style="color: var(--text-dim); margin-bottom: 20px;">Choose a block template:</p>
+                            <div style="display: grid; gap: 12px;">
+                                ${Object.entries(BLOCK_TEMPLATES).map(([key, template]) => `
+                                    <div class="item" onclick="createCustomBlock('${key}')" style="cursor: pointer; padding: 16px; display: flex; align-items: center; gap: 12px;">
+                                        <div style="font-size: 32px;">${template.icon}</div>
+                                        <div style="font-weight: 600;">${template.name}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="btn btn-secondary" onclick="closeModal('custom-block-modal')" style="width: 100%; margin-top: 16px;">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+            }
+            openModal('custom-block-modal');
+        }
+        
+        function createCustomBlock(templateKey) {
+            const template = BLOCK_TEMPLATES[templateKey];
+            const block = {
+                id: Date.now(),
+                type: templateKey,
+                name: template.name,
+                icon: template.icon,
+                data: {}
+            };
+            
+            // Initialize empty data
+            template.fields.forEach(field => {
+                block.data[field.id] = field.type === 'number' ? 0 : '';
+            });
+            
+            customBlocks.push(block);
+            localStorage.setItem('custom-blocks', JSON.stringify(customBlocks));
+            closeModal('custom-block-modal');
+            
+            // Open edit modal immediately
+            editCustomBlock(block.id);
+        }
+        
+        function editCustomBlock(blockId) {
+            const block = customBlocks.find(b => b.id === blockId);
+            if (!block) return;
+            
+            const template = BLOCK_TEMPLATES[block.type];
+            
+            const modalHTML = `
+                <div id="edit-custom-block-modal" class="modal" style="display: block;">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <h2>${block.icon} ${block.name}</h2>
+                        <div style="margin: 20px 0;">
+                            ${template.fields.map(field => {
+                                if (field.type === 'textarea') {
+                                    return `
+                                        <label style="display: block; margin-bottom: 16px;">
+                                            <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">${field.label}</div>
+                                            <textarea id="field-${field.id}" style="min-height: 80px;">${block.data[field.id] || ''}</textarea>
+                                        </label>
+                                    `;
+                                } else if (field.type === 'stars') {
+                                    return `
+                                        <label style="display: block; margin-bottom: 16px;">
+                                            <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">${field.label}</div>
+                                            <div style="display: flex; gap: 8px;">
+                                                ${[1,2,3,4,5].map(star => `
+                                                    <span onclick="setBlockRating(${blockId}, ${star})" style="cursor: pointer; font-size: 28px;" id="star-${blockId}-${star}">
+                                                        ${(block.data[field.id] || 0) >= star ? '⭐' : '☆'}
+                                                    </span>
+                                                `).join('')}
+                                            </div>
+                                        </label>
+                                    `;
+                                } else {
+                                    return `
+                                        <label style="display: block; margin-bottom: 16px;">
+                                            <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">${field.label}</div>
+                                            <input type="${field.type}" id="field-${field.id}" value="${block.data[field.id] || ''}" ${field.type === 'number' ? 'min="0"' : ''}>
+                                        </label>
+                                    `;
+                                }
+                            }).join('')}
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="closeEditBlockModal()" style="flex: 1;">Cancel</button>
+                            <button class="btn btn-primary" onclick="saveCustomBlock(${blockId})" style="flex: 1;">Save</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove old modal if exists
+            const oldModal = document.getElementById('edit-custom-block-modal');
+            if (oldModal) oldModal.remove();
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+        
+        function setBlockRating(blockId, rating) {
+            const block = customBlocks.find(b => b.id === blockId);
+            if (!block) return;
+            
+            block.data.rating = rating;
+            
+            // Update star display
+            for (let i = 1; i <= 5; i++) {
+                const star = document.getElementById(`star-${blockId}-${i}`);
+                if (star) {
+                    star.textContent = i <= rating ? '⭐' : '☆';
+                }
+            }
+        }
+        
+        function saveCustomBlock(blockId) {
+            const block = customBlocks.find(b => b.id === blockId);
+            if (!block) return;
+            
+            const template = BLOCK_TEMPLATES[block.type];
+            
+            // Save all field values
+            template.fields.forEach(field => {
+                if (field.type !== 'stars') {
+                    const input = document.getElementById(`field-${field.id}`);
+                    if (input) {
+                        block.data[field.id] = field.type === 'number' ? parseInt(input.value) || 0 : input.value;
+                    }
+                }
+            });
+            
+            localStorage.setItem('custom-blocks', JSON.stringify(customBlocks));
+            closeEditBlockModal();
+            renderCustomBlocks();
+        }
+        
+        function closeEditBlockModal() {
+            const modal = document.getElementById('edit-custom-block-modal');
+            if (modal) modal.remove();
+        }
+        
+        function deleteCustomBlock(blockId) {
+            if (!confirm('Delete this block?')) return;
+            
+            customBlocks = customBlocks.filter(b => b.id !== blockId);
+            localStorage.setItem('custom-blocks', JSON.stringify(customBlocks));
+            renderCustomBlocks();
+        }
+        
+        function renderCustomBlocks() {
+            const container = document.getElementById('custom-blocks-container');
+            if (!container) return;
+            
+            if (customBlocks.length === 0) {
+                container.innerHTML = '<div class="empty">No custom blocks yet. Click "+ Add Block" to create one!</div>';
+                return;
+            }
+            
+            container.innerHTML = customBlocks.map(block => {
+                const template = BLOCK_TEMPLATES[block.type];
+                
+                return `
+                    <div class="item block-item-${block.id}" style="margin-bottom: 12px; position: relative; ${!editMode ? 'cursor: pointer;' : ''}" data-block-id="${block.id}">
+                        ${editMode ? `
+                            <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; z-index: 10;">
+                                <button class="btn btn-icon btn-secondary edit-block-btn" data-block-id="${block.id}" style="width: 28px; height: 28px; font-size: 14px;">✏️</button>
+                                <button class="btn btn-icon btn-secondary delete-block-btn" data-block-id="${block.id}" style="width: 28px; height: 28px; font-size: 14px;">🗑️</button>
+                            </div>
+                        ` : ''}
+                        
+                        <div style="display: flex; align-items: start; gap: 12px;">
+                            <div style="font-size: 32px; flex-shrink: 0;">${block.icon}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">${block.name}</div>
+                                ${renderBlockContent(block, template)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add click handlers after rendering
+            customBlocks.forEach(block => {
+                const blockEl = container.querySelector(`.block-item-${block.id}`);
+                if (blockEl && !editMode) {
+                    blockEl.onclick = () => editCustomBlock(block.id);
+                }
+                
+                // Edit button in edit mode
+                const editBtn = container.querySelector(`.edit-block-btn[data-block-id="${block.id}"]`);
+                if (editBtn) {
+                    editBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        editCustomBlock(block.id);
+                    };
+                }
+                
+                // Delete button in edit mode
+                const deleteBtn = container.querySelector(`.delete-block-btn[data-block-id="${block.id}"]`);
+                if (deleteBtn) {
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteCustomBlock(block.id);
+                    };
+                }
+            });
+        }
+        
+        function renderBlockContent(block, template) {
+            let html = '';
+            
+            template.fields.forEach(field => {
+                const value = block.data[field.id];
+                
+                if (field.type === 'stars' && value) {
+                    html += `<div style="margin-bottom: 6px;">
+                        <span style="font-size: 12px; color: var(--text-dim);">${field.label}:</span>
+                        <span style="margin-left: 8px;">${'⭐'.repeat(value)}${'☆'.repeat(5-value)}</span>
+                    </div>`;
+                } else if (field.type === 'number' && value) {
+                    // Special handling for book progress
+                    if (field.id === 'page' && block.data.total) {
+                        const percent = Math.round((value / block.data.total) * 100);
+                        html += `<div style="margin-bottom: 8px;">
+                            <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">Progress: ${value} / ${block.data.total} pages (${percent}%)</div>
+                            <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                <div style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: ${percent}%;"></div>
+                            </div>
+                        </div>`;
+                    } else if (field.id === 'progress') {
+                        html += `<div style="margin-bottom: 8px;">
+                            <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">Progress: ${value}%</div>
+                            <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                <div style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: ${value}%;"></div>
+                            </div>
+                        </div>`;
+                    } else {
+                        html += `<div style="font-size: 13px; margin-bottom: 6px;"><span style="color: var(--text-dim);">${field.label}:</span> ${value}</div>`;
+                    }
+                } else if (value && field.type !== 'number') {
+                    // Don't show page/total separately for books
+                    if (block.type === 'current-book' && (field.id === 'page' || field.id === 'total')) {
+                        // Skip, handled above
+                    } else {
+                        html += `<div style="font-size: 13px; margin-bottom: 6px; ${field.type === 'textarea' ? 'line-height: 1.5;' : ''}">
+                            ${field.label !== 'Content' && field.label !== 'Quote' ? `<span style="color: var(--text-dim);">${field.label}:</span> ` : ''}
+                            ${field.type === 'textarea' ? `<div style="margin-top: 4px; font-style: ${field.id === 'quote' ? 'italic' : 'normal'};">${value}</div>` : value}
+                        </div>`;
+                    }
+                }
+            });
+            
+            return html || '<div style="font-size: 13px; color: var(--text-dim);">Click to add details</div>';
+        }
+        
+        function switchWidget() {
+            currentWidgetType = document.getElementById('widget-type').value;
+            currentWidgetIndex = 0;
+            renderQuickView();
+        }
+        
+        function prevWidget() {
+            const items = getWidgetItems();
+            if (items.length > 0) {
+                currentWidgetIndex = (currentWidgetIndex - 1 + items.length) % items.length;
+                renderQuickView();
+            }
+        }
+        
+        function nextWidget() {
+            const items = getWidgetItems();
+            if (items.length > 0) {
+                currentWidgetIndex = (currentWidgetIndex + 1) % items.length;
+                renderQuickView();
+            }
+        }
+        
+        function getWidgetItems() {
+            if (currentWidgetType === 'tasks') {
+                const incompleteTasks = tasks.filter(t => !t.completed);
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
+                return incompleteTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]).slice(0, 5);
+            } else if (currentWidgetType === 'habits') {
+                return habits;
+            } else if (currentWidgetType === 'notes') {
+                return notes.filter(n => n.pinned);
+            }
+            return [];
+        }
+        
+        function renderQuickView() {
+            const items = getWidgetItems();
+            const container = document.getElementById('widget-content');
+            
+            if (!container) return; // Widget not visible
+            
+            if (items.length === 0) {
+                if (currentWidgetType === 'tasks') {
+                    container.innerHTML = '<div class="empty" style="padding: 40px;">No tasks yet! Add some tasks to get started.</div>';
+                } else if (currentWidgetType === 'habits') {
+                    container.innerHTML = '<div class="empty" style="padding: 40px;">No habits yet! Create habits to track daily.</div>';
+                } else {
+                    container.innerHTML = '<div class="empty" style="padding: 40px;">No pinned notes yet! Pin a note from the Notes tab.</div>';
+                }
+                return;
+            }
+            
+            const item = items[currentWidgetIndex];
+            
+            if (currentWidgetType === 'tasks') {
+                const priorityColors = {
+                    high: '#ef4444',
+                    medium: '#f59e0b',
+                    low: '#10b981'
+                };
+                const priorityLabels = {
+                    high: 'HIGH',
+                    medium: 'MED',
+                    low: 'LOW'
+                };
+                
+                container.innerHTML = `
+                    <div style="padding: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                            <div style="flex: 1;">
+                                <div style="display: inline-block; padding: 4px 8px; background: ${priorityColors[item.priority]}; color: white; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">${priorityLabels[item.priority]} PRIORITY</div>
+                                <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">${item.name}</h3>
+                                ${item.desc ? `<p style="color: var(--text-dim); font-size: 14px; margin-bottom: 12px;">${item.desc}</p>` : ''}
+                                ${item.date ? `<div style="font-size: 13px; color: var(--text-dim);">📅 ${item.date} ${item.time ? 'at ' + item.time : ''}</div>` : ''}
+                                ${item.recurring && item.recurring !== 'none' ? `<div style="font-size: 13px; color: var(--secondary); margin-top: 4px;">🔄 Repeats ${item.recurring}</div>` : ''}
+                            </div>
+                            <button class="btn btn-primary" onclick="toggleTask(${item.id}); renderQuickView();" style="margin-left: 16px;">✓ Complete</button>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px; color: var(--text-dim); font-size: 12px;">
+                            Task ${currentWidgetIndex + 1} of ${items.length}
+                        </div>
+                    </div>
+                `;
+            } else if (currentWidgetType === 'habits') {
+                const today = formatDate(new Date());
+                const completed = habitCompletions[item.id]?.[today] || false;
+                
+                container.innerHTML = `
+                    <div style="padding: 24px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">${item.icon}</div>
+                            <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">${item.name}</h3>
+                            ${item.desc ? `<p style="color: var(--text-dim); font-size: 14px; margin-bottom: 20px;">${item.desc}</p>` : ''}
+                            <button class="btn ${completed ? 'btn-secondary' : 'btn-primary'}" onclick="toggleHabit(${item.id}); renderQuickView();" style="font-size: 16px; padding: 12px 32px;">
+                                ${completed ? '✓ Completed Today!' : '✓ Mark Complete'}
+                            </button>
+                            <div style="margin-top: 16px;">
+                                <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">Streak</div>
+                                <div style="font-size: 28px; font-weight: 700; color: var(--primary);">${calculateStreak(item.id)} days 🔥</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px; color: var(--text-dim); font-size: 12px;">
+                            Habit ${currentWidgetIndex + 1} of ${items.length}
+                        </div>
+                    </div>
+                `;
+            } else if (currentWidgetType === 'notes') {
+                const colors = ['#fef68a', '#a7f3d0', '#fecaca', '#bfdbfe', '#fef3c7'];
+                const color = colors[currentWidgetIndex % colors.length];
+                
+                container.innerHTML = `
+                    <div style="background: linear-gradient(135deg, ${color} 0%, ${color} 100%); padding: 24px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transform: rotate(-1deg); border-top: 20px solid rgba(255, 223, 0, 0.3); position: relative; min-height: 180px;">
+                        <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 15px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
+                        <div style="font-weight: 700; font-size: 18px; margin-bottom: 12px; color: #333; font-family: 'Comic Sans MS', cursive, sans-serif;">${item.locked ? '🔒 ' : ''}${item.name}</div>
+                        <div style="color: #333; font-size: 14px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6; white-space: pre-wrap;">${item.text.substring(0, 200)}${item.text.length > 200 ? '...' : ''}</div>
+                        ${item.date ? `<div style="font-size: 11px; color: #666; margin-top: 12px; font-family: 'Comic Sans MS', cursive, sans-serif;">📅 ${item.date}</div>` : ''}
+                        <div style="text-align: center; margin-top: 16px; color: #666; font-size: 12px; font-family: 'Comic Sans MS', cursive, sans-serif;">
+                            Note ${currentWidgetIndex + 1} of ${items.length}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
         function renderPinnedNotes() {
             const pinnedNotes = notes.filter(n => n.pinned);
             const content = document.getElementById('pinned-content');
@@ -3278,15 +4201,8 @@
             // Check recurring tasks
             checkRecurringTasks();
             
-            // Render all components
-            renderPriorities();
-            renderHabitsSummary();
-            renderTimeline();
-            renderMoodEntries();
-            renderMiniCalendar();
-            renderPinnedNotes();
-            loadWeather();
-            // DON'T auto-run holiday animations - only when user clicks a holiday
+            // Render home dashboard
+            renderHomeWidgets();
             
             // Update sync status every 10 seconds
             setInterval(updateSyncStatus, 10000);
