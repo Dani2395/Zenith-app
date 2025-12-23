@@ -565,6 +565,9 @@
         </div>
     </div>
     
+    <!-- QUICK CAPTURE FLOATING BUTTON -->
+    <button onclick="openQuickCapture()" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; color: white; font-size: 32px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); cursor: pointer; z-index: 1000; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">+</button>
+    
     <!-- SYNC STATUS INDICATOR -->
     <div style="position: fixed; top: 70px; right: 20px; background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; font-size: 11px; display: flex; align-items: center; gap: 6px; z-index: 999; cursor: pointer;" id="sync-status" onclick="showSyncInfo()">
         <div id="sync-dot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--success);"></div>
@@ -849,6 +852,13 @@
             </select>
             <input type="date" id="task-date">
             <input type="time" id="task-time">
+            <select id="task-recurring">
+                <option value="none">Does not repeat</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+            </select>
             <div style="display: flex; gap: 12px;">
                 <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
                 <button class="btn btn-primary" onclick="saveTask()">Save Task</button>
@@ -993,6 +1003,46 @@
             </div>
         </div>
     </div>
+    
+    <div id="custom-holiday-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Custom Holiday</h2>
+            <input type="text" id="custom-holiday-name" placeholder="Holiday name (e.g., Mom's Birthday) *">
+            <input type="date" id="custom-holiday-date">
+            <select id="custom-holiday-animation">
+                <option value="none">No Animation</option>
+                <option value="hearts">Hearts 💝</option>
+                <option value="confetti">Confetti 🎉</option>
+                <option value="snow">Snowflakes ❄️</option>
+                <option value="fireworks">Fireworks 🎆</option>
+                <option value="candles">Candles 🕯️</option>
+            </select>
+            <label class="btn btn-secondary" style="cursor: pointer; width: 100%; text-align: center; margin-bottom: 16px;">
+                📷 Upload Holiday Image
+                <input type="file" id="custom-holiday-image" accept="image/*" onchange="handleCustomHolidayImage()" style="display: none;">
+            </label>
+            <div id="custom-holiday-preview" style="max-height: 100px; overflow: hidden; border-radius: 8px; margin-bottom: 16px;"></div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="closeModal('custom-holiday-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCustomHoliday()">Save Holiday</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="quick-capture-modal" class="modal">
+        <div class="modal-content">
+            <h2>Quick Capture</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <button class="btn btn-primary" onclick="quickCaptureTask()">📋 Task</button>
+                <button class="btn btn-primary" onclick="quickCaptureNote()">📝 Note</button>
+                <button class="btn btn-primary" onclick="quickCaptureEvent()">📅 Event</button>
+                <button class="btn btn-primary" onclick="quickCaptureHoliday()">🎉 Holiday</button>
+            </div>
+            <textarea id="quick-capture-text" placeholder="Type or speak..." style="min-height: 100px; margin-bottom: 12px;"></textarea>
+            <button class="btn btn-secondary" onclick="startVoiceCapture()" style="width: 100%; margin-bottom: 16px;">🎤 Voice Capture</button>
+            <button class="btn btn-secondary" onclick="closeModal('quick-capture-modal')" style="width: 100%;">Cancel</button>
+        </div>
+    </div>
 
     <script>
         // ==================== DATA STORAGE ====================
@@ -1031,6 +1081,8 @@
             localStorage.setItem('books', JSON.stringify(books));
             localStorage.setItem('goals', JSON.stringify(goals));
             localStorage.setItem('habit-completions', JSON.stringify(habitCompletions));
+            localStorage.setItem('custom-holidays', JSON.stringify(customHolidays));
+            localStorage.setItem('notification-settings', JSON.stringify(notificationSettings));
             
             triggerSync();
         }
@@ -1100,6 +1152,7 @@
                 priority: document.getElementById('task-priority').value,
                 date: document.getElementById('task-date').value,
                 time: document.getElementById('task-time').value,
+                recurring: document.getElementById('task-recurring').value,
                 completed: false,
                 createdDate: formatDate(new Date())
             });
@@ -1108,6 +1161,7 @@
             closeModal('task-modal');
             renderTasks();
             renderTimeline();
+            scheduleNotification('task', tasks[tasks.length - 1]);
         }
         
         function toggleTask(id) {
@@ -1683,6 +1737,8 @@
         // ==================== GOALS ====================
         let goals = JSON.parse(localStorage.getItem('goals') || '[]');
         let currentGoalFilter = 'all';
+        let customHolidays = JSON.parse(localStorage.getItem('custom-holidays') || '[]');
+        let notificationSettings = JSON.parse(localStorage.getItem('notification-settings') || '{"tasks": true, "events": true, "overdue": true, "habits": true}');
         
         function saveGoal() {
             const title = document.getElementById('goal-title').value;
@@ -1893,7 +1949,7 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrevMonth = new Date(year, month, 0).getDate();
-            const holidays = getAnnualHolidays(year);
+            const holidays = getAllHolidays(year);
             
             // Day labels
             const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -1950,7 +2006,7 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const daysInPrevMonth = new Date(year, month, 0).getDate();
-            const holidays = getAnnualHolidays(year);
+            const holidays = getAllHolidays(year);
             
             // Day labels
             const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -2028,7 +2084,7 @@
             
             // Check if it's a holiday
             const year = selectedDate.getFullYear();
-            const holidays = getAnnualHolidays(year);
+            const holidays = getAllHolidays(year);
             const holiday = holidays.find(h => h.date === dateStr);
             
             // If holiday is clicked, trigger animations ONLY for that day
@@ -2336,6 +2392,13 @@
             // Clear existing animations
             clearAnimations();
             
+            // Check if it's a custom holiday with animation
+            const customHoliday = customHolidays.find(h => h.date === today);
+            if (customHoliday && customHoliday.animation !== 'none') {
+                triggerCustomAnimation(customHoliday.animation);
+                return;
+            }
+            
             // Only show animations if date was clicked OR if it's actually that holiday today
             const shouldShow = clickedDate || isToday(today);
             if (!shouldShow) return;
@@ -2396,16 +2459,70 @@
                 }
             }
             
-            // Stop after 45 seconds
+            // Stop after 15 seconds
             if (animationTimeout) clearTimeout(animationTimeout);
             animationTimeout = setTimeout(() => {
                 clearAnimations();
-            }, 45000);
+            }, 15000);
         }
         
         function clearAnimations() {
             document.querySelectorAll('.snowflake').forEach(el => el.remove());
             document.getElementById('fireplace').classList.remove('active');
+        }
+        
+        function triggerCustomAnimation(type) {
+            if (type === 'hearts') {
+                for (let i = 0; i < 30; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'snowflake';
+                    heart.textContent = '💝';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.animationDuration = (Math.random() * 4 + 3) + 's';
+                    heart.style.animationDelay = Math.random() * 5 + 's';
+                    document.body.appendChild(heart);
+                }
+            } else if (type === 'confetti') {
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'snowflake';
+                    confetti.textContent = ['🎉', '🎊', '✨', '🎆'][Math.floor(Math.random() * 4)];
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    confetti.style.animationDelay = Math.random() * 5 + 's';
+                    document.body.appendChild(confetti);
+                }
+            } else if (type === 'snow') {
+                for (let i = 0; i < 50; i++) {
+                    const snow = document.createElement('div');
+                    snow.className = 'snowflake';
+                    snow.textContent = '❄';
+                    snow.style.left = Math.random() * 100 + '%';
+                    snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    snow.style.animationDelay = Math.random() * 5 + 's';
+                    document.body.appendChild(snow);
+                }
+            } else if (type === 'fireworks') {
+                for (let i = 0; i < 40; i++) {
+                    setTimeout(() => createFirework(), i * 300);
+                }
+            } else if (type === 'candles') {
+                for (let i = 0; i < 20; i++) {
+                    const candle = document.createElement('div');
+                    candle.className = 'snowflake';
+                    candle.textContent = '🕯️';
+                    candle.style.left = Math.random() * 100 + '%';
+                    candle.style.animationDuration = (Math.random() * 6 + 4) + 's';
+                    candle.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(candle);
+                }
+            }
+            
+            // Auto-stop after 15 seconds
+            if (animationTimeout) clearTimeout(animationTimeout);
+            animationTimeout = setTimeout(() => {
+                clearAnimations();
+            }, 15000);
         }
         
         function createFirework() {
@@ -2450,10 +2567,269 @@
             }
         }
         
+        
+        // ==================== QUICK CAPTURE ====================
+        let customHolidayImageData = null;
+        
+        function openQuickCapture() {
+            openModal('quick-capture-modal');
+            document.getElementById('quick-capture-text').focus();
+        }
+        
+        function quickCaptureTask() {
+            const text = document.getElementById('quick-capture-text').value.trim();
+            if (!text) return alert('Please enter task name');
+            
+            tasks.push({
+                id: Date.now(),
+                name: text,
+                desc: '',
+                priority: 'medium',
+                date: formatDate(new Date()),
+                time: '',
+                recurring: 'none',
+                completed: false,
+                createdDate: formatDate(new Date())
+            });
+            
+            save();
+            closeModal('quick-capture-modal');
+            document.getElementById('quick-capture-text').value = '';
+            renderTasks();
+            renderTimeline();
+            alert('✅ Task added!');
+        }
+        
+        function quickCaptureNote() {
+            const text = document.getElementById('quick-capture-text').value.trim();
+            if (!text) return alert('Please enter note content');
+            
+            notes.push({
+                id: Date.now(),
+                name: 'Quick Note',
+                text: text,
+                locked: false,
+                pinned: false,
+                images: [],
+                voice: null,
+                date: formatDate(new Date()),
+                createdDate: formatDate(new Date())
+            });
+            
+            save();
+            closeModal('quick-capture-modal');
+            document.getElementById('quick-capture-text').value = '';
+            renderNotes();
+            alert('✅ Note added!');
+        }
+        
+        function quickCaptureEvent() {
+            const text = document.getElementById('quick-capture-text').value.trim();
+            if (!text) return alert('Please enter event name');
+            
+            events.push({
+                id: Date.now(),
+                name: text,
+                desc: '',
+                date: formatDate(new Date()),
+                time: '',
+                createdDate: formatDate(new Date())
+            });
+            
+            save();
+            closeModal('quick-capture-modal');
+            document.getElementById('quick-capture-text').value = '';
+            renderTimeline();
+            alert('✅ Event added!');
+        }
+        
+        function quickCaptureHoliday() {
+            closeModal('quick-capture-modal');
+            openModal('custom-holiday-modal');
+        }
+        
+        function startVoiceCapture() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert('Voice capture not supported in this browser. Try Chrome!');
+                return;
+            }
+            
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.start();
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('quick-capture-text').value = transcript;
+            };
+            
+            recognition.onerror = () => {
+                alert('Voice capture failed. Please try typing instead.');
+            };
+        }
+        
+        // ==================== CUSTOM HOLIDAYS ====================
+        function handleCustomHolidayImage() {
+            const file = document.getElementById('custom-holiday-image').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                customHolidayImageData = e.target.result;
+                document.getElementById('custom-holiday-preview').innerHTML = `
+                    <img src="${customHolidayImageData}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px;">
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function saveCustomHoliday() {
+            const name = document.getElementById('custom-holiday-name').value.trim();
+            const date = document.getElementById('custom-holiday-date').value;
+            const animation = document.getElementById('custom-holiday-animation').value;
+            
+            if (!name || !date) return alert('Please enter holiday name and date');
+            
+            customHolidays.push({
+                id: Date.now(),
+                name,
+                date,
+                animation,
+                img: customHolidayImageData || 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400',
+                emoji: '🎉'
+            });
+            
+            customHolidayImageData = null;
+            save();
+            closeModal('custom-holiday-modal');
+            document.getElementById('custom-holiday-name').value = '';
+            document.getElementById('custom-holiday-date').value = '';
+            document.getElementById('custom-holiday-preview').innerHTML = '';
+            renderFullCalendar();
+            renderMiniCalendar();
+            alert('✅ Custom holiday added!');
+        }
+        
+        function getAllHolidays(year) {
+            const defaultHolidays = getAnnualHolidays(year);
+            const customForYear = customHolidays.filter(h => h.date.startsWith(year.toString()));
+            return [...defaultHolidays, ...customForYear];
+        }
+        
+        // ==================== NOTIFICATIONS ====================
+        function scheduleNotification(type, item) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            
+            // Task notifications - 1 hour before
+            if (type === 'task' && item.date && item.time && notificationSettings.tasks) {
+                const taskDate = new Date(item.date + ' ' + item.time);
+                const notifyTime = new Date(taskDate.getTime() - 60 * 60 * 1000); // 1 hour before
+                const now = new Date();
+                
+                if (notifyTime > now) {
+                    const delay = notifyTime.getTime() - now.getTime();
+                    setTimeout(() => {
+                        new Notification('📋 Task Reminder', {
+                            body: `"${item.name}" is due in 1 hour`,
+                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="70" font-size="60">📋</text></svg>',
+                            tag: 'task-' + item.id
+                        });
+                    }, delay);
+                }
+            }
+            
+            // Event notifications - 30 min before
+            if (type === 'event' && item.date && item.time && notificationSettings.events) {
+                const eventDate = new Date(item.date + ' ' + item.time);
+                const notifyTime = new Date(eventDate.getTime() - 30 * 60 * 1000); // 30 min before
+                const now = new Date();
+                
+                if (notifyTime > now) {
+                    const delay = notifyTime.getTime() - now.getTime();
+                    setTimeout(() => {
+                        new Notification('📅 Event Reminder', {
+                            body: `"${item.name}" starts in 30 minutes`,
+                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="70" font-size="60">📅</text></svg>',
+                            tag: 'event-' + item.id
+                        });
+                    }, delay);
+                }
+            }
+        }
+        
+        function checkOverdueNotifications() {
+            if (!notificationSettings.overdue || Notification.permission !== 'granted') return;
+            
+            const overdue = tasks.filter(t => !t.completed && t.date && isPast(t.date));
+            
+            if (overdue.length > 0) {
+                new Notification('⚠️ Overdue Tasks', {
+                    body: `You have ${overdue.length} overdue task(s)`,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="70" font-size="60">⚠️</text></svg>'
+                });
+            }
+        }
+        
+        function checkHabitNotifications() {
+            if (!notificationSettings.habits || Notification.permission !== 'granted') return;
+            
+            const today = formatDate(new Date());
+            const incompleteTodayHabits = habits.filter(h => !habitCompletions[h.id]?.[today]);
+            
+            if (incompleteTodayHabits.length > 0 && new Date().getHours() === 20) {
+                new Notification('⭐ Habit Reminder', {
+                    body: `Don't forget your ${incompleteTodayHabits.length} habit(s) today!`,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="70" font-size="60">⭐</text></svg>'
+                });
+            }
+        }
+        
+        // ==================== RECURRING TASKS ====================
+        function checkRecurringTasks() {
+            const today = formatDate(new Date());
+            
+            tasks.forEach(task => {
+                if (task.completed && task.recurring !== 'none' && task.date) {
+                    const taskDate = parseDate(task.date);
+                    const todayDate = parseDate(today);
+                    
+                    let shouldRecur = false;
+                    
+                    if (task.recurring === 'daily' && taskDate < todayDate) {
+                        shouldRecur = true;
+                    } else if (task.recurring === 'weekly') {
+                        const daysDiff = Math.floor((todayDate - taskDate) / (1000 * 60 * 60 * 24));
+                        if (daysDiff >= 7) shouldRecur = true;
+                    } else if (task.recurring === 'monthly') {
+                        const monthsDiff = (todayDate.getFullYear() - taskDate.getFullYear()) * 12 + todayDate.getMonth() - taskDate.getMonth();
+                        if (monthsDiff >= 1) shouldRecur = true;
+                    } else if (task.recurring === 'yearly') {
+                        if (todayDate.getFullYear() > taskDate.getFullYear()) shouldRecur = true;
+                    }
+                    
+                    if (shouldRecur) {
+                        // Create new instance
+                        tasks.push({
+                            ...task,
+                            id: Date.now() + Math.random(),
+                            date: today,
+                            completed: false,
+                            createdDate: today
+                        });
+                    }
+                }
+            });
+            
+            save();
+        }
+        
         // ==================== INITIALIZATION ====================
         function init() {
             // Auto-rollover tasks
             autoRolloverTasks();
+            
+            // Check recurring tasks
+            checkRecurringTasks();
             
             // Render all components
             renderPriorities();
@@ -2468,6 +2844,10 @@
             // Update sync status every 10 seconds
             setInterval(updateSyncStatus, 10000);
             updateSyncStatus();
+            
+            // Check notifications every hour
+            setInterval(checkOverdueNotifications, 60 * 60 * 1000);
+            setInterval(checkHabitNotifications, 60 * 60 * 1000);
             
             // Setup PWA
             setupPWA();
