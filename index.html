@@ -680,6 +680,103 @@
         }
         
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+        
+        /* WORKOUT TRACKER STYLES */
+        .workout-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .workout-day {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            background: var(--glass);
+            border: 2px solid transparent;
+        }
+        
+        .workout-day.header {
+            background: transparent;
+            cursor: default;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dim);
+            aspect-ratio: auto;
+            padding: 8px 0;
+        }
+        
+        .workout-day.other-month {
+            opacity: 0.3;
+        }
+        
+        .workout-day.today {
+            border-color: var(--primary);
+        }
+        
+        .workout-day.completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .workout-day.rest {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+        }
+        
+        .workout-day:hover:not(.header) {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+        
+        .routine-card {
+            background: var(--glass);
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .routine-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card {
+            background: var(--glass);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+        
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -761,6 +858,10 @@
                 <div class="sidebar-item" onclick="switchTab('habits'); closeSidebar();">
                     <span class="sidebar-icon">⭐</span>
                     <span>Habits</span>
+                </div>
+                <div class="sidebar-item" onclick="switchTab('workout'); closeSidebar();">
+                    <span class="sidebar-icon">💪</span>
+                    <span>Workout</span>
                 </div>
                 
                 <!-- Life Section -->
@@ -946,6 +1047,92 @@
                 </div>
                 
                 <div class="scrollable" id="habits-list"></div>
+            </div>
+        </div>
+        
+        <!-- WORKOUT TAB -->
+        <div id="workout-tab" class="tab-content">
+            <div class="card">
+                <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">💪 Workout Tracker</h1>
+                
+                <!-- Workout Stats Summary -->
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-value" id="workout-streak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💪</div>
+                        <div class="stat-value" id="workouts-this-week">0</div>
+                        <div class="stat-label">This Week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="total-workouts">0</div>
+                        <div class="stat-label">Total Workouts</div>
+                    </div>
+                </div>
+                
+                <!-- Tabs for different sections -->
+                <div class="filters" style="margin-bottom: 20px;">
+                    <div class="filter-btn active" onclick="switchWorkoutView('tracker')">📅 Tracker</div>
+                    <div class="filter-btn" onclick="switchWorkoutView('routines')">🏋️ Routines</div>
+                    <div class="filter-btn" onclick="switchWorkoutView('progress')">📊 Progress</div>
+                </div>
+                
+                <!-- TRACKER VIEW -->
+                <div id="workout-tracker-view">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h2 style="font-size: 18px; font-weight: 600;">📅 Workout Calendar</h2>
+                        <button class="btn btn-primary" onclick="logWorkout()">+ Log Workout</button>
+                    </div>
+                    
+                    <!-- Month Navigation -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px; background: var(--glass); border-radius: 8px;">
+                        <button class="btn btn-icon btn-secondary" onclick="prevWorkoutMonth()">‹</button>
+                        <div style="font-weight: 600; font-size: 16px;" id="workout-month-year">December 2025</div>
+                        <button class="btn btn-icon btn-secondary" onclick="nextWorkoutMonth()">›</button>
+                    </div>
+                    
+                    <!-- Workout Calendar -->
+                    <div id="workout-calendar" class="workout-calendar"></div>
+                </div>
+                
+                <!-- ROUTINES VIEW -->
+                <div id="workout-routines-view" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h2 style="font-size: 18px; font-weight: 600;">🏋️ Workout Routines</h2>
+                        <button class="btn btn-primary" onclick="openModal('routine-modal')">+ Add Routine</button>
+                    </div>
+                    <div id="routines-list" class="grid-2"></div>
+                </div>
+                
+                <!-- PROGRESS VIEW -->
+                <div id="workout-progress-view" style="display: none;">
+                    <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">📊 Progress Tracking</h2>
+                    
+                    <div class="card" style="margin-bottom: 16px; padding: 20px; background: var(--glass);">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📏 Body Measurements</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                            <div>
+                                <label style="font-size: 13px; color: var(--text-dim);">Current Weight</label>
+                                <input type="number" id="current-weight" placeholder="lbs" style="margin-top: 4px;">
+                            </div>
+                            <div>
+                                <label style="font-size: 13px; color: var(--text-dim);">Goal Weight</label>
+                                <input type="number" id="goal-weight" placeholder="lbs" style="margin-top: 4px;">
+                            </div>
+                            <div>
+                                <label style="font-size: 13px; color: var(--text-dim);">Start Date</label>
+                                <input type="date" id="weight-start-date" style="margin-top: 4px;">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveProgress()" style="margin-top: 12px;">Save Progress</button>
+                    </div>
+                    
+                    <div id="progress-history"></div>
+                </div>
             </div>
         </div>
         
@@ -1345,6 +1532,38 @@
         </div>
     </div>
 
+    <!-- Workout Modal -->
+    <div id="workout-modal" class="modal">
+        <div class="modal-content">
+            <h2>💪 Log Workout</h2>
+            <input type="date" id="workout-date" placeholder="Date">
+            <select id="workout-routine">
+                <option value="">Select Routine (optional)</option>
+            </select>
+            <textarea id="workout-exercises" placeholder="Exercises completed (one per line)&#10;Example:&#10;Bench Press - 3x10 @ 135lbs&#10;Squats - 4x8 @ 185lbs" style="min-height: 120px;"></textarea>
+            <input type="number" id="workout-duration" placeholder="Duration (minutes)">
+            <textarea id="workout-notes" placeholder="Notes (optional)" style="min-height: 60px;"></textarea>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('workout-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveWorkout()">Log Workout</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Routine Modal -->
+    <div id="routine-modal" class="modal">
+        <div class="modal-content">
+            <h2>🏋️ Create Routine</h2>
+            <input type="text" id="routine-name" placeholder="Routine Name (e.g., Push Day, Leg Day)">
+            <textarea id="routine-exercises" placeholder="Exercises (one per line)&#10;Example:&#10;Bench Press - 3x10&#10;Incline Dumbbell Press - 3x12&#10;Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
+            <textarea id="routine-notes" placeholder="Notes (optional)" style="min-height: 60px;"></textarea>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('routine-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveRoutine()">Save Routine</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // ==================== DATA STORAGE ====================
         let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
@@ -1438,6 +1657,7 @@
                 'notes': 'Notes',
                 'calendar': 'Calendar',
                 'habits': 'Habits',
+                'workout': 'Workout',
                 'shopping': 'Shopping',
                 'books': 'Books',
                 'goals': 'Goals',
@@ -1455,6 +1675,7 @@
             if (tab === 'notes') renderNotes();
             if (tab === 'calendar') renderFullCalendar();
             if (tab === 'habits') renderHabits();
+            if (tab === 'workout') renderWorkout();
             if (tab === 'shopping') renderShopping();
             if (tab === 'books') renderBooks();
             if (tab === 'goals') renderGoals();
@@ -1676,16 +1897,38 @@
         function saveNote() {
             const name = document.getElementById('note-name').value;
             const text = document.getElementById('note-text').value;
-            if (!name || !text) return alert('Please fill in all fields');
+            const wantsLock = document.getElementById('note-locked').checked;
+            
+            if (!name || !text) return alert('Please fill in title and text');
+            
+            // If user wants to lock it, make sure PIN exists
+            if (wantsLock) {
+                let pin = localStorage.getItem('notes-pin');
+                if (!pin) {
+                    // First time locking - set PIN
+                    pin = prompt('Set a 4-digit PIN for locked notes:');
+                    if (!pin) {
+                        document.getElementById('note-locked').checked = false;
+                        return;
+                    }
+                    if (pin.length !== 4 || isNaN(pin)) {
+                        alert('PIN must be exactly 4 digits (example: 1234)');
+                        document.getElementById('note-locked').checked = false;
+                        return;
+                    }
+                    localStorage.setItem('notes-pin', pin);
+                    alert('✅ PIN saved! Use it to unlock notes.');
+                }
+            }
             
             notes.push({
                 id: Date.now(),
                 name,
                 text,
-                locked: document.getElementById('note-locked').checked,
+                locked: wantsLock,
                 pinned: document.getElementById('note-pinned').checked,
-                images: currentNoteImages,
-                voice: currentNoteVoice,
+                images: currentNoteImages || [],
+                voice: currentNoteVoice || null,
                 date: document.getElementById('note-date').value,
                 createdDate: formatDate(new Date())
             });
@@ -1699,6 +1942,107 @@
             renderNotes();
             renderTimeline();
             renderPinnedNotes();
+        }
+        
+        
+        function viewNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            
+            // Check if locked - need PIN to view
+            if (note.locked) {
+                let pin = localStorage.getItem('notes-pin');
+                
+                // No PIN set yet - offer to set one
+                if (!pin) {
+                    const setPinNow = confirm('This note is locked but no PIN is set.\n\nDo you want to set a PIN now to unlock it?');
+                    if (!setPinNow) return;
+                    
+                    pin = prompt('Set a 4-digit PIN for locked notes:');
+                    if (!pin) return;
+                    
+                    if (pin.length !== 4 || isNaN(pin)) {
+                        alert('PIN must be exactly 4 digits (example: 1234)');
+                        return;
+                    }
+                    
+                    localStorage.setItem('notes-pin', pin);
+                    alert('✅ PIN saved! You can now view locked notes.');
+                    // Continue to open the note
+                } else {
+                    // PIN exists - ask for it
+                    const entered = prompt('🔒 Enter PIN to view locked note:');
+                    if (!entered) return;
+                    if (entered !== pin) {
+                        alert('❌ Incorrect PIN');
+                        return;
+                    }
+                }
+            }
+            
+            // Fill modal with note data
+            document.getElementById('note-name').value = note.name;
+            document.getElementById('note-text').value = note.text;
+            document.getElementById('note-date').value = note.date || '';
+            document.getElementById('note-locked').checked = note.locked || false;
+            document.getElementById('note-pinned').checked = note.pinned || false;
+            
+            // Update the save button
+            const modal = document.getElementById('note-modal');
+            const saveBtn = modal.querySelector('.btn-primary');
+            saveBtn.textContent = '💾 Update Note';
+            
+            // Override the onclick for this specific note
+            saveBtn.onclick = function() {
+                const newName = document.getElementById('note-name').value;
+                const newText = document.getElementById('note-text').value;
+                const wantsLock = document.getElementById('note-locked').checked;
+                const wantsPinned = document.getElementById('note-pinned').checked;
+                
+                if (!newName || !newText) {
+                    alert('Please fill in title and text');
+                    return;
+                }
+                
+                // If user wants to lock it, make sure PIN exists
+                if (wantsLock && !note.locked) {
+                    let pin = localStorage.getItem('notes-pin');
+                    if (!pin) {
+                        // First time locking - set PIN
+                        pin = prompt('Set a 4-digit PIN for locked notes:');
+                        if (!pin) {
+                            document.getElementById('note-locked').checked = false;
+                            return;
+                        }
+                        if (pin.length !== 4 || isNaN(pin)) {
+                            alert('PIN must be exactly 4 digits (example: 1234)');
+                            document.getElementById('note-locked').checked = false;
+                            return;
+                        }
+                        localStorage.setItem('notes-pin', pin);
+                        alert('✅ PIN saved! Remember it to unlock notes.');
+                    }
+                }
+                
+                // Update note
+                note.name = newName;
+                note.text = newText;
+                note.date = document.getElementById('note-date').value;
+                note.locked = wantsLock;
+                note.pinned = wantsPinned;
+                
+                save();
+                closeModal('note-modal');
+                
+                // Reset button back to "Add Note" mode
+                saveBtn.textContent = 'Add Note';
+                saveBtn.onclick = saveNote;
+                
+                renderNotes();
+                renderPinnedNotes();
+            };
+            
+            openModal('note-modal');
         }
         
         function deleteNote(id) {
@@ -1721,12 +2065,14 @@
             renderNotes();
         }
         
-        let currentEditingNote = null;
-        
         function renderNotes() {
-            const container = document.getElementById('notes-container');
-            const search = document.getElementById('note-search').value.toLowerCase();
+            const list = document.getElementById('notes-list');
+            if (!list) return;
             
+            const searchEl = document.getElementById('note-search');
+            const search = searchEl ? searchEl.value.toLowerCase() : '';
+            
+            // Filter notes
             let filtered = notes.filter(note => {
                 if (search && !note.name.toLowerCase().includes(search)) return false;
                 if (currentNoteFilter === 'locked') return note.locked;
@@ -1734,260 +2080,32 @@
                 return true;
             });
             
-            // If editing a note, show editor
-            if (currentEditingNote) {
-                const note = notes.find(n => n.id === currentEditingNote);
-                if (note) {
-                    container.innerHTML = `
-                        <div style="height: 100%; display: flex; flex-direction: column;">
-                            <!-- Note Editor Header -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--glass); border-bottom: 1px solid var(--border); border-radius: 12px 12px 0 0;">
-                                <button class="btn btn-secondary" onclick="closeNoteEditor()" style="padding: 8px 16px;">
-                                    ← Back to Notes
-                                </button>
-                                <div style="display: flex; gap: 8px;">
-                                    <button class="btn btn-icon btn-secondary" onclick="toggleNoteLock(${note.id})" title="${note.locked ? 'Unlock' : 'Lock'} Note">
-                                        ${note.locked ? '🔓' : '🔒'}
-                                    </button>
-                                    <button class="btn btn-icon btn-secondary" onclick="toggleNotePin(${note.id})" title="${note.pinned ? 'Unpin' : 'Pin'} Note">
-                                        ${note.pinned ? '📌' : '📍'}
-                                    </button>
-                                    <button class="btn btn-primary" onclick="saveNoteEdit()" style="padding: 8px 20px;">
-                                        💾 Save
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Note Editor Body -->
-                            <div style="flex: 1; padding: 24px; background: var(--bg-card); overflow-y: auto;">
-                                <input type="text" id="edit-note-name" value="${note.name}" placeholder="Note title..." style="font-size: 24px; font-weight: 700; background: transparent; border: none; border-bottom: 2px solid transparent; padding: 8px 0; margin-bottom: 16px; transition: border-color 0.3s;" onfocus="this.style.borderBottomColor='var(--primary)'" onblur="this.style.borderBottomColor='transparent'">
-                                
-                                <textarea id="edit-note-text" placeholder="Start writing..." style="min-height: 400px; background: transparent; border: none; padding: 0; font-size: 15px; line-height: 1.6; resize: vertical;">${note.text}</textarea>
-                                
-                                ${note.images && note.images.length > 0 ? `
-                                    <div style="margin-top: 20px;">
-                                        <div style="font-weight: 600; margin-bottom: 12px;">📷 Images:</div>
-                                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;">
-                                            ${note.images.map((img, idx) => `
-                                                <div style="position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 1;">
-                                                    <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    <button onclick="removeNoteImage(${note.id}, ${idx})" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 12px;">✕</button>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                ` : ''}
-                                
-                                ${note.voice ? `
-                                    <div style="margin-top: 20px; padding: 16px; background: var(--glass); border-radius: 8px; display: flex; align-items: center; gap: 12px;">
-                                        <span style="font-size: 24px;">🎤</span>
-                                        <div style="flex: 1;">
-                                            <div style="font-weight: 600; margin-bottom: 4px;">Voice Note</div>
-                                            <audio controls src="${note.voice}" style="width: 100%; max-width: 400px;"></audio>
-                                        </div>
-                                        <button onclick="removeNoteVoice(${note.id})" class="btn btn-icon btn-secondary">🗑️</button>
-                                    </div>
-                                ` : ''}
-                                
-                                <div style="margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <button class="btn btn-secondary" onclick="document.getElementById('note-image-input-${note.id}').click()">
-                                        📷 Add Image
-                                    </button>
-                                    <input type="file" id="note-image-input-${note.id}" accept="image/*" style="display: none;" onchange="addImageToNote(${note.id}, this)">
-                                    
-                                    <button class="btn btn-secondary" onclick="startVoiceNote(${note.id})">
-                                        🎤 Add Voice Note
-                                    </button>
-                                </div>
-                                
-                                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-dim);">
-                                    ${note.date ? `Created: ${note.date}` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-            }
-            
-            // List view
-            const list = document.getElementById('notes-list');
-            
             if (filtered.length === 0) {
                 list.innerHTML = '<div class="empty">No notes found</div>';
                 return;
             }
             
+            // Simple, fast rendering
             list.innerHTML = filtered.map(note => `
-                <div class="item ${note.locked ? 'note-locked' : ''}" onclick="openNoteEditor(${note.id})" style="cursor: pointer;">
+                <div class="item" onclick="viewNote(${note.id})" style="cursor: pointer;">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">
                                 ${note.locked ? '🔒 ' : ''}${note.pinned ? '📌 ' : ''}${note.name}
                             </div>
-                            <div class="note-content" style="font-size: 13px; color: var(--text-dim); line-height: 1.5;">
-                                ${note.text.substring(0, 120)}${note.text.length > 120 ? '...' : ''}
+                            <div style="font-size: 13px; color: var(--text-dim);">
+                                ${note.text.substring(0, 100)}${note.text.length > 100 ? '...' : ''}
                             </div>
-                            <div style="display: flex; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--text-dim);">
-                                ${note.date ? `<span>📅 ${note.date}</span>` : ''}
-                                ${note.images && note.images.length > 0 ? `<span>📷 ${note.images.length}</span>` : ''}
-                                ${note.voice ? `<span>🎤</span>` : ''}
-                            </div>
+                            ${note.date ? `<div style="font-size: 12px; color: var(--text-dim); margin-top: 6px;">📅 ${note.date}</div>` : ''}
                         </div>
-                        <div style="display: flex; gap: 4px; flex-shrink: 0;">
-                            <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})" title="Delete">🗑️</button>
-                        </div>
+                        <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})" title="Delete">
+                            🗑️
+                        </button>
                     </div>
                 </div>
             `).join('');
         }
         
-        function openNoteEditor(id) {
-            const note = notes.find(n => n.id === id);
-            if (!note) return;
-            
-            // Check if locked
-            if (note.locked) {
-                let notesPin = localStorage.getItem('notes-pin') || '';
-                
-                // If no PIN is set, set one now
-                if (!notesPin) {
-                    const newPin = prompt('This note is locked. Set a 4-digit PIN for locked notes:');
-                    if (!newPin) return;
-                    
-                    if (newPin.length !== 4 || isNaN(newPin)) {
-                        alert('PIN must be exactly 4 digits (e.g., 1234)');
-                        return;
-                    }
-                    
-                    localStorage.setItem('notes-pin', newPin);
-                    alert('PIN set! Remember it to view locked notes. ✅');
-                }
-                
-                // Ask for PIN
-                const enteredPin = prompt('🔒 Enter PIN to open locked note:');
-                if (!enteredPin) return;
-                
-                // Check PIN
-                if (enteredPin !== localStorage.getItem('notes-pin')) {
-                    alert('❌ Incorrect PIN');
-                    return;
-                }
-            }
-            
-            currentEditingNote = id;
-            renderNotes();
-        }
-        
-        function closeNoteEditor() {
-            currentEditingNote = null;
-            renderNotes();
-        }
-        
-        function saveNoteEdit() {
-            const note = notes.find(n => n.id === currentEditingNote);
-            if (!note) return;
-            
-            note.name = document.getElementById('edit-note-name').value || 'Untitled Note';
-            note.text = document.getElementById('edit-note-text').value;
-            note.date = formatDate(new Date());
-            
-            save();
-            closeNoteEditor();
-        }
-        
-        function toggleNoteLock(id) {
-            const note = notes.find(n => n.id === id);
-            if (!note) return;
-            
-            if (!note.locked) {
-                // Locking - need PIN
-                let notesPin = localStorage.getItem('notes-pin');
-                if (!notesPin) {
-                    notesPin = prompt('Set a 4-digit PIN for locked notes:');
-                    if (!notesPin) return;
-                    
-                    if (notesPin.length !== 4 || isNaN(notesPin)) {
-                        alert('PIN must be exactly 4 digits');
-                        return;
-                    }
-                    
-                    localStorage.setItem('notes-pin', notesPin);
-                }
-                note.locked = true;
-                alert('Note locked! 🔒');
-            } else {
-                // Unlocking
-                const pin = prompt('Enter PIN to unlock:');
-                if (pin === localStorage.getItem('notes-pin')) {
-                    note.locked = false;
-                    alert('Note unlocked! 🔓');
-                } else {
-                    alert('❌ Incorrect PIN');
-                    return;
-                }
-            }
-            
-            save();
-            renderNotes();
-        }
-        
-        function toggleNotePin(id) {
-            const note = notes.find(n => n.id === id);
-            if (!note) return;
-            
-            note.pinned = !note.pinned;
-            save();
-            renderNotes();
-            renderPinnedNotes();
-        }
-        
-        function removeNoteImage(noteId, imageIndex) {
-            const note = notes.find(n => n.id === noteId);
-            if (!note || !note.images) return;
-            
-            if (confirm('Remove this image?')) {
-                note.images.splice(imageIndex, 1);
-                save();
-                renderNotes();
-            }
-        }
-        
-        function removeNoteVoice(noteId) {
-            const note = notes.find(n => n.id === noteId);
-            if (!note) return;
-            
-            if (confirm('Remove voice note?')) {
-                note.voice = null;
-                save();
-                renderNotes();
-            }
-        }
-        
-        function addImageToNote(noteId, input) {
-            if (!input.files || !input.files[0]) return;
-            
-            const note = notes.find(n => n.id === noteId);
-            if (!note) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                if (!note.images) note.images = [];
-                note.images.push(e.target.result);
-                save();
-                renderNotes();
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-        
-        function startVoiceNote(noteId) {
-            alert('Voice recording feature coming soon! 🎤');
-        }
-        
-        function viewNote(id) {
-            // Legacy function - redirect to editor
-            openNoteEditor(id);
-        }
         
         function unlockNote(id) {
             const note = notes.find(n => n.id === id);
@@ -4205,6 +4323,315 @@
         }
         
         // ==================== INITIALIZATION ====================
+        
+        // ==================== WORKOUT TRACKER ====================
+        let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
+        let routines = JSON.parse(localStorage.getItem('routines') || '[]');
+        let workoutProgress = JSON.parse(localStorage.getItem('workout-progress') || '{}');
+        let currentWorkoutMonth = new Date().getMonth();
+        let currentWorkoutYear = new Date().getFullYear();
+        let currentWorkoutView = 'tracker';
+        
+        function renderWorkout() {
+            renderWorkoutStats();
+            renderWorkoutCalendar();
+            renderRoutines();
+            populateRoutineSelect();
+        }
+        
+        function switchWorkoutView(view) {
+            currentWorkoutView = view;
+            
+            // Update active filter
+            document.querySelectorAll('#workout-tab .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide views
+            document.getElementById('workout-tracker-view').style.display = view === 'tracker' ? 'block' : 'none';
+            document.getElementById('workout-routines-view').style.display = view === 'routines' ? 'block' : 'none';
+            document.getElementById('workout-progress-view').style.display = view === 'progress' ? 'block' : 'none';
+            
+            if (view === 'progress') renderProgressHistory();
+        }
+        
+        function renderWorkoutStats() {
+            // Calculate streak
+            const today = formatDate(new Date());
+            let streak = 0;
+            let checkDate = new Date();
+            
+            while (true) {
+                const dateStr = formatDate(checkDate);
+                const hasWorkout = workouts.some(w => w.date === dateStr);
+                if (hasWorkout) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            
+            // Workouts this week
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            const thisWeek = workouts.filter(w => new Date(w.date) >= weekStart).length;
+            
+            document.getElementById('workout-streak').textContent = streak;
+            document.getElementById('workouts-this-week').textContent = thisWeek;
+            document.getElementById('total-workouts').textContent = workouts.length;
+        }
+        
+        function renderWorkoutCalendar() {
+            const container = document.getElementById('workout-calendar');
+            const monthYear = document.getElementById('workout-month-year');
+            
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            monthYear.textContent = `${months[currentWorkoutMonth]} ${currentWorkoutYear}`;
+            
+            // Get first day of month
+            const firstDay = new Date(currentWorkoutYear, currentWorkoutMonth, 1);
+            const lastDay = new Date(currentWorkoutYear, currentWorkoutMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startDay = firstDay.getDay();
+            
+            let html = '';
+            
+            // Day headers
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                html += `<div class="workout-day header">${day}</div>`;
+            });
+            
+            // Empty cells before first day
+            for (let i = 0; i < startDay; i++) {
+                html += `<div class="workout-day other-month"></div>`;
+            }
+            
+            // Days of month
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentWorkoutYear, currentWorkoutMonth, day);
+                const dateStr = formatDate(date);
+                const workout = workouts.find(w => w.date === dateStr);
+                
+                const isToday = date.toDateString() === today.toDateString();
+                const classes = ['workout-day'];
+                if (isToday) classes.push('today');
+                if (workout) classes.push('completed');
+                
+                html += `
+                    <div class="${classes.join(' ')}" onclick="viewWorkoutDay('${dateStr}')">
+                        ${day}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function prevWorkoutMonth() {
+            currentWorkoutMonth--;
+            if (currentWorkoutMonth < 0) {
+                currentWorkoutMonth = 11;
+                currentWorkoutYear--;
+            }
+            renderWorkoutCalendar();
+        }
+        
+        function nextWorkoutMonth() {
+            currentWorkoutMonth++;
+            if (currentWorkoutMonth > 11) {
+                currentWorkoutMonth = 0;
+                currentWorkoutYear++;
+            }
+            renderWorkoutCalendar();
+        }
+        
+        function logWorkout() {
+            document.getElementById('workout-date').value = formatDate(new Date());
+            openModal('workout-modal');
+        }
+        
+        function saveWorkout() {
+            const date = document.getElementById('workout-date').value;
+            const routine = document.getElementById('workout-routine').value;
+            const exercises = document.getElementById('workout-exercises').value;
+            const duration = document.getElementById('workout-duration').value;
+            const notes = document.getElementById('workout-notes').value;
+            
+            if (!date || !exercises) {
+                alert('Please fill in date and exercises');
+                return;
+            }
+            
+            workouts.push({
+                id: Date.now(),
+                date,
+                routine,
+                exercises,
+                duration: parseInt(duration) || 0,
+                notes,
+                timestamp: new Date().toISOString()
+            });
+            
+            localStorage.setItem('workouts', JSON.stringify(workouts));
+            
+            // Clear form
+            document.getElementById('workout-exercises').value = '';
+            document.getElementById('workout-duration').value = '';
+            document.getElementById('workout-notes').value = '';
+            
+            closeModal('workout-modal');
+            renderWorkout();
+        }
+        
+        function viewWorkoutDay(date) {
+            const workout = workouts.find(w => w.date === date);
+            if (workout) {
+                alert(`Workout on ${date}:\n\n${workout.exercises}\n\nDuration: ${workout.duration} min${workout.notes ? '\n\nNotes: ' + workout.notes : ''}`);
+            } else {
+                const confirm = window.confirm(`No workout logged for ${date}. Log one now?`);
+                if (confirm) {
+                    document.getElementById('workout-date').value = date;
+                    openModal('workout-modal');
+                }
+            }
+        }
+        
+        function saveRoutine() {
+            const name = document.getElementById('routine-name').value;
+            const exercises = document.getElementById('routine-exercises').value;
+            const notes = document.getElementById('routine-notes').value;
+            
+            if (!name || !exercises) {
+                alert('Please fill in routine name and exercises');
+                return;
+            }
+            
+            routines.push({
+                id: Date.now(),
+                name,
+                exercises,
+                notes
+            });
+            
+            localStorage.setItem('routines', JSON.stringify(routines));
+            
+            // Clear form
+            document.getElementById('routine-name').value = '';
+            document.getElementById('routine-exercises').value = '';
+            document.getElementById('routine-notes').value = '';
+            
+            closeModal('routine-modal');
+            renderRoutines();
+            populateRoutineSelect();
+        }
+        
+        function renderRoutines() {
+            const list = document.getElementById('routines-list');
+            if (!list) return;
+            
+            if (routines.length === 0) {
+                list.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No routines yet. Create your first workout routine!</div>';
+                return;
+            }
+            
+            list.innerHTML = routines.map(routine => `
+                <div class="routine-card" onclick="useRoutine(${routine.id})">
+                    <div class="routine-header">
+                        <div class="routine-title">💪 ${routine.name}</div>
+                        <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteRoutine(${routine.id})" title="Delete">🗑️</button>
+                    </div>
+                    <div class="routine-exercises">${routine.exercises.split('\n').slice(0, 3).join('<br>')}</div>
+                    ${routine.notes ? `<div style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">${routine.notes}</div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function populateRoutineSelect() {
+            const select = document.getElementById('workout-routine');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Select Routine (optional)</option>' + 
+                routines.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+        }
+        
+        function useRoutine(id) {
+            const routine = routines.find(r => r.id === id);
+            if (!routine) return;
+            
+            document.getElementById('workout-date').value = formatDate(new Date());
+            document.getElementById('workout-routine').value = id;
+            document.getElementById('workout-exercises').value = routine.exercises;
+            
+            openModal('workout-modal');
+        }
+        
+        function deleteRoutine(id) {
+            if (!confirm('Delete this routine?')) return;
+            routines = routines.filter(r => r.id !== id);
+            localStorage.setItem('routines', JSON.stringify(routines));
+            renderRoutines();
+            populateRoutineSelect();
+        }
+        
+        function saveProgress() {
+            const currentWeight = document.getElementById('current-weight').value;
+            const goalWeight = document.getElementById('goal-weight').value;
+            const startDate = document.getElementById('weight-start-date').value;
+            
+            if (!currentWeight || !goalWeight || !startDate) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (!workoutProgress.history) workoutProgress.history = [];
+            
+            workoutProgress.currentWeight = parseFloat(currentWeight);
+            workoutProgress.goalWeight = parseFloat(goalWeight);
+            workoutProgress.startDate = startDate;
+            
+            workoutProgress.history.push({
+                date: formatDate(new Date()),
+                weight: parseFloat(currentWeight)
+            });
+            
+            localStorage.setItem('workout-progress', JSON.stringify(workoutProgress));
+            renderProgressHistory();
+            alert('Progress saved! ✅');
+        }
+        
+        function renderProgressHistory() {
+            const container = document.getElementById('progress-history');
+            if (!container) return;
+            
+            // Load current values
+            if (workoutProgress.currentWeight) {
+                document.getElementById('current-weight').value = workoutProgress.currentWeight;
+                document.getElementById('goal-weight').value = workoutProgress.goalWeight;
+                document.getElementById('weight-start-date').value = workoutProgress.startDate;
+            }
+            
+            if (!workoutProgress.history || workoutProgress.history.length === 0) {
+                container.innerHTML = '<div class="empty">No progress logged yet. Save your first measurement above!</div>';
+                return;
+            }
+            
+            const sorted = [...workoutProgress.history].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            container.innerHTML = `
+                <div class="card" style="padding: 20px; background: var(--glass);">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">📈 Weight History</h3>
+                    ${sorted.map(entry => `
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                            <span style="color: var(--text-dim);">${entry.date}</span>
+                            <span style="font-weight: 600;">${entry.weight} lbs</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
         function init() {
             // Auto-rollover tasks
             autoRolloverTasks();
