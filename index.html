@@ -688,6 +688,31 @@
         
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
         
+        /* WEATHER ANIMATIONS */
+        @keyframes rain-fall {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(24px); opacity: 0; }
+        }
+        
+        @keyframes snow-fall {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(27px) translateX(3px); opacity: 0; }
+        }
+        
+        @keyframes lightning-flash {
+            0%, 10%, 20%, 100% { opacity: 0; }
+            5%, 15% { opacity: 1; }
+        }
+        
+        @keyframes fog-drift {
+            0%, 100% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(-5px); opacity: 0.7; }
+        }
+        
         /* WORKOUT TRACKER STYLES */
         .workout-calendar {
             display: grid;
@@ -960,35 +985,53 @@
     <div class="container">
         <!-- HOME TAB -->
         <div id="home-tab" class="tab-content active">
-            <!-- TOP ROW: Pinned Notes (left) + Weather (right) -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
-                <!-- Pinned Notes - Square Shape -->
-                <div class="card" style="aspect-ratio: 1; display: flex; flex-direction: column; padding: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: 700;">📌 Pinned</h3>
-                        <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 4px 8px; font-size: 11px;">Manage</button>
-                    </div>
-                    <div id="pinned-carousel" style="flex: 1; overflow: hidden; position: relative;">
-                        <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 12px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 15px solid rgba(255, 223, 0, 0.3); height: 100%; font-size: 12px;">
-                            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 30px; height: 12px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
-                            <p style="color: #333; font-size: 12px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.4;">No pinned notes yet. Pin a note from the Notes tab!</p>
+            <!-- Weather - Floating Top Left with Live Animation -->
+            <div style="position: fixed; top: calc(70px + env(safe-area-inset-top) + 10px); left: calc(20px + env(safe-area-inset-left)); z-index: 100;">
+                <div id="weather-widget" style="display: flex; align-items: center; gap: 8px;">
+                    <div id="weather-icon-container" style="position: relative; width: 32px; height: 32px;">
+                        <!-- Base weather icon -->
+                        <div id="weather-icon" style="font-size: 28px; line-height: 1; position: absolute; top: 0; left: 0;">☀️</div>
+                        <!-- Rain animation -->
+                        <div id="rain-animation" style="display: none; position: absolute; top: 0; left: 0; width: 32px; height: 32px; overflow: hidden;">
+                            <div style="position: absolute; width: 2px; height: 6px; background: linear-gradient(to bottom, transparent, #4a90e2); top: 8px; left: 8px; animation: rain-fall 0.5s linear infinite;"></div>
+                            <div style="position: absolute; width: 2px; height: 6px; background: linear-gradient(to bottom, transparent, #4a90e2); top: 6px; left: 14px; animation: rain-fall 0.5s linear infinite 0.2s;"></div>
+                            <div style="position: absolute; width: 2px; height: 6px; background: linear-gradient(to bottom, transparent, #4a90e2); top: 10px; left: 20px; animation: rain-fall 0.5s linear infinite 0.1s;"></div>
+                        </div>
+                        <!-- Lightning animation -->
+                        <div id="lightning-animation" style="display: none; position: absolute; top: 15px; left: 12px; font-size: 12px; animation: lightning-flash 2s infinite;">⚡</div>
+                        <!-- Snow animation -->
+                        <div id="snow-animation" style="display: none; position: absolute; top: 0; left: 0; width: 32px; height: 32px; overflow: hidden;">
+                            <div style="position: absolute; width: 3px; height: 3px; background: white; border-radius: 50%; top: 5px; left: 8px; animation: snow-fall 2s linear infinite;"></div>
+                            <div style="position: absolute; width: 3px; height: 3px; background: white; border-radius: 50%; top: 2px; left: 16px; animation: snow-fall 2.2s linear infinite 0.5s;"></div>
+                            <div style="position: absolute; width: 3px; height: 3px; background: white; border-radius: 50%; top: 8px; left: 22px; animation: snow-fall 1.8s linear infinite 0.3s;"></div>
+                        </div>
+                        <!-- Fog animation -->
+                        <div id="fog-animation" style="display: none; position: absolute; top: 12px; left: 0; width: 32px; height: 12px; overflow: hidden;">
+                            <div style="position: absolute; width: 100%; height: 2px; background: rgba(200,200,200,0.6); top: 0; animation: fog-drift 3s ease-in-out infinite;"></div>
+                            <div style="position: absolute; width: 100%; height: 2px; background: rgba(200,200,200,0.4); top: 5px; animation: fog-drift 3s ease-in-out infinite 0.5s;"></div>
+                            <div style="position: absolute; width: 100%; height: 2px; background: rgba(200,200,200,0.5); top: 10px; animation: fog-drift 3s ease-in-out infinite 1s;"></div>
                         </div>
                     </div>
-                    <div style="display: flex; justify-content: center; gap: 6px; margin-top: 8px;" id="pinned-nav">
-                        <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 28px; height: 28px; font-size: 16px;">‹</button>
-                        <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 8px; font-size: 11px;">1 / 1</span>
-                        <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 28px; height: 28px; font-size: 16px;">›</button>
+                    <div style="font-size: 14px; font-weight: 700;" id="weather-temp">72°</div>
+                </div>
+            </div>
+            
+            <!-- Pinned Notes - Now Full Width -->
+            <div class="card" style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="font-size: 14px; font-weight: 700;">📌 Pinned</h3>
+                    <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 4px 8px; font-size: 11px;">Manage</button>
+                </div>
+                <div id="pinned-carousel" style="overflow: hidden; position: relative; min-height: 120px;">
+                    <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 12px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 15px solid rgba(255, 223, 0, 0.3); min-height: 100px; font-size: 12px;">
+                        <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 30px; height: 12px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
+                        <p style="color: #333; font-size: 12px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.4;">No pinned notes yet. Pin a note from the Notes tab!</p>
                     </div>
                 </div>
-                
-                <!-- Weather - Square Shape -->
-                <div class="card" style="aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 12px;">
-                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px;">🌤️ Weather</div>
-                    <div id="weather-widget">
-                        <div style="font-size: 40px; font-weight: 700; margin-bottom: 6px;" id="weather-temp">--°</div>
-                        <div style="font-size: 14px; color: var(--text-dim);" id="weather-desc">Loading...</div>
-                        <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;" id="weather-location">Houston, TX</div>
-                    </div>
+                <div style="display: flex; justify-content: center; gap: 6px; margin-top: 8px;" id="pinned-nav">
+                    <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 28px; height: 28px; font-size: 16px;">‹</button>
+                    <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 8px; font-size: 11px;">1 / 1</span>
+                    <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 28px; height: 28px; font-size: 16px;">›</button>
                 </div>
             </div>
             
@@ -1306,6 +1349,19 @@
     </div>
     
     <!-- MODALS -->
+    
+    <!-- PIN Input Modal (Professional) -->
+    <div id="pin-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 id="pin-modal-title">🔒 Enter PIN</h2>
+            <p id="pin-modal-message" style="color: var(--text-dim); margin-bottom: 20px;">Enter your 4-digit PIN</p>
+            <input type="password" id="pin-modal-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" style="font-size: 24px; text-align: center; letter-spacing: 8px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closePinModal()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPin()" style="flex: 1;">Confirm</button>
+            </div>
+        </div>
+    </div>
     
     <!-- Widget Library Modal -->
     <div id="widget-library-modal" class="modal">
@@ -1974,25 +2030,23 @@
         }
         
         // ==================== NOTES ====================
-        function saveNote() {
+        async function saveNote() {
             const name = document.getElementById('note-name').value;
             const text = document.getElementById('note-text').value;
             const wantsLock = document.getElementById('note-locked').checked;
             
-            if (!name || !text) return alert('Please fill in title and text');
+            if (!name || !text) {
+                showNotification('Please fill in title and text', 'warning');
+                return;
+            }
             
             // If user wants to lock it, make sure PIN exists
             if (wantsLock) {
                 let pin = localStorage.getItem('notes-pin');
                 if (!pin) {
                     // First time locking - set PIN
-                    pin = prompt('Set a 4-digit PIN for locked notes:');
+                    pin = await showPinModal('🔒 Lock Notes', 'Create a 4-digit PIN for locked notes', 'setup');
                     if (!pin) {
-                        document.getElementById('note-locked').checked = false;
-                        return;
-                    }
-                    if (pin.length !== 4 || isNaN(pin)) {
-                        showNotification('PIN must be exactly 4 digits (example: 1234)', 'warning');
                         document.getElementById('note-locked').checked = false;
                         return;
                     }
@@ -2025,7 +2079,7 @@
         }
         
         
-        function viewNote(id) {
+        async function viewNote(id) {
             const note = notes.find(n => n.id === id);
             if (!note) return;
             
@@ -2038,20 +2092,15 @@
                     const setPinNow = confirm('This note is locked but no PIN is set.\n\nDo you want to set a PIN now to unlock it?');
                     if (!setPinNow) return;
                     
-                    pin = prompt('Set a 4-digit PIN for locked notes:');
+                    pin = await showPinModal('🔒 Lock Notes', 'Create a 4-digit PIN for locked notes', 'setup');
                     if (!pin) return;
-                    
-                    if (pin.length !== 4 || isNaN(pin)) {
-                        showNotification('PIN must be exactly 4 digits (example: 1234)', 'warning');
-                        return;
-                    }
                     
                     localStorage.setItem('notes-pin', pin);
                     showNotification('PIN saved! You can now view locked notes.', 'success');
                     // Continue to open the note
                 } else {
                     // PIN exists - ask for it
-                    const entered = prompt('🔒 Enter PIN to view locked note:');
+                    const entered = await showPinModal('🔒 Locked Note', 'Enter PIN to view this note', 'verify');
                     if (!entered) return;
                     if (entered !== pin) {
                         showNotification('Incorrect PIN', 'error');
@@ -3692,21 +3741,93 @@
         // ==================== WEATHER ====================
         async function loadWeather() {
             try {
-                // Using wttr.in with Houston location
-                const response = await fetch('https://wttr.in/Houston,Texas?format=j1');
+                // Try to get user's GPS location
+                let location = 'Houston,Texas'; // Default fallback
+                
+                if (navigator.geolocation) {
+                    try {
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                                timeout: 5000,
+                                maximumAge: 600000 // Cache for 10 minutes
+                            });
+                        });
+                        
+                        const lat = position.coords.latitude.toFixed(4);
+                        const lon = position.coords.longitude.toFixed(4);
+                        location = `${lat},${lon}`;
+                    } catch (geoError) {
+                        console.log('Using default location (GPS denied or unavailable)');
+                    }
+                }
+                
+                // Fetch weather data
+                const response = await fetch(`https://wttr.in/${location}?format=j1`);
                 const data = await response.json();
                 const current = data.current_condition[0];
                 
                 const temp = current.temp_F;
-                const desc = current.weatherDesc[0].value;
+                const desc = current.weatherDesc[0].value.toLowerCase();
                 
-                document.getElementById('weather-temp').textContent = temp + '°F';
-                document.getElementById('weather-desc').textContent = desc;
+                // Set weather icon based on conditions
+                let icon = '☀️'; // Default sunny
+                let animationType = 'none';
+                
+                if (desc.includes('thunder') || desc.includes('storm')) {
+                    icon = '⛈️';
+                    animationType = 'storm';
+                } else if (desc.includes('rain') || desc.includes('drizzle')) {
+                    icon = '🌧️';
+                    animationType = 'rain';
+                } else if (desc.includes('snow')) {
+                    icon = '❄️';
+                    animationType = 'snow';
+                } else if (desc.includes('mist') || desc.includes('fog')) {
+                    icon = '🌫️';
+                    animationType = 'fog';
+                } else if (desc.includes('cloud') || desc.includes('overcast')) {
+                    icon = '☁️';
+                    animationType = 'none';
+                } else if (desc.includes('partly')) {
+                    icon = '⛅';
+                    animationType = 'none';
+                } else if (desc.includes('clear') || desc.includes('sunny')) {
+                    icon = '☀️';
+                    animationType = 'none';
+                }
+                
+                document.getElementById('weather-icon').textContent = icon;
+                document.getElementById('weather-temp').textContent = temp + '°';
+                
+                // Show appropriate animation
+                showWeatherAnimation(animationType);
                 
             } catch (error) {
                 // Fallback to simple display
-                document.getElementById('weather-temp').textContent = '72°F';
-                document.getElementById('weather-desc').textContent = 'Houston, TX';
+                document.getElementById('weather-icon').textContent = '☀️';
+                document.getElementById('weather-temp').textContent = '72°';
+                showWeatherAnimation('none');
+            }
+        }
+        
+        // Show weather animation based on type
+        function showWeatherAnimation(type) {
+            // Hide all animations first
+            document.getElementById('rain-animation').style.display = 'none';
+            document.getElementById('lightning-animation').style.display = 'none';
+            document.getElementById('snow-animation').style.display = 'none';
+            document.getElementById('fog-animation').style.display = 'none';
+            
+            // Show appropriate animation
+            if (type === 'rain') {
+                document.getElementById('rain-animation').style.display = 'block';
+            } else if (type === 'snow') {
+                document.getElementById('snow-animation').style.display = 'block';
+            } else if (type === 'fog') {
+                document.getElementById('fog-animation').style.display = 'block';
+            } else if (type === 'storm') {
+                document.getElementById('rain-animation').style.display = 'block';
+                document.getElementById('lightning-animation').style.display = 'block';
             }
         }
         
@@ -4319,30 +4440,30 @@
             renderGifts();
         }
         
-        function toggleGiftsLock() {
+        async function toggleGiftsLock() {
             const isCurrentlyLocked = localStorage.getItem('gifts-locked') === 'true';
             
             if (isCurrentlyLocked) {
-                alert('Gifts are locked. Enter PIN below to unlock.');
+                showNotification('Gifts are locked. Enter PIN below to unlock.', 'info');
                 return;
             }
             
-            const pin = prompt('Enter a 4-digit PIN to lock gifts:');
-            if (!pin) return;
+            // Ask for new PIN
+            const pin = await showPinModal('🔒 Lock Gifts', 'Create a 4-digit PIN to lock your gifts', 'setup');
             
-            if (pin.length !== 4) {
-                alert('PIN must be exactly 4 digits');
-                return;
-            }
+            if (!pin) return; // User cancelled
             
-            if (isNaN(pin)) {
-                alert('PIN must be numbers only (0-9)');
-                return;
-            }
-            
+            // Save and lock
+            giftsPin = pin;
             localStorage.setItem('gifts-pin', pin);
             localStorage.setItem('gifts-locked', 'true');
-            location.reload();
+            giftsLocked = true;
+            
+            showNotification('Gifts locked successfully!', 'success');
+            
+            // Re-render to show locked state
+            renderGifts();
+            updateLockButton();
         }
         
         function unlockGifts() {
@@ -4350,22 +4471,37 @@
             const savedPin = localStorage.getItem('gifts-pin');
             
             if (enteredPin === savedPin) {
-                // Correct!
+                // Correct PIN - unlock and stay on page
+                giftsLocked = false;
                 localStorage.setItem('gifts-locked', 'false');
-                location.reload(); // Simple - just reload
-            } else {
-                // Wrong!
-                alert('❌ Wrong PIN');
                 document.getElementById('gifts-pin-input').value = '';
+                
+                // Show success notification
+                showNotification('Gifts unlocked!', 'success');
+                
+                // Re-render gifts page (now unlocked)
+                renderGifts();
+            } else {
+                // Wrong PIN - show error
+                showNotification('Incorrect PIN', 'error');
+                document.getElementById('gifts-pin-input').value = '';
+                document.getElementById('gifts-pin-input').focus();
             }
         }
         
         function resetGiftsPin() {
-            if (confirm('Reset gifts PIN? This will unlock gifts.')) {
-                localStorage.setItem('gifts-locked', 'false');
-                localStorage.removeItem('gifts-pin');
-                location.reload();
-            }
+            if (!confirm('Reset gifts PIN? This will unlock gifts.')) return;
+            
+            giftsLocked = false;
+            localStorage.setItem('gifts-locked', 'false');
+            localStorage.removeItem('gifts-pin');
+            giftsPin = null;
+            
+            showNotification('Gifts PIN reset', 'success');
+            
+            // Re-render to show unlocked state
+            renderGifts();
+            updateLockButton();
         }
         
         function updateLockButton() {
@@ -4718,6 +4854,64 @@
             `;
         }
         
+        
+        // ==================== PROFESSIONAL PIN MODAL ====================
+        let pinModalCallback = null;
+        let pinModalType = 'verify'; // 'verify' or 'setup'
+        
+        function showPinModal(title, message, type = 'verify') {
+            return new Promise((resolve) => {
+                pinModalCallback = resolve;
+                pinModalType = type;
+                
+                document.getElementById('pin-modal-title').textContent = title;
+                document.getElementById('pin-modal-message').textContent = message;
+                document.getElementById('pin-modal-input').value = '';
+                document.getElementById('pin-modal-input').type = type === 'setup' ? 'number' : 'password';
+                
+                openModal('pin-modal');
+                
+                // Focus input
+                setTimeout(() => {
+                    document.getElementById('pin-modal-input').focus();
+                }, 100);
+                
+                // Allow Enter key to submit
+                document.getElementById('pin-modal-input').onkeypress = (e) => {
+                    if (e.key === 'Enter') submitPin();
+                };
+            });
+        }
+        
+        function submitPin() {
+            const pin = document.getElementById('pin-modal-input').value;
+            
+            // Validate
+            if (pin.length !== 4) {
+                showNotification('PIN must be exactly 4 digits', 'warning');
+                return;
+            }
+            
+            if (isNaN(pin)) {
+                showNotification('PIN must be numbers only (0-9)', 'warning');
+                return;
+            }
+            
+            closeModal('pin-modal');
+            
+            if (pinModalCallback) {
+                pinModalCallback(pin);
+                pinModalCallback = null;
+            }
+        }
+        
+        function closePinModal() {
+            closeModal('pin-modal');
+            if (pinModalCallback) {
+                pinModalCallback(null); // User cancelled
+                pinModalCallback = null;
+            }
+        }
         
         // ==================== CUSTOM NOTIFICATIONS ====================
         function showNotification(message, type = 'info') {
