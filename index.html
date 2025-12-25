@@ -4461,9 +4461,8 @@
             
             showNotification('Gifts locked successfully!', 'success');
             
-            // Re-render to show locked state
-            renderGifts();
-            updateLockButton();
+            // Update lock state to show locked view
+            checkGiftsLockState();
         }
         
         function unlockGifts() {
@@ -4479,7 +4478,10 @@
                 // Show success notification
                 showNotification('Gifts unlocked!', 'success');
                 
-                // Re-render gifts page (now unlocked)
+                // Update lock state to show unlocked view
+                checkGiftsLockState();
+                
+                // Re-render gifts content
                 renderGifts();
             } else {
                 // Wrong PIN - show error
@@ -4499,9 +4501,11 @@
             
             showNotification('Gifts PIN reset', 'success');
             
-            // Re-render to show unlocked state
+            // Update lock state to show unlocked view
+            checkGiftsLockState();
+            
+            // Re-render gifts content
             renderGifts();
-            updateLockButton();
         }
         
         function updateLockButton() {
