@@ -961,39 +961,39 @@
         <!-- HOME TAB -->
         <div id="home-tab" class="tab-content active">
             <!-- TOP ROW: Pinned Notes (left) + Weather (right) -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
                 <!-- Pinned Notes - Square Shape -->
-                <div class="card" style="aspect-ratio: 1; display: flex; flex-direction: column;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3 style="font-size: 16px; font-weight: 700;">📌 Pinned</h3>
-                        <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 6px 12px; font-size: 12px;">Manage</button>
+                <div class="card" style="aspect-ratio: 1; display: flex; flex-direction: column; padding: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: 700;">📌 Pinned</h3>
+                        <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 4px 8px; font-size: 11px;">Manage</button>
                     </div>
                     <div id="pinned-carousel" style="flex: 1; overflow: hidden; position: relative;">
-                        <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 20px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 20px solid rgba(255, 223, 0, 0.3); height: 100%;">
-                            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 15px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
-                            <p style="color: #333; font-size: 14px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6;">No pinned notes yet. Pin a note from the Notes tab!</p>
+                        <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 12px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 15px solid rgba(255, 223, 0, 0.3); height: 100%; font-size: 12px;">
+                            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 30px; height: 12px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
+                            <p style="color: #333; font-size: 12px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.4;">No pinned notes yet. Pin a note from the Notes tab!</p>
                         </div>
                     </div>
-                    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 12px;" id="pinned-nav">
-                        <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 32px; height: 32px;">‹</button>
-                        <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 12px; font-size: 12px;">1 / 1</span>
-                        <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 32px; height: 32px;">›</button>
+                    <div style="display: flex; justify-content: center; gap: 6px; margin-top: 8px;" id="pinned-nav">
+                        <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 28px; height: 28px; font-size: 16px;">‹</button>
+                        <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 8px; font-size: 11px;">1 / 1</span>
+                        <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 28px; height: 28px; font-size: 16px;">›</button>
                     </div>
                 </div>
                 
                 <!-- Weather - Square Shape -->
-                <div class="card" style="aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">🌤️ Weather</div>
+                <div class="card" style="aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 12px;">
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px;">🌤️ Weather</div>
                     <div id="weather-widget">
-                        <div style="font-size: 48px; font-weight: 700; margin-bottom: 8px;" id="weather-temp">--°</div>
-                        <div style="font-size: 16px; color: var(--text-dim);" id="weather-desc">Loading...</div>
-                        <div style="font-size: 13px; color: var(--text-dim); margin-top: 8px;" id="weather-location">Houston, TX</div>
+                        <div style="font-size: 40px; font-weight: 700; margin-bottom: 6px;" id="weather-temp">--°</div>
+                        <div style="font-size: 14px; color: var(--text-dim);" id="weather-desc">Loading...</div>
+                        <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;" id="weather-location">Houston, TX</div>
                     </div>
                 </div>
             </div>
             
             <!-- Top 5 Tasks + Today's Habits (Side by Side) -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
                 <!-- Top 5 Priorities -->
                 <div class="card">
                     <div class="card-title">
