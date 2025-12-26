@@ -4420,30 +4420,49 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         
         function toggleGiftsLock() {
             const isCurrentlyLocked = localStorage.getItem('gifts-locked') === 'true';
+            const hasPIN = localStorage.getItem('gifts-pin');
             
             if (isCurrentlyLocked) {
-                alert('Gifts are locked. Enter PIN below to unlock.');
+                // Currently locked - just show the locked view (it has PIN input)
+                checkGiftsLockState();
                 return;
             }
             
-            const pin = prompt('Enter a 4-digit PIN to lock gifts:');
-            if (!pin) return;
-            
-            if (pin.length !== 4) {
-                alert('PIN must be exactly 4 digits');
-                return;
+            // Currently unlocked - lock it
+            if (!hasPIN) {
+                // First time - need to set PIN
+                const pin = prompt('Enter a 4-digit PIN to lock gifts:');
+                if (!pin) return;
+                
+                if (pin.length !== 4) {
+                    alert('PIN must be exactly 4 digits');
+                    return;
+                }
+                
+                if (isNaN(pin)) {
+                    alert('PIN must be numbers only (0-9)');
+                    return;
+                }
+                
+                localStorage.setItem('gifts-pin', pin);
             }
             
-            if (isNaN(pin)) {
-                alert('PIN must be numbers only (0-9)');
-                return;
-            }
-            
-            localStorage.setItem('gifts-pin', pin);
+            // Lock the gifts
             localStorage.setItem('gifts-locked', 'true');
-            closeModal('set-gifts-pin-modal');
-            checkGiftsLockState();
-            showNotification('🔒 Gifts PIN set!', 'success');
+            
+            // Update views
+            setTimeout(() => {
+                document.getElementById('gifts-unlocked-view').style.display = 'none';
+                document.getElementById('gifts-locked-view').style.display = 'block';
+                
+                // Update lock button
+                const lockIcon = document.getElementById('gifts-lock-icon');
+                const lockText = document.getElementById('gifts-lock-text');
+                if (lockIcon) lockIcon.textContent = '🔒';
+                if (lockText) lockText.textContent = 'Locked';
+                
+                showNotification('🔒 Gifts locked!', 'success');
+            }, 100);
         }
         
         function unlockGifts() {
