@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Zenith v2.0</title>
     <link rel="manifest" id="manifest-link">
     <meta name="theme-color" content="#6366f1">
@@ -938,7 +938,7 @@
         <!-- HOME TAB -->
         <div id="home-tab" class="tab-content active">
             <!-- Weather - Floating Top Left with Live Animation -->
-            <div style="position: fixed; top: calc(56px + env(safe-area-inset-top) + 12px); left: calc(20px + env(safe-area-inset-left)); z-index: 50;">
+            <div style="position: fixed; top: calc(56px + env(safe-area-inset-top, 0px) + 12px); left: calc(20px + env(safe-area-inset-left, 20px)); z-index: 50;">
                 <div id="weather-widget" style="display: flex; align-items: center; gap: 8px;">
                     <div id="weather-icon-container" style="position: relative; width: 32px; height: 32px;">
                         <!-- Base weather icon -->
