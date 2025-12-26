@@ -22,7 +22,6 @@
             --glass: rgba(26, 26, 36, 0.8);
             --border: rgba(255, 255, 255, 0.1);
             --primary: #6366f1;
-            --primary-rgb: 99, 102, 241;
             --secondary: #a855f7;
             --text: #e5e7eb;
             --text-dim: #9ca3af;
@@ -343,8 +342,8 @@
         }
         
         .calendar-day.today {
-            background: rgba(var(--primary-rgb), 0.15);
-            border: 2px solid var(--primary);
+            background: var(--primary);
+            color: white;
             font-weight: 700;
         }
         
@@ -972,6 +971,10 @@
                     <span class="sidebar-icon">🎁</span>
                     <span>Gifts</span>
                 </div>
+                <div class="sidebar-item" onclick="switchTab('shopping'); closeSidebar();">
+                    <span class="sidebar-icon">🛒</span>
+                    <span>Shopping</span>
+                </div>
             </div>
         </div>
     </div>
@@ -1013,27 +1016,27 @@
                 </div>
             </div>
             
-            <!-- Pinned Notes - Full Width -->
+            <!-- Pinned Notes - Now Full Width -->
             <div class="card" style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="font-size: 16px; font-weight: 700;">📌 Pinned Notes</h3>
-                    <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 6px 12px; font-size: 12px;">Manage</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="font-size: 14px; font-weight: 700;">📌 Pinned</h3>
+                    <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 4px 8px; font-size: 11px;">Manage</button>
                 </div>
                 <div id="pinned-carousel" style="overflow: hidden; position: relative; min-height: 120px;">
-                    <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 14px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 18px solid rgba(255, 223, 0, 0.3); min-height: 100px; font-size: 13px;">
-                        <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 35px; height: 14px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
-                        <p style="color: #333; font-size: 13px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.5;">No pinned notes yet. Pin a note from the Notes tab!</p>
+                    <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 12px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 15px solid rgba(255, 223, 0, 0.3); min-height: 100px; font-size: 12px;">
+                        <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 30px; height: 12px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
+                        <p style="color: #333; font-size: 12px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.4;">No pinned notes yet. Pin a note from the Notes tab!</p>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;" id="pinned-nav">
-                    <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 30px; height: 30px; font-size: 16px;">‹</button>
-                    <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 10px; font-size: 11px;">1 / 1</span>
-                    <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 30px; height: 30px; font-size: 16px;">›</button>
+                <div style="display: flex; justify-content: center; gap: 6px; margin-top: 8px;" id="pinned-nav">
+                    <button class="btn btn-icon btn-secondary" onclick="prevPinned()" style="width: 28px; height: 28px; font-size: 16px;">‹</button>
+                    <span id="pinned-indicator" style="display: flex; align-items: center; padding: 0 8px; font-size: 11px;">1 / 1</span>
+                    <button class="btn btn-icon btn-secondary" onclick="nextPinned()" style="width: 28px; height: 28px; font-size: 16px;">›</button>
                 </div>
             </div>
             
             <!-- Top 5 Tasks + Today's Habits (Side by Side) -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
                 <!-- Top 5 Priorities -->
                 <div class="card">
                     <div class="card-title">
@@ -1055,10 +1058,10 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <div style="font-size: 16px; font-weight: 700;">📅 Calendar</div>
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-icon btn-secondary" onclick="prevMonthMini()" style="width: 30px; height: 30px; font-size: 14px; padding: 0;">‹</button>
+                        <button class="btn btn-icon btn-secondary" onclick="prevMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">‹</button>
                         <span style="font-size: 14px; font-weight: 600; padding: 0 8px; display: flex; align-items: center;" id="mini-cal-month"></span>
-                        <button class="btn btn-icon btn-secondary" onclick="todayMini()" style="width: 30px; height: 30px; font-size: 14px; padding: 0;">•</button>
-                        <button class="btn btn-icon btn-secondary" onclick="nextMonthMini()" style="width: 30px; height: 30px; font-size: 14px; padding: 0;">›</button>
+                        <button class="btn btn-icon btn-secondary" onclick="todayMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">•</button>
+                        <button class="btn btn-icon btn-secondary" onclick="nextMonthMini()" style="width: 28px; height: 28px; font-size: 14px; padding: 0;">›</button>
                     </div>
                 </div>
                 <div id="mini-calendar" class="calendar-grid"></div>
@@ -1075,8 +1078,8 @@
                     <div class="mood-emoji" onclick="selectMood('😢')">😢<span class="mood-count" id="mood-count-5">0</span></div>
                 </div>
                 <textarea id="mood-note" placeholder="Add note (optional)" style="min-height: 60px;"></textarea>
-                <button class="btn btn-primary" onclick="saveMood()" style="width: 100%; margin-top: 8px;">Log Mood</button>
-                <div id="mood-entries" class="mood-entries" style="margin-top: 12px;"></div>
+                <button class="btn btn-primary" onclick="saveMood()" style="width: 100%;">Log Mood</button>
+                <div id="mood-entries" class="mood-entries"></div>
             </div>
             
             <!-- Today's Schedule -->
@@ -1093,19 +1096,6 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h1 style="font-size: 24px; font-weight: 700;">✅ Tasks</h1>
                     <button class="btn btn-primary" onclick="openModal('task-modal')">+ Add Task</button>
-                </div>
-                
-                <!-- Quick Task Templates -->
-                <div style="margin-bottom: 16px;">
-                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-dim);">Quick Add:</div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn btn-secondary" onclick="addQuickTask('🛒 Shopping', 'groceries')" style="font-size: 12px; padding: 6px 12px;">🛒 Shopping</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('💪 Workout', 'fitness')" style="font-size: 12px; padding: 6px 12px;">💪 Workout</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('📚 Study', 'education')" style="font-size: 12px; padding: 6px 12px;">📚 Study</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('🏠 Chores', 'home')" style="font-size: 12px; padding: 6px 12px;">🏠 Chores</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('💼 Work', 'work')" style="font-size: 12px; padding: 6px 12px;">💼 Work</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('📞 Call', 'calls')" style="font-size: 12px; padding: 6px 12px;">📞 Call</button>
-                    </div>
                 </div>
                 
                 <div class="filters">
@@ -1259,6 +1249,24 @@
             </div>
         </div>
         
+        <!-- SHOPPING TAB -->
+        <div id="shopping-tab" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h1 style="font-size: 24px; font-weight: 700;">🛒 Shopping List</h1>
+                    <button class="btn btn-primary" onclick="openModal('shopping-modal')">+ Add Item</button>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-btn active" onclick="filterShopping('all')">All</div>
+                    <div class="filter-btn" onclick="filterShopping('active')">Active</div>
+                    <div class="filter-btn" onclick="filterShopping('purchased')">Purchased</div>
+                </div>
+                
+                <div class="scrollable" id="shopping-list"></div>
+            </div>
+        </div>
+        
         <!-- BOOKS TAB -->
         <div id="books-tab" class="tab-content">
             <div class="card">
@@ -1296,25 +1304,18 @@
         <div id="goals-tab" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h1 style="font-size: 28px; font-weight: 700;">✨ 2026 Vision Board</h1>
-                    <button class="btn btn-primary" onclick="openModal('goal-modal')">+ Add Vision</button>
-                </div>
-                
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 48px; margin-bottom: 8px;">🎯</div>
-                    <p style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">My 2026 Goals</p>
-                    <p style="font-size: 14px; color: var(--text-dim);">Visualize your dreams & make them reality</p>
+                    <h1 style="font-size: 24px; font-weight: 700;">🎯 Goals</h1>
+                    <button class="btn btn-primary" onclick="openModal('goal-modal')">+ Add Goal</button>
                 </div>
                 
                 <div class="filters">
                     <div class="filter-btn active" onclick="filterGoals('all')">All</div>
-                    <div class="filter-btn" onclick="filterGoals('personal')">💖 Personal</div>
-                    <div class="filter-btn" onclick="filterGoals('career')">💼 Career</div>
-                    <div class="filter-btn" onclick="filterGoals('health')">💪 Health</div>
-                    <div class="filter-btn" onclick="filterGoals('financial')">💰 Financial</div>
+                    <div class="filter-btn" onclick="filterGoals('personal')">Personal</div>
+                    <div class="filter-btn" onclick="filterGoals('career')">Career</div>
+                    <div class="filter-btn" onclick="filterGoals('health')">Health</div>
                 </div>
                 
-                <div id="goals-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;"></div>
+                <div class="scrollable" id="goals-list"></div>
             </div>
         </div>
         
@@ -1490,6 +1491,25 @@
         </div>
     </div>
     
+    <div id="shopping-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Shopping Item</h2>
+            <input type="text" id="shopping-item-name" placeholder="Item name *">
+            <input type="text" id="shopping-quantity" placeholder="Quantity (e.g., 2, 1lb, 500g)">
+            <select id="shopping-category">
+                <option value="groceries">🥗 Groceries</option>
+                <option value="household">🏠 Household</option>
+                <option value="pharmacy">💊 Pharmacy</option>
+                <option value="electronics">📱 Electronics</option>
+                <option value="clothing">👕 Clothing</option>
+                <option value="other">📦 Other</option>
+            </select>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="closeModal('shopping-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveShoppingItem()">Add Item</button>
+            </div>
+        </div>
+    </div>
     
     <div id="book-modal" class="modal">
         <div class="modal-content">
@@ -1671,13 +1691,6 @@
     </div>
     
     <script>
-        // ERROR CATCHING
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            alert('ERROR: ' + msg + '\nLine: ' + lineNo + '\nColumn: ' + columnNo);
-            console.error('JS Error:', msg, 'Line:', lineNo, 'Col:', columnNo, error);
-            return false;
-        };
-        
         // ==================== DATA STORAGE ====================
         let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
         let notes = JSON.parse(localStorage.getItem('notes') || '[]');
@@ -1685,22 +1698,15 @@
         let habits = JSON.parse(localStorage.getItem('habits') || '[]');
         let priorities = JSON.parse(localStorage.getItem('priorities') || '{}');
         let moods = JSON.parse(localStorage.getItem('moods') || '{}');
+        let shopping = JSON.parse(localStorage.getItem('shopping') || '[]');
         let habitCompletions = JSON.parse(localStorage.getItem('habit-completions') || '{}');
-        let books = JSON.parse(localStorage.getItem('books') || '[]');
-        let goals = JSON.parse(localStorage.getItem('goals') || '[]');
-        let giftPeople = JSON.parse(localStorage.getItem('gift-people') || '[]');
-        let customHolidays = JSON.parse(localStorage.getItem('custom-holidays') || '[]');
-        let notificationSettings = JSON.parse(localStorage.getItem('notification-settings') || '{"enabled": true, "sound": true}');
-        let readingGoal = JSON.parse(localStorage.getItem('reading-goal') || '{"total": 24, "current": 0}');
-        let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
-        let routines = JSON.parse(localStorage.getItem('routines') || '[]');
-        let workoutProgress = JSON.parse(localStorage.getItem('workout-progress') || '{}');
         
         let currentDate = new Date();
         let selectedDate = new Date();
         let currentTab = 'home';
         let currentTaskFilter = 'all';
         let currentNoteFilter = 'all';
+        let currentShoppingFilter = 'all';
         let selectedMood = null;
         let currentNoteImages = [];
         let currentNoteVoice = null;
@@ -1708,9 +1714,6 @@
         let noteAudioChunks = [];
         let currentPinnedIndex = 0;
         let lastSyncTime = Date.now();
-        let currentGoalFilter = 'all';
-        let giftsLocked = localStorage.getItem('gifts-locked') === 'true';
-        let giftsPin = localStorage.getItem('gifts-pin');
         
         // ==================== UTILITY FUNCTIONS ====================
         function save() {
@@ -1720,16 +1723,13 @@
             localStorage.setItem('habits', JSON.stringify(habits));
             localStorage.setItem('priorities', JSON.stringify(priorities));
             localStorage.setItem('moods', JSON.stringify(moods));
+            localStorage.setItem('shopping', JSON.stringify(shopping));
             localStorage.setItem('books', JSON.stringify(books));
             localStorage.setItem('goals', JSON.stringify(goals));
             localStorage.setItem('habit-completions', JSON.stringify(habitCompletions));
             localStorage.setItem('custom-holidays', JSON.stringify(customHolidays));
             localStorage.setItem('notification-settings', JSON.stringify(notificationSettings));
             localStorage.setItem('gift-people', JSON.stringify(giftPeople));
-            localStorage.setItem('reading-goal', JSON.stringify(readingGoal));
-            localStorage.setItem('workouts', JSON.stringify(workouts));
-            localStorage.setItem('routines', JSON.stringify(routines));
-            localStorage.setItem('workout-progress', JSON.stringify(workoutProgress));
             
             triggerSync();
         }
@@ -1756,7 +1756,11 @@
         
         // ==================== TAB SWITCHING ====================
         function switchTab(tab) {
-            // Don't auto-relock gifts - let user lock manually
+            // Auto-relock gifts when leaving the tab
+            if (currentTab === 'gifts' && tab !== 'gifts' && giftsPin) {
+                giftsLocked = true;
+                localStorage.setItem('gifts-locked', 'true');
+            }
             
             currentTab = tab;
             
@@ -1790,6 +1794,7 @@
                 'calendar': 'Calendar',
                 'habits': 'Habits',
                 'workout': 'Workout',
+                'shopping': 'Shopping',
                 'books': 'Books',
                 'goals': 'Goals',
                 'gifts': 'Gifts'
@@ -1807,6 +1812,7 @@
             if (tab === 'calendar') renderFullCalendar();
             if (tab === 'habits') renderHabits();
             if (tab === 'workout') renderWorkout();
+            if (tab === 'shopping') renderShopping();
             if (tab === 'books') renderBooks();
             if (tab === 'goals') renderGoals();
             if (tab === 'gifts') {
@@ -1886,25 +1892,6 @@
         }
         
         // ==================== TASKS ====================
-        // Quick task templates
-        function addQuickTask(prefix, category) {
-            const taskText = prompt(`${prefix} - What needs to be done?`);
-            if (!taskText) return;
-            
-            const today = formatDate(new Date());
-            tasks.push({
-                id: Date.now(),
-                name: `${prefix}: ${taskText}`,
-                desc: '',
-                due: today,
-                completed: false,
-                category: category
-            });
-            save();
-            renderTasks();
-            showNotification(`Task added!`, 'success');
-        }
-        
         function saveTask() {
             const name = document.getElementById('task-name').value;
             if (!name) return alert('Please enter task name');
@@ -2281,12 +2268,7 @@
             if (!priorities[today]) priorities[today] = [];
             if (priorities[today].length >= 5) return alert('Maximum 5 priorities per day');
             
-            priorities[today].push({ 
-                id: Date.now(), 
-                task, 
-                completed: false,
-                addedDate: today // Track when it was added
-            });
+            priorities[today].push({ id: Date.now(), task, completed: false });
             save();
             closeModal('priority-modal');
             renderPriorities();
@@ -2305,10 +2287,6 @@
         function renderPriorities() {
             const list = document.getElementById('priorities-list');
             const today = formatDate(new Date());
-            
-            // Check if we need to rollover from yesterday
-            checkPriorityRollover();
-            
             const todayPriorities = priorities[today] || [];
             
             if (todayPriorities.length === 0) {
@@ -2316,63 +2294,16 @@
                 return;
             }
             
-            list.innerHTML = todayPriorities.map((priority, idx) => {
-                const isOverdue = priority.addedDate && priority.addedDate !== today && !priority.completed;
-                return `
-                    <div class="item ${priority.completed ? 'completed' : ''}" onclick="togglePriority(${priority.id})">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
-                                ${idx + 1}
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 14px;">${priority.task}</div>
-                                ${isOverdue ? '<div style="font-size: 11px; color: #ff4444; font-weight: 600; margin-top: 2px;">⚠️ OVERDUE</div>' : ''}
-                            </div>
+            list.innerHTML = todayPriorities.map((priority, idx) => `
+                <div class="item ${priority.completed ? 'completed' : ''}" onclick="togglePriority(${priority.id})">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                            ${idx + 1}
                         </div>
+                        <div style="flex: 1; font-size: 14px;">${priority.task}</div>
                     </div>
-                `;
-            }).join('');
-        }
-        
-        // Check if we need to carry over unchecked tasks from yesterday
-        function checkPriorityRollover() {
-            const today = formatDate(new Date());
-            const lastCheck = localStorage.getItem('last-priority-check');
-            
-            // Only rollover once per day
-            if (lastCheck === today) return;
-            
-            // Get yesterday's date
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = formatDate(yesterday);
-            
-            const yesterdayPriorities = priorities[yesterdayStr] || [];
-            const todayPriorities = priorities[today] || [];
-            
-            // Find unchecked tasks from yesterday
-            const uncheckedTasks = yesterdayPriorities.filter(p => !p.completed);
-            
-            // Only add if there's room (max 5 total)
-            if (uncheckedTasks.length > 0 && todayPriorities.length < 5) {
-                if (!priorities[today]) priorities[today] = [];
-                
-                // Add unchecked tasks (up to the 5 limit)
-                uncheckedTasks.forEach(task => {
-                    if (priorities[today].length < 5) {
-                        priorities[today].push({
-                            ...task,
-                            addedDate: yesterdayStr, // Track when it was originally added
-                            completed: false
-                        });
-                    }
-                });
-                
-                save();
-            }
-            
-            // Mark that we've checked today
-            localStorage.setItem('last-priority-check', today);
+                </div>
+            `).join('');
         }
         
         // ==================== HABITS ====================
@@ -2485,8 +2416,81 @@
         }
         
         // ==================== SHOPPING ====================
+        function saveShoppingItem() {
+            const name = document.getElementById('shopping-item-name').value;
+            if (!name) return alert('Please enter item name');
+            
+            shopping.push({
+                id: Date.now(),
+                name,
+                quantity: document.getElementById('shopping-quantity').value,
+                category: document.getElementById('shopping-category').value,
+                purchased: false
+            });
+            
+            save();
+            closeModal('shopping-modal');
+            renderShopping();
+        }
+        
+        function toggleShopping(id) {
+            const item = shopping.find(s => s.id === id);
+            if (item) {
+                item.purchased = !item.purchased;
+                save();
+                renderShopping();
+            }
+        }
+        
+        function deleteShopping(id) {
+            if (confirm('Delete this item?')) {
+                shopping = shopping.filter(s => s.id !== id);
+                save();
+                renderShopping();
+            }
+        }
+        
+        function filterShopping(filter) {
+            currentShoppingFilter = filter;
+            document.querySelectorAll('#shopping-tab .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderShopping();
+        }
+        
+        function renderShopping() {
+            const list = document.getElementById('shopping-list');
+            
+            let filtered = shopping.filter(item => {
+                if (currentShoppingFilter === 'active') return !item.purchased;
+                if (currentShoppingFilter === 'purchased') return item.purchased;
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty">No shopping items</div>';
+                return;
+            }
+            
+            list.innerHTML = filtered.map(item => `
+                <div class="shopping-item ${item.purchased ? 'purchased' : ''}">
+                    <div style="display: flex; align-items: center; gap: 12px; flex: 1;" onclick="toggleShopping(${item.id})">
+                        <div style="width: 24px; height: 24px; border: 2px solid var(--primary); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            ${item.purchased ? '✓' : ''}
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="shopping-name" style="font-weight: 600;">${item.name}</div>
+                            ${item.quantity ? `<div style="font-size: 12px; color: var(--text-dim);">${item.quantity}</div>` : ''}
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-dim);">${item.category}</div>
+                    </div>
+                    <button class="btn btn-icon btn-secondary" onclick="deleteShopping(${item.id})" style="flex-shrink: 0;">🗑️</button>
+                </div>
+            `).join('');
+        }
         
         // ==================== BOOKS ====================
+        let books = JSON.parse(localStorage.getItem('books') || '[]');
+        let readingGoal = JSON.parse(localStorage.getItem('reading-goal') || '{"total": 24, "current": 0}');
         
         function saveBook() {
             const title = document.getElementById('book-title').value;
@@ -2636,8 +2640,15 @@
         }
         
         // ==================== GOALS ====================
+        let goals = JSON.parse(localStorage.getItem('goals') || '[]');
+        let currentGoalFilter = 'all';
+        let customHolidays = JSON.parse(localStorage.getItem('custom-holidays') || '[]');
+        let notificationSettings = JSON.parse(localStorage.getItem('notification-settings') || '{"tasks": true, "events": true, "overdue": true, "habits": true}');
         
         // ==================== GIFTS ====================
+        let giftPeople = JSON.parse(localStorage.getItem('gift-people') || '[]');
+        let giftsLocked = localStorage.getItem('gifts-locked') === 'true';
+        let giftsPin = localStorage.getItem('gifts-pin') || '';
         let currentGiftPersonId = null;
         let currentGiftItemImage = null;
         
@@ -2676,85 +2687,47 @@
             });
             
             if (filtered.length === 0) {
-                list.innerHTML = '<div class="empty" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">No visions set for 2026 yet. Click "+ Add Vision" to start!</div>';
+                list.innerHTML = '<div class="empty">No goals set yet</div>';
                 return;
             }
-            
-            const categoryEmojis = {
-                'personal': '💖',
-                'career': '💼',
-                'health': '💪',
-                'financial': '💰',
-                'travel': '✈️',
-                'learning': '📚'
-            };
-            
-            const categoryColors = {
-                'personal': 'linear-gradient(135deg, #ec4899, #f472b6)',
-                'career': 'linear-gradient(135deg, #6366f1, #a855f7)',
-                'health': 'linear-gradient(135deg, #10b981, #34d399)',
-                'financial': 'linear-gradient(135deg, #f59e0b, #fbbf24)',
-                'travel': 'linear-gradient(135deg, #3b82f6, #60a5fa)',
-                'learning': 'linear-gradient(135deg, #8b5cf6, #a78bfa)'
-            };
             
             list.innerHTML = filtered.map(goal => {
                 const completedMilestones = goal.milestones.filter(m => m.completed).length;
                 const totalMilestones = goal.milestones.length;
                 const progress = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
-                const emoji = categoryEmojis[goal.category] || '🎯';
-                const gradient = categoryColors[goal.category] || 'linear-gradient(135deg, #6366f1, #a855f7)';
                 
                 return `
-                    <div class="item" style="padding: 0; overflow: hidden; border: 2px solid var(--border);">
-                        <!-- Vision Card Header -->
-                        <div style="background: ${gradient}; padding: 20px; text-align: center;">
-                            <div style="font-size: 48px; margin-bottom: 8px;">${emoji}</div>
-                            <div style="font-weight: 700; font-size: 18px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">${goal.title}</div>
-                            ${goal.deadline ? `<div style="font-size: 12px; color: rgba(255,255,255,0.9); margin-top: 4px;">🎯 ${goal.deadline}</div>` : ''}
+                    <div class="item" style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; font-size: 16px;">${goal.title}</div>
+                                ${goal.description ? `<div style="font-size: 13px; color: var(--text-dim); margin-top: 4px;">${goal.description}</div>` : ''}
+                            </div>
+                            <div style="background: rgba(99, 102, 241, 0.2); color: var(--primary); padding: 4px 10px; border-radius: 12px; font-size: 11px; text-transform: uppercase;">
+                                ${goal.category}
+                            </div>
                         </div>
                         
-                        <!-- Vision Card Body -->
-                        <div style="padding: 16px;">
-                            ${goal.description ? `<p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.5;">${goal.description}</p>` : ''}
-                            
-                            <!-- Progress -->
-                            <div style="margin-bottom: 16px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                                    <span style="font-size: 12px; font-weight: 600;">Progress</span>
-                                    <span style="font-size: 12px; font-weight: 700; color: var(--primary);">${progress}%</span>
-                                </div>
-                                <div style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
-                                    <div style="height: 100%; background: ${gradient}; width: ${progress}%; transition: width 0.3s;"></div>
-                                </div>
-                                <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px; text-align: center;">${completedMilestones} of ${totalMilestones} milestones completed</div>
-                            </div>
-                            
-                            <!-- Milestones -->
-                            ${goal.milestones.length > 0 ? `
-                                <div style="display: flex; flex-direction: column; gap: 8px;">
-                                    ${goal.milestones.slice(0, 3).map(milestone => `
-                                        <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 6px; cursor: pointer;" onclick="toggleMilestone(${goal.id}, ${milestone.id})">
-                                            <div style="width: 18px; height: 18px; border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: ${milestone.completed ? 'var(--success)' : 'transparent'};">
-                                                ${milestone.completed ? '<span style="color: white; font-size: 10px;">✓</span>' : ''}
-                                            </div>
-                                            <div style="flex: 1; font-size: 13px; ${milestone.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${milestone.text}</div>
-                                        </div>
-                                    `).join('')}
-                                    ${goal.milestones.length > 3 ? `<div style="font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 4px;">+${goal.milestones.length - 3} more milestones</div>` : ''}
-                                </div>
-                            ` : '<div style="font-size: 12px; color: var(--text-dim); text-align: center; padding: 12px;">No milestones yet</div>'}
-                            
-                            <!-- Actions -->
-                            <div style="display: flex; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-                                <button class="btn btn-secondary" onclick="viewGoal(${goal.id})" style="flex: 1; font-size: 12px;">📋 View</button>
-                                <button class="btn btn-secondary" onclick="deleteGoal(${goal.id})" style="font-size: 12px;">🗑️</button>
+                        ${goal.deadline ? `<div style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px;">📅 Deadline: ${goal.deadline}</div>` : ''}
+                        
+                        <div style="margin-bottom: 12px;">
+                            <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">Progress: ${progress}% (${completedMilestones}/${totalMilestones} milestones)</div>
+                            <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                <div style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: ${progress}%;"></div>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('');
-        }
+                        
+                        ${goal.milestones.length > 0 ? `
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                ${goal.milestones.map(milestone => `
+                                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;" onclick="toggleMilestone(${goal.id}, ${milestone.id})">
+                                        <div style="width: 20px; height: 20px; border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; background: ${milestone.completed ? 'var(--success)' : 'transparent'};">
+                                            ${milestone.completed ? '<span style="color: white; font-size: 12px;">✓</span>' : ''}
+                                        </div>
+                                        <div style="flex: 1; font-size: 14px; ${milestone.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${milestone.text}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
                         ` : ''}
                         
                         <button class="btn btn-secondary" onclick="deleteGoal(${goal.id})" style="margin-top: 12px; padding: 6px 12px; font-size: 12px;">Delete Goal</button>
@@ -4572,6 +4545,9 @@
         // ==================== INITIALIZATION ====================
         
         // ==================== WORKOUT TRACKER ====================
+        let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
+        let routines = JSON.parse(localStorage.getItem('routines') || '[]');
+        let workoutProgress = JSON.parse(localStorage.getItem('workout-progress') || '{}');
         let currentWorkoutMonth = new Date().getMonth();
         let currentWorkoutYear = new Date().getFullYear();
         let currentWorkoutView = 'tracker';
@@ -5020,7 +4996,7 @@
                             if (tabContent) tabContent.classList.add('active');
                             const tabNames = {
                                 'home': 'Home', 'tasks': 'Tasks', 'notes': 'Notes', 'calendar': 'Calendar',
-                                'habits': 'Habits', 'workout': 'Workout',
+                                'habits': 'Habits', 'workout': 'Workout', 'shopping': 'Shopping',
                                 'books': 'Books', 'goals': 'Goals', 'gifts': 'Gifts'
                             };
                             const tabNameEl = document.getElementById('current-tab-name');
