@@ -4438,7 +4438,9 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             
             localStorage.setItem('gifts-pin', pin);
             localStorage.setItem('gifts-locked', 'true');
-            location.reload();
+            closeModal('set-gifts-pin-modal');
+            checkGiftsLockState();
+            showNotification('🔒 Gifts PIN set!', 'success');
         }
         
         function unlockGifts() {
@@ -4449,9 +4451,8 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
                 // Correct PIN!
                 localStorage.setItem('gifts-locked', 'false');
                 document.getElementById('gifts-pin-input').value = '';
-                closeModal('gifts-pin-modal');
                 
-                // Update the views
+                // Update the views directly
                 document.getElementById('gifts-unlocked-view').style.display = 'block';
                 document.getElementById('gifts-locked-view').style.display = 'none';
                 document.getElementById('gifts-lock-icon').textContent = '🔓';
@@ -4459,6 +4460,7 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
                 
                 // Render gifts
                 renderGifts();
+                showNotification('🎁 Gifts unlocked!', 'success');
             } else {
                 // Wrong PIN!
                 alert('❌ Wrong PIN');
@@ -4470,7 +4472,9 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             if (confirm('Reset gifts PIN? This will unlock gifts.')) {
                 localStorage.setItem('gifts-locked', 'false');
                 localStorage.removeItem('gifts-pin');
-                location.reload();
+                checkGiftsLockState();
+                renderGifts();
+                showNotification('🔓 Gifts PIN reset!', 'success');
             }
         }
         
