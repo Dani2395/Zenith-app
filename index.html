@@ -961,6 +961,11 @@
                     <span class="sidebar-icon">🎁</span>
                     <span>Gifts</span>
                 </div>
+                
+                <div class="sidebar-item" onclick="switchTab('budget'); closeSidebar();">
+                    <span class="sidebar-icon">💰</span>
+                    <span>Budget</span>
+                </div>
 
             </div>
         </div>
@@ -1145,7 +1150,87 @@
             </div>
         </div>
         
-        <!-- WORKOUT TAB -->
+        
+        <!-- BUDGET TAB -->
+        <div id="budget-tab" class="tab-content">
+            <!-- Top Section: Budgets and Monthly Metrics -->
+            <div style="display: grid; grid-template-columns: 570px 1fr; gap: 16px; margin-bottom: 16px;">
+                
+                <!-- Left: Budget Categories -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h2 style="font-size: 20px; font-weight: 700;">💰 Budgets</h2>
+                        <button class="btn btn-primary" onclick="openModal('budget-modal')" style="font-size: 12px; padding: 6px 12px;">+ New</button>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 6px 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <span style="font-size: 13px; font-weight: 600;">📅 This Month</span>
+                    </div>
+                    
+                    <div id="budgets-list" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+                
+                <!-- Right: Monthly Metrics (Editable) -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                        <h2 style="font-size: 20px; font-weight: 700;">📊 Monthly Metrics</h2>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                            <button class="btn btn-primary" onclick="openIncomeModal()" style="font-size: 11px; padding: 5px 10px;">+ Income</button>
+                            <button class="btn btn-danger" onclick="openExpenseModalGeneral()" style="font-size: 11px; padding: 5px 10px;">+ Expense</button>
+                            <div style="width: 1px; height: 20px; background: var(--border);"></div>
+                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">All</button>
+                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">Q1</button>
+                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">Q2</button>
+                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">Q3</button>
+                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">Q4</button>
+                        </div>
+                    </div>
+                    
+                    <div id="monthly-metrics" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            
+            <!-- Middle Section: Transactions List -->
+            <div class="card" style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 style="font-size: 20px; font-weight: 700;">📋 All Transactions</h2>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="filterTransactions('all')" style="font-size: 11px; padding: 5px 10px;">All</button>
+                        <button class="btn btn-secondary" onclick="filterTransactions('income')" style="font-size: 11px; padding: 5px 10px;">Income</button>
+                        <button class="btn btn-secondary" onclick="filterTransactions('expense')" style="font-size: 11px; padding: 5px 10px;">Expenses</button>
+                    </div>
+                </div>
+                <div id="transactions-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+            
+            <!-- Bottom Section: Database / Debt Tracker -->
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <div style="font-size: 24px;">🗄️</div>
+                    <h2 style="font-size: 20px; font-weight: 700;">Database</h2>
+                </div>
+                
+                <!-- Debt Tracker Subsection -->
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                    <div style="font-size: 20px;">💳</div>
+                    <h3 style="font-size: 16px; font-weight: 600;">Debt Tracker</h3>
+                    <button class="btn btn-primary" onclick="openModal('debt-modal')" style="font-size: 11px; padding: 4px 10px; margin-left: auto;">+ New Debt</button>
+                </div>
+                
+                <div id="debt-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-bottom: 20px;"></div>
+                
+                <!-- Savings Subsection -->
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                    <div style="font-size: 20px;">🏦</div>
+                    <h3 style="font-size: 16px; font-weight: 600;">Savings</h3>
+                    <button class="btn btn-primary" onclick="openModal('savings-modal')" style="font-size: 11px; padding: 4px 10px; margin-left: auto;">+ New Savings</button>
+                </div>
+                
+                <div id="savings-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px;"></div>
+            </div>
+        </div>
+
+<!-- WORKOUT TAB -->
         <div id="workout-tab" class="tab-content">
             <div class="card">
                 <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">💪 Workout Tracker</h1>
@@ -1321,7 +1406,99 @@
     
     <!-- MODALS -->
     
-    <!-- Widget Library Modal -->
+        <!-- Budget Modal -->
+    <div id="budget-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Budget Category</h2>
+            <input type="text" id="budget-name" placeholder="Category name (e.g., Food & Dining)">
+            <input type="number" id="budget-amount" placeholder="Monthly budget amount" step="0.01">
+            <input type="text" id="budget-icon" placeholder="Icon (e.g., 🍔)">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('budget-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveBudget()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Expense Modal -->
+    <div id="expense-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Expense</h2>
+            <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 16px;">
+                <div style="font-size: 12px; color: var(--text-dim);">Category:</div>
+                <div style="font-size: 16px; font-weight: 600;" id="expense-category-name"></div>
+            </div>
+            <input type="number" id="expense-amount" placeholder="Amount (e.g., 25.50)" step="0.01" min="0" style="font-size: 18px;">
+            <input type="text" id="expense-description" placeholder="Description (optional)">
+            <input type="date" id="expense-date">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('expense-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveExpense()">Add Expense</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add General Expense Modal (for monthly metrics) -->
+    <div id="general-expense-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Expense</h2>
+            <input type="number" id="general-expense-amount" placeholder="Amount (e.g., 25.50)" step="0.01" min="0" style="font-size: 18px;">
+            <input type="text" id="general-expense-description" placeholder="Description">
+            <input type="date" id="general-expense-date">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('general-expense-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveGeneralExpense()">Add Expense</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Income Modal -->
+    <div id="income-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Income</h2>
+            <input type="number" id="income-amount" placeholder="Amount (e.g., 3500)" step="0.01" min="0" style="font-size: 18px;">
+            <input type="text" id="income-description" placeholder="Source (e.g., Salary, Freelance)">
+            <input type="date" id="income-date">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('income-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveIncome()">Add Income</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Debt Modal -->
+    <div id="debt-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Debt</h2>
+            <input type="text" id="debt-name" placeholder="Debt name (e.g., Credit Card, Student Loan)">
+            <input type="number" id="debt-amount" placeholder="Total amount owed" step="0.01" min="0">
+            <input type="number" id="debt-interest" placeholder="Interest rate (%)" step="0.01" min="0">
+            <input type="number" id="debt-payment" placeholder="Monthly payment" step="0.01" min="0">
+            <input type="date" id="debt-due" placeholder="Due date">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('debt-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveDebt()">Add Debt</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Savings Modal -->
+    <div id="savings-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Savings Goal</h2>
+            <input type="text" id="savings-name" placeholder="Goal name (e.g., Emergency Fund, Vacation)">
+            <input type="number" id="savings-target" placeholder="Target amount" step="0.01" min="0">
+            <input type="number" id="savings-current" placeholder="Current amount saved" step="0.01" min="0">
+            <input type="number" id="savings-monthly" placeholder="Monthly contribution" step="0.01" min="0">
+            <input type="date" id="savings-deadline" placeholder="Target date (optional)">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('savings-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSavings()">Add Savings</button>
+            </div>
+        </div>
+    </div>
+
+<!-- Widget Library Modal -->
     <div id="widget-library-modal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <h2>📦 Widget Library</h2>
@@ -1798,6 +1975,14 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
                 if (localStorage.getItem('gifts-locked') !== 'true') {
                     renderGifts();
                 }
+            }
+            if (tab === 'budget') {
+                initBudgets();
+                renderBudgets();
+                renderMonthlyMetrics();
+                renderDebts();
+                renderSavings();
+                renderTransactions();
             }
         }
         
@@ -4541,6 +4726,659 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             }
         }
         
+
+// ==================== BUDGET TRACKER ====================
+let budgets = JSON.parse(localStorage.getItem('budgets') || '[]');
+let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+let monthlyData = JSON.parse(localStorage.getItem('monthlyData') || '{}');
+let debts = JSON.parse(localStorage.getItem('debts') || '[]');
+let savings = JSON.parse(localStorage.getItem('savings') || '[]');
+
+function initBudgets() {
+    if (budgets.length === 0) {
+        // Add default budget categories
+        budgets = [
+            { id: Date.now(), name: 'Food & Dining', amount: 500, spent: 0, icon: '🍔' },
+            { id: Date.now()+1, name: 'Healthcare', amount: 250, spent: 0, icon: '🏥' },
+            { id: Date.now()+2, name: 'Bills & Utilities', amount: 1200, spent: 0, icon: '🏠' },
+            { id: Date.now()+3, name: 'Transportation', amount: 150, spent: 0, icon: '🚗' },
+            { id: Date.now()+4, name: 'Shopping', amount: 400, spent: 0, icon: '🛍️' },
+            { id: Date.now()+5, name: 'Entertainment', amount: 200, spent: 0, icon: '🎬' },
+            { id: Date.now()+6, name: 'Subscriptions', amount: 40, spent: 0, icon: '📱' }
+        ];
+        localStorage.setItem('budgets', JSON.stringify(budgets));
+    }
+    
+    if (Object.keys(monthlyData).length === 0) {
+        // Initialize monthly data
+        const months = ['January 2026', 'February 2026', 'March 2026', 'April 2026', 'May 2026', 'June 2026', 
+                       'July 2026', 'August 2026', 'September 2026', 'October 2026', 'November 2025', 'December 2025'];
+        months.forEach(month => {
+            monthlyData[month] = {
+                income: 0,
+                expenses: 0,
+                cashflow: 0
+            };
+        });
+        // Add some sample data
+        monthlyData['December 2025'] = { income: 7100.23, expenses: 4927.3, cashflow: 3322.72 };
+        monthlyData['October 2026'] = { income: 0, expenses: 711.99, cashflow: -19.99 };
+        localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+    }
+}
+
+function renderBudgets() {
+    const container = document.getElementById('budgets-list');
+    if (!container) return;
+    
+    container.innerHTML = budgets.map(budget => {
+        const percent = Math.min(100, Math.round((budget.spent / budget.amount) * 100));
+        const isOverBudget = budget.spent > budget.amount;
+        
+        return `
+            <div class="item" style="margin-bottom: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">${budget.icon}</span>
+                        <div>
+                            <div style="font-weight: 600; font-size: 13px;">${budget.name}</div>
+                            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">
+                                $${budget.spent.toFixed(0)} / $${budget.amount.toFixed(0)}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 13px; font-weight: 700; color: ${isOverBudget ? 'var(--danger)' : 'var(--text)'};">
+                            ${percent}%
+                        </div>
+                        <div style="font-size: 10px; color: var(--text-dim); margin-top: 1px;">
+                            ${isOverBudget ? '⚠️' : '✓'}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 8px;">
+                    <div style="width: ${Math.min(100, percent)}%; height: 100%; background: ${isOverBudget ? 'var(--danger)' : 'var(--primary)'}; border-radius: 3px; transition: width 0.3s;"></div>
+                </div>
+                
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn btn-secondary" onclick="addTransactionToBudget(${budget.id})" style="flex: 1; font-size: 11px; padding: 5px;">+ Add</button>
+                    <button class="btn btn-secondary" onclick="deleteBudget(${budget.id})" style="font-size: 11px; padding: 5px 8px;">🗑️</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderMonthlyMetrics() {
+    const container = document.getElementById('monthly-metrics');
+    if (!container) return;
+    
+    container.innerHTML = Object.entries(monthlyData).map(([month, data]) => {
+        const hasData = data.income > 0 || data.expenses > 0;
+        const monthId = month.replace(/\s/g, '-');
+        
+        return `
+            <div class="item" style="padding: 12px; border: 1px solid var(--border); border-radius: 10px; ${!hasData ? 'opacity: 0.4;' : ''}">
+                <!-- Collapsible Header -->
+                <div onclick="toggleMonthExpand('${monthId}')" style="cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                    <span id="expand-icon-${monthId}" style="font-size: 14px; transition: transform 0.2s;">▶</span>
+                    <span style="font-weight: 600; font-size: 12px;">📅 ${month}</span>
+                </div>
+                
+                <!-- Expandable Content -->
+                <div id="month-content-${monthId}" style="display: none;">
+                    <div style="margin-bottom: 6px;">
+                        <div style="font-size: 10px; color: #6b9b6e;">Income: <span style="font-size: 14px; font-weight: 700; color: var(--success);">$${data.income.toFixed(2)}</span></div>
+                    </div>
+                    
+                    <div style="margin-bottom: 6px;">
+                        <div style="font-size: 10px; color: #c77c7c;">Expense: <span style="font-size: 14px; font-weight: 700; color: var(--danger);">$${data.expenses.toFixed(2)}</span></div>
+                    </div>
+                    
+                    <div style="padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size: 12px; font-weight: 600;">Cashflow: <span style="font-weight: 700; color: ${data.cashflow >= 0 ? 'var(--success)' : 'var(--danger)'};">${data.cashflow >= 0 ? '+' : ''}$${data.cashflow.toFixed(2)}</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleMonthExpand(monthId) {
+    const content = document.getElementById(`month-content-${monthId}`);
+    const icon = document.getElementById(`expand-icon-${monthId}`);
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.style.transform = 'rotate(90deg)';
+    } else {
+        content.style.display = 'none';
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+
+function updateMonthlyIncome(month, value) {
+    const income = parseFloat(value) || 0;
+    if (!monthlyData[month]) {
+        monthlyData[month] = { income: 0, expenses: 0, cashflow: 0 };
+    }
+    monthlyData[month].income = income;
+    monthlyData[month].cashflow = monthlyData[month].income - monthlyData[month].expenses;
+    localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+    renderMonthlyMetrics();
+}
+
+function updateMonthlyExpenses(month, value) {
+    const expenses = parseFloat(value) || 0;
+    if (!monthlyData[month]) {
+        monthlyData[month] = { income: 0, expenses: 0, cashflow: 0 };
+    }
+    monthlyData[month].expenses = expenses;
+    monthlyData[month].cashflow = monthlyData[month].income - monthlyData[month].expenses;
+    localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+    renderMonthlyMetrics();
+}
+
+function saveBudget() {
+    const name = document.getElementById('budget-name').value;
+    const amount = parseFloat(document.getElementById('budget-amount').value);
+    const icon = document.getElementById('budget-icon').value || '💰';
+    
+    if (!name || !amount) return alert('Please fill in all fields');
+    
+    budgets.push({
+        id: Date.now(),
+        name,
+        amount,
+        spent: 0,
+        icon
+    });
+    
+    localStorage.setItem('budgets', JSON.stringify(budgets));
+    closeModal('budget-modal');
+    renderBudgets();
+    
+    document.getElementById('budget-name').value = '';
+    document.getElementById('budget-amount').value = '';
+    document.getElementById('budget-icon').value = '';
+}
+
+let currentBudgetForTransaction = null;
+
+function openIncomeModal() {
+    document.getElementById('income-amount').value = '';
+    document.getElementById('income-description').value = '';
+    document.getElementById('income-date').value = new Date().toISOString().split('T')[0];
+    openModal('income-modal');
+}
+
+function addTransactionToBudget(budgetId) {
+    const budget = budgets.find(b => b.id === budgetId);
+    if (!budget) return;
+    
+    // Set current budget
+    currentBudgetForTransaction = budgetId;
+    
+    // Populate modal
+    document.getElementById('expense-amount').value = '';
+    document.getElementById('expense-description').value = '';
+    document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('expense-category-name').textContent = budget.name;
+    
+    openModal('expense-modal');
+}
+
+function renderTransactions() {
+    const container = document.getElementById('transactions-list');
+    if (!container) return;
+    
+    // Sort transactions by date (newest first)
+    const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    if (sortedTransactions.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 20px;">No transactions yet</div>';
+        return;
+    }
+    
+    container.innerHTML = sortedTransactions.slice(0, 50).map(t => {
+        const budget = budgets.find(b => b.id === t.budgetId);
+        const isIncome = t.type === 'income';
+        
+        return `
+            <div style="padding: 10px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 8px; border-left: 3px solid ${isIncome ? 'var(--success)' : 'var(--danger)'};">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px;">
+                    <div style="font-weight: 600; font-size: 11px;">
+                        ${isIncome ? '💰' : '💸'} ${isIncome ? t.description || 'Income' : (budget?.name || 'Expense')}
+                    </div>
+                    <div style="font-weight: 700; font-size: 12px; color: ${isIncome ? 'var(--success)' : 'var(--danger)'};">
+                        ${isIncome ? '+' : '-'}$${t.amount.toFixed(2)}
+                    </div>
+                </div>
+                ${t.description && !isIncome ? `<div style="font-size: 10px; color: var(--text-dim); margin-bottom: 2px;">${t.description}</div>` : ''}
+                <div style="font-size: 10px; color: var(--text-dim);">
+                    ${new Date(t.date).toLocaleDateString()}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function saveExpense() {
+    const amount = parseFloat(document.getElementById('expense-amount').value);
+    const description = document.getElementById('expense-description').value;
+    const date = document.getElementById('expense-date').value;
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+    
+    const budget = budgets.find(b => b.id === currentBudgetForTransaction);
+    if (!budget) return;
+    
+    // Add to budget spent
+    budget.spent += amount;
+    
+    // Add transaction record
+    transactions.push({
+        id: Date.now(),
+        budgetId: currentBudgetForTransaction,
+        amount,
+        description,
+        date,
+        type: 'expense'
+    });
+    
+    // Update monthly data
+    const monthYear = new Date(date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (monthlyData[monthYear]) {
+        monthlyData[monthYear].expenses += amount;
+        monthlyData[monthYear].cashflow = monthlyData[monthYear].income - monthlyData[monthYear].expenses;
+    }
+    
+    // Save everything
+    localStorage.setItem('budgets', JSON.stringify(budgets));
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+    
+    closeModal('expense-modal');
+    renderBudgets();
+    renderMonthlyMetrics();
+    renderTransactions();
+    showNotification('💸 Expense added!', 'success');
+}
+
+function saveIncome() {
+    const amount = parseFloat(document.getElementById('income-amount').value);
+    const description = document.getElementById('income-description').value;
+    const date = document.getElementById('income-date').value || new Date().toISOString().split('T')[0];
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+    
+    // Add transaction record
+    transactions.push({
+        id: Date.now(),
+        amount,
+        description,
+        date,
+        type: 'income'
+    });
+    
+    // Update monthly data
+    const monthYear = new Date(date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (!monthlyData[monthYear]) {
+        monthlyData[monthYear] = { income: 0, expenses: 0, cashflow: 0 };
+    }
+    monthlyData[monthYear].income += amount;
+    monthlyData[monthYear].cashflow = monthlyData[monthYear].income - monthlyData[monthYear].expenses;
+    
+    // Save everything
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+    
+    closeModal('income-modal');
+    renderMonthlyMetrics();
+    renderTransactions();
+    showNotification('💰 Income added!', 'success');
+    
+    // Clear form
+    document.getElementById('income-amount').value = '';
+    document.getElementById('income-description').value = '';
+}
+
+function deleteBudget(id) {
+    if (!confirm('Delete this budget category?')) return;
+    budgets = budgets.filter(b => b.id !== id);
+    localStorage.setItem('budgets', JSON.stringify(budgets));
+    renderBudgets();
+}
+
+function openExpenseModalGeneral() {
+    document.getElementById('general-expense-amount').value = '';
+    document.getElementById('general-expense-description').value = '';
+    document.getElementById('general-expense-date').value = new Date().toISOString().split('T')[0];
+    openModal('general-expense-modal');
+}
+
+function saveGeneralExpense() {
+    const amount = parseFloat(document.getElementById('general-expense-amount').value);
+    const description = document.getElementById('general-expense-description').value;
+    const date = document.getElementById('general-expense-date').value || new Date().toISOString().split('T')[0];
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+    
+    // Add transaction record
+    transactions.push({
+        id: Date.now(),
+        amount,
+        description,
+        date,
+        type: 'expense'
+    });
+    
+    // Update monthly data
+    const monthYear = new Date(date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (!monthlyData[monthYear]) {
+        monthlyData[monthYear] = { income: 0, expenses: 0, cashflow: 0 };
+    }
+    monthlyData[monthYear].expenses += amount;
+    monthlyData[monthYear].cashflow = monthlyData[monthYear].income - monthlyData[monthYear].expenses;
+    
+    // Save everything
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+    
+    closeModal('general-expense-modal');
+    renderMonthlyMetrics();
+    renderTransactions();
+    showNotification('💸 Expense added!', 'success');
+}
+
+// ==================== DEBT TRACKER ====================
+function renderDebts() {
+    const container = document.getElementById('debt-list');
+    if (!container) return;
+    
+    if (debts.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 20px;">No debts tracked. Click "+ New Debt" to add one.</div>';
+        return;
+    }
+    
+    container.innerHTML = debts.map(debt => {
+        return `
+            <div class="item" style="padding: 12px; border: 1px solid var(--border); border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <div style="font-weight: 600; font-size: 14px;">${debt.name}</div>
+                    <button class="btn btn-secondary" onclick="deleteDebt(${debt.id})" style="font-size: 11px; padding: 4px 8px;">🗑️</button>
+                </div>
+                
+                <div style="margin-bottom: 6px;">
+                    <div style="font-size: 11px; color: var(--text-dim);">Amount Owed:</div>
+                    <div style="font-size: 16px; font-weight: 700; color: var(--danger);">$${debt.amount.toFixed(2)}</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px;">
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-dim);">Interest:</div>
+                        <div style="font-size: 12px; font-weight: 600;">${debt.interest}%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-dim);">Payment:</div>
+                        <div style="font-size: 12px; font-weight: 600;">$${debt.payment.toFixed(2)}/mo</div>
+                    </div>
+                </div>
+                
+                ${debt.due ? `<div style="font-size: 11px; color: var(--text-dim);">Due: ${new Date(debt.due).toLocaleDateString()}</div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function saveDebt() {
+    const name = document.getElementById('debt-name').value;
+    const amount = parseFloat(document.getElementById('debt-amount').value);
+    const interest = parseFloat(document.getElementById('debt-interest').value) || 0;
+    const payment = parseFloat(document.getElementById('debt-payment').value) || 0;
+    const due = document.getElementById('debt-due').value;
+    
+    if (!name || !amount) {
+        alert('Please enter debt name and amount');
+        return;
+    }
+    
+    debts.push({
+        id: Date.now(),
+        name,
+        amount,
+        interest,
+        payment,
+        due
+    });
+    
+    localStorage.setItem('debts', JSON.stringify(debts));
+    closeModal('debt-modal');
+    renderDebts();
+    showNotification('💳 Debt added!', 'success');
+    
+    // Clear form
+    document.getElementById('debt-name').value = '';
+    document.getElementById('debt-amount').value = '';
+    document.getElementById('debt-interest').value = '';
+    document.getElementById('debt-payment').value = '';
+    document.getElementById('debt-due').value = '';
+}
+
+function deleteDebt(id) {
+    if (!confirm('Delete this debt?')) return;
+    debts = debts.filter(d => d.id !== id);
+    localStorage.setItem('debts', JSON.stringify(debts));
+    renderDebts();
+}
+
+// ==================== SAVINGS TRACKER ====================
+function renderSavings() {
+    const container = document.getElementById('savings-list');
+    if (!container) return;
+    
+    if (savings.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 20px;">No savings goals yet. Click "+ New Savings" to add one.</div>';
+        return;
+    }
+    
+    container.innerHTML = savings.map(goal => {
+        const percent = Math.min(100, Math.round((goal.current / goal.target) * 100));
+        const remaining = goal.target - goal.current;
+        
+        return `
+            <div class="item" style="padding: 12px; border: 1px solid var(--border); border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <div style="font-weight: 600; font-size: 14px;">${goal.name}</div>
+                    <button class="btn btn-secondary" onclick="deleteSavings(${goal.id})" style="font-size: 11px; padding: 4px 8px;">🗑️</button>
+                </div>
+                
+                <div style="margin-bottom: 8px;">
+                    <div style="font-size: 11px; color: var(--text-dim);">Progress:</div>
+                    <div style="font-size: 16px; font-weight: 700; color: var(--success);">$${goal.current.toFixed(2)} / $${goal.target.toFixed(2)}</div>
+                    <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">${percent}% complete</div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 8px;">
+                    <div style="width: ${percent}%; height: 100%; background: var(--success); border-radius: 3px; transition: width 0.3s;"></div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-dim);">Remaining:</div>
+                        <div style="font-size: 12px; font-weight: 600;">$${remaining.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; color: var(--text-dim);">Monthly:</div>
+                        <div style="font-size: 12px; font-weight: 600;">$${goal.monthly.toFixed(2)}</div>
+                    </div>
+                </div>
+                
+                ${goal.deadline ? `<div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;">Deadline: ${new Date(goal.deadline).toLocaleDateString()}</div>` : ''}
+                
+                <button class="btn btn-primary" onclick="addToSavings(${goal.id})" style="width: 100%; margin-top: 8px; font-size: 11px; padding: 6px;">+ Add Contribution</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function saveSavings() {
+    const name = document.getElementById('savings-name').value;
+    const target = parseFloat(document.getElementById('savings-target').value);
+    const current = parseFloat(document.getElementById('savings-current').value) || 0;
+    const monthly = parseFloat(document.getElementById('savings-monthly').value) || 0;
+    const deadline = document.getElementById('savings-deadline').value;
+    
+    if (!name || !target) {
+        alert('Please enter goal name and target amount');
+        return;
+    }
+    
+    savings.push({
+        id: Date.now(),
+        name,
+        target,
+        current,
+        monthly,
+        deadline
+    });
+    
+    localStorage.setItem('savings', JSON.stringify(savings));
+    closeModal('savings-modal');
+    renderSavings();
+    showNotification('🏦 Savings goal added!', 'success');
+    
+    // Clear form
+    document.getElementById('savings-name').value = '';
+    document.getElementById('savings-target').value = '';
+    document.getElementById('savings-current').value = '';
+    document.getElementById('savings-monthly').value = '';
+    document.getElementById('savings-deadline').value = '';
+}
+
+function addToSavings(id) {
+    const goal = savings.find(s => s.id === id);
+    if (!goal) return;
+    
+    const amount = prompt(`Add contribution to ${goal.name}:`, goal.monthly || '0');
+    if (!amount || isNaN(amount)) return;
+    
+    goal.current += parseFloat(amount);
+    localStorage.setItem('savings', JSON.stringify(savings));
+    renderSavings();
+    showNotification('💰 Contribution added!', 'success');
+}
+
+function deleteSavings(id) {
+    if (!confirm('Delete this savings goal?')) return;
+    savings = savings.filter(s => s.id !== id);
+    localStorage.setItem('savings', JSON.stringify(savings));
+    renderSavings();
+}
+
+// ==================== TRANSACTIONS LIST ====================
+let transactionFilter = 'all';
+
+function renderTransactions() {
+    const container = document.getElementById('transactions-list');
+    if (!container) return;
+    
+    // Sort by date (newest first)
+    let filteredTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // Apply filter
+    if (transactionFilter !== 'all') {
+        filteredTransactions = filteredTransactions.filter(t => t.type === transactionFilter);
+    }
+    
+    if (filteredTransactions.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 20px; grid-column: 1/-1;">No transactions yet</div>';
+        return;
+    }
+    
+    container.innerHTML = filteredTransactions.map(t => {
+        const budget = budgets.find(b => b.id === t.budgetId);
+        const isIncome = t.type === 'income';
+        
+        return `
+            <div style="padding: 12px; border: 1px solid var(--border); border-radius: 8px; border-left: 3px solid ${isIncome ? 'var(--success)' : 'var(--danger)'};">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 13px;">
+                            ${isIncome ? '💰' : '💸'} ${isIncome ? (t.description || 'Income') : (budget?.name || t.description || 'Expense')}
+                        </div>
+                        ${t.description && !isIncome && budget ? `<div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">${t.description}</div>` : ''}
+                        ${isIncome && t.description ? `<div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">${t.description}</div>` : ''}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="font-weight: 700; font-size: 14px; color: ${isIncome ? 'var(--success)' : 'var(--danger)'};">
+                            ${isIncome ? '+' : '-'}$${t.amount.toFixed(2)}
+                        </div>
+                        <button onclick="deleteTransaction(${t.id})" style="background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 12px;">🗑️</button>
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-dim);">
+                    ${new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function filterTransactions(type) {
+    transactionFilter = type;
+    renderTransactions();
+}
+
+function deleteTransaction(id) {
+    if (!confirm('Delete this transaction?')) return;
+    
+    const transaction = transactions.find(t => t.id === id);
+    if (!transaction) return;
+    
+    // Remove from transactions
+    transactions = transactions.filter(t => t.id !== id);
+    
+    // Update budget if it was an expense with a budget category
+    if (transaction.type === 'expense' && transaction.budgetId) {
+        const budget = budgets.find(b => b.id === transaction.budgetId);
+        if (budget) {
+            budget.spent -= transaction.amount;
+            localStorage.setItem('budgets', JSON.stringify(budgets));
+        }
+    }
+    
+    // Update monthly data
+    const monthYear = new Date(transaction.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (monthlyData[monthYear]) {
+        if (transaction.type === 'income') {
+            monthlyData[monthYear].income -= transaction.amount;
+        } else {
+            monthlyData[monthYear].expenses -= transaction.amount;
+        }
+        monthlyData[monthYear].cashflow = monthlyData[monthYear].income - monthlyData[monthYear].expenses;
+        localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+    }
+    
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    renderTransactions();
+    renderBudgets();
+    renderMonthlyMetrics();
+    showNotification('🗑️ Transaction deleted', 'success');
+}
+
 // ==================== WORKOUT TRACKER ====================
 let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
 let routines = JSON.parse(localStorage.getItem('routines') || '[]');
