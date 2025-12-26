@@ -936,9 +936,6 @@
     <!-- Sidebar Overlay (closes sidebar when clicked) -->
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
     
-    <div class="container">
-        <!-- HOME TAB -->
-        <div id="home-tab" class="tab-content active">
             <!-- Weather - Floating Top Left with Live Animation -->
             <div style="position: fixed; top: 70px; left: 20px; z-index: 50;">
                 <div id="weather-widget" style="display: flex; align-items: center; gap: 8px;">
@@ -976,6 +973,9 @@
                     <h3 style="font-size: 16px; font-weight: 700;">📌 Pinned Notes</h3>
                     <button class="btn btn-secondary" onclick="managePinnedNotes()" style="padding: 6px 12px; font-size: 12px;">Manage</button>
                 </div>
+    <div class="container">
+        <!-- HOME TAB -->
+        <div id="home-tab" class="tab-content active">
                 <div id="pinned-carousel" style="overflow: hidden; position: relative; min-height: 120px;">
                     <div id="pinned-content" style="background: linear-gradient(135deg, #fef68a 0%, #fef68a 100%); padding: 14px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08); position: relative; transform: rotate(-1deg); border-top: 18px solid rgba(255, 223, 0, 0.3); min-height: 100px; font-size: 13px;">
                         <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 35px; height: 14px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
