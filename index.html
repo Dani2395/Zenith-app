@@ -938,7 +938,7 @@
         <!-- HOME TAB -->
         <div id="home-tab" class="tab-content active">
             <!-- Weather - Floating Top Left with Live Animation -->
-            <div style="position: fixed; top: calc(56px + env(safe-area-inset-top, 0px) + 12px); left: calc(20px + env(safe-area-inset-left, 20px)); z-index: 50;">
+            <div style="position: fixed; top: calc(48px + env(safe-area-inset-top, 20px) + 16px); left: calc(20px + env(safe-area-inset-left, 20px)); z-index: 50;">
                 <div id="weather-widget" style="display: flex; align-items: center; gap: 8px;">
                     <div id="weather-icon-container" style="position: relative; width: 32px; height: 32px;">
                         <!-- Base weather icon -->
@@ -1081,7 +1081,7 @@
         <div id="notes-tab" class="tab-content">
             <div id="notes-container" style="height: calc(100vh - 140px);">
                 <!-- List View (default) -->
-                <div class="card">
+                <div id="notes-list-view" class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h1 style="font-size: 24px; font-weight: 700;">📝 Notes</h1>
                         <button class="btn btn-primary" onclick="openModal('note-modal')">+ Add Note</button>
@@ -1096,6 +1096,21 @@
                     <input type="text" id="note-search" placeholder="Search notes..." oninput="searchNotes()">
                     
                     <div class="scrollable" id="notes-list"></div>
+                </div>
+                
+                <!-- Detail View (hidden by default) -->
+                <div id="note-detail-view" class="card" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <button class="btn btn-secondary" onclick="backToNotesList()">← Back</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="editCurrentNote()">✏️ Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteNote(currentNote.id)">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    
+                    <h1 id="note-detail-title" style="font-size: 24px; font-weight: 700; margin-bottom: 8px;"></h1>
+                    <div id="note-detail-date" style="font-size: 12px; color: var(--text-dim); margin-bottom: 20px;"></div>
+                    <div id="note-detail-content" style="white-space: pre-wrap; line-height: 1.6;"></div>
                 </div>
             </div>
         </div>
@@ -1679,6 +1694,8 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         let currentTab = 'home';
         let currentTaskFilter = 'all';
         let currentNoteFilter = 'all';
+        let currentNote = null;
+        let currentNoteEdit = null;
         let currentShoppingFilter = 'all';
         let selectedMood = null;
         let currentNoteImages = [];
@@ -2024,27 +2041,50 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             const text = document.getElementById('note-text').value;
             if (!name || !text) return alert('Please fill in all fields');
             
-            notes.push({
-                id: Date.now(),
-                name,
-                text,
-                locked: document.getElementById('note-locked').checked,
-                pinned: document.getElementById('note-pinned').checked,
-                images: currentNoteImages,
-                voice: currentNoteVoice,
-                date: document.getElementById('note-date').value,
-                createdDate: formatDate(new Date())
-            });
+            if (currentNoteEdit) {
+                // Editing existing note
+                const note = notes.find(n => n.id === currentNoteEdit);
+                if (note) {
+                    note.name = name;
+                    note.text = text;
+                    note.locked = document.getElementById('note-locked').checked;
+                    note.pinned = document.getElementById('note-pinned').checked;
+                    note.date = document.getElementById('note-date').value;
+                    if (currentNoteImages.length > 0) note.images = currentNoteImages;
+                    if (currentNoteVoice) note.voice = currentNoteVoice;
+                }
+                currentNoteEdit = null;
+            } else {
+                // Creating new note
+                notes.push({
+                    id: Date.now(),
+                    name,
+                    text,
+                    locked: document.getElementById('note-locked').checked,
+                    pinned: document.getElementById('note-pinned').checked,
+                    images: currentNoteImages,
+                    voice: currentNoteVoice,
+                    date: document.getElementById('note-date').value,
+                    createdDate: formatDate(new Date())
+                });
+            }
             
             // Reset
             currentNoteImages = [];
             currentNoteVoice = null;
+            document.getElementById('note-name').value = '';
+            document.getElementById('note-text').value = '';
             
             save();
             closeModal('note-modal');
             renderNotes();
             renderTimeline();
             renderPinnedNotes();
+            
+            // If we were in detail view, go back to it
+            if (currentNote) {
+                backToNotesList();
+            }
         }
         
         function deleteNote(id) {
@@ -4405,8 +4445,12 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             
             if (enteredPin === savedPin) {
                 // Correct!
+                giftsLocked = false;
                 localStorage.setItem('gifts-locked', 'false');
-                location.reload(); // Simple - just reload
+                document.getElementById('gifts-pin-input').value = '';
+                closeModal('gifts-pin-modal');
+                renderGifts();
+                showNotification('🎁 Gifts unlocked!', 'success');
             } else {
                 // Wrong!
                 alert('❌ Wrong PIN');
