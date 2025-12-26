@@ -681,13 +681,43 @@
         
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
     
-        /* Make side-by-side layout stack on mobile */
+        /* Home grid responsive layout */
+        .home-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        /* Mobile: Stack vertically OR shrink to fit */
         @media (max-width: 768px) {
-            div[style*="grid-template-columns: 1fr 1fr"] {
+            .home-grid-2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .home-grid-2 .card {
+                padding: 12px;
+            }
+            
+            .home-grid-2 .card-title {
+                font-size: 13px;
+            }
+            
+            .home-grid-2 #priorities-list .item,
+            .home-grid-2 #habits-summary .item {
+                font-size: 12px;
+                padding: 8px;
+            }
+        }
+        
+        /* Very small screens: Stack */
+        @media (max-width: 480px) {
+            .home-grid-2 {
                 display: block !important;
             }
-            div[style*="grid-template-columns: 1fr 1fr"] > * {
-                margin-bottom: 16px;
+            
+            .home-grid-2 > * {
+                margin-bottom: 12px;
             }
         }
         
@@ -758,7 +788,44 @@
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         }
         
-</style>
+
+        /* Optimize card sizes for better fit */
+        @media (max-width: 768px) {
+            .card {
+                padding: 14px;
+            }
+            
+            .card-title {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .item {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .btn-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Make priority numbers smaller on mobile */
+        @media (max-width: 768px) {
+            #priorities-list .item > div > div:first-child {
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 13px !important;
+            }
+        }
+        </style>
 </head>
 <body>
     <div id="holiday-bg" class="holiday-bg"></div>
@@ -921,7 +988,7 @@
             </div>
             
             <!-- Top 5 Tasks + Today's Habits (Side by Side) -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="home-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
                 <!-- Top 5 Priorities -->
                 <div class="card">
                     <div class="card-title">
