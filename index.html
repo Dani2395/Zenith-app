@@ -1649,6 +1649,20 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         </div>
     </div>
 
+    <!-- Note PIN Modal -->
+    <div id="note-pin-modal" class="modal">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+            <h2 style="margin-bottom: 8px;">Locked Note</h2>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Enter PIN to unlock this note</p>
+            <input type="password" id="note-pin-input" placeholder="Enter PIN" style="text-align: center; font-size: 18px; letter-spacing: 4px; margin-bottom: 16px;" onkeypress="if(event.key==='Enter') unlockNoteWithModal()">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('note-pin-modal')" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="unlockNoteWithModal()" style="flex: 1;">Unlock</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // ==================== DATA STORAGE ====================
         let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
@@ -2095,6 +2109,8 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         }
         
         
+        let currentUnlockNoteId = null;
+        
         function unlockNote(id) {
             const note = notes.find(n => n.id === id);
             if (!note) return;
@@ -2105,17 +2121,65 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
                 return;
             }
             
-            const enteredPin = prompt('Enter PIN to unlock this note:');
-            if (!enteredPin) return;
+            currentUnlockNoteId = id;
+            document.getElementById('note-pin-input').value = '';
+            openModal('note-pin-modal');
+        }
+        
+        function unlockNoteWithModal() {
+            const enteredPin = document.getElementById('note-pin-input').value;
+            const notesPin = localStorage.getItem('notes-pin');
             
             if (enteredPin === notesPin) {
-                note.locked = false;
-                save();
-                renderNotes();
-                alert('Note unlocked! ✅');
+                const note = notes.find(n => n.id === currentUnlockNoteId);
+                if (note) {
+                    note.locked = false;
+                    save();
+                    closeModal('note-pin-modal');
+                    renderNotes();
+                    showNotification('Note unlocked! ✅', 'success');
+                }
             } else {
                 alert('❌ Incorrect PIN');
+                document.getElementById('note-pin-input').value = '';
             }
+        }
+        
+        function viewNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            
+            // Check if note is locked
+            if (note.locked) {
+                unlockNote(id);
+                return;
+            }
+            
+            // Open note in detail view
+            currentNote = note;
+            document.getElementById('note-detail-title').textContent = note.title;
+            document.getElementById('note-detail-content').textContent = note.content;
+            document.getElementById('note-detail-date').textContent = `Created: ${note.dateCreated || formatDate(new Date())}`;
+            
+            // Show detail view, hide list
+            document.getElementById('notes-list-view').style.display = 'none';
+            document.getElementById('note-detail-view').style.display = 'block';
+        }
+        
+        function editCurrentNote() {
+            if (!currentNote) return;
+            
+            // Populate modal with current note data
+            document.getElementById('note-title').value = currentNote.title;
+            document.getElementById('note-content').value = currentNote.content;
+            currentNoteEdit = currentNote.id;
+            openModal('note-modal');
+        }
+        
+        function backToNotesList() {
+            document.getElementById('note-detail-view').style.display = 'none';
+            document.getElementById('notes-list-view').style.display = 'block';
+            currentNote = null;
         }
         
         // ==================== PRIORITIES ====================
