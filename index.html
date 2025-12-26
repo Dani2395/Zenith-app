@@ -1794,7 +1794,10 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             if (tab === 'goals') renderGoals();
             if (tab === 'gifts') {
                 checkGiftsLockState();
-                renderGifts();
+                // Only render if unlocked
+                if (localStorage.getItem('gifts-locked') !== 'true') {
+                    renderGifts();
+                }
             }
         }
         
@@ -4452,15 +4455,22 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
                 localStorage.setItem('gifts-locked', 'false');
                 document.getElementById('gifts-pin-input').value = '';
                 
-                // Update the views directly
-                document.getElementById('gifts-unlocked-view').style.display = 'block';
-                document.getElementById('gifts-locked-view').style.display = 'none';
-                document.getElementById('gifts-lock-icon').textContent = '🔓';
-                document.getElementById('gifts-lock-text').textContent = 'Lock';
-                
-                // Render gifts
-                renderGifts();
-                showNotification('🎁 Gifts unlocked!', 'success');
+                // Use setTimeout to prevent glitching
+                setTimeout(() => {
+                    // Update the views directly
+                    document.getElementById('gifts-locked-view').style.display = 'none';
+                    document.getElementById('gifts-unlocked-view').style.display = 'block';
+                    
+                    // Update lock button
+                    const lockIcon = document.getElementById('gifts-lock-icon');
+                    const lockText = document.getElementById('gifts-lock-text');
+                    if (lockIcon) lockIcon.textContent = '🔓';
+                    if (lockText) lockText.textContent = 'Lock';
+                    
+                    // Render gifts once
+                    renderGifts();
+                    showNotification('🎁 Gifts unlocked!', 'success');
+                }, 100);
             } else {
                 // Wrong PIN!
                 alert('❌ Wrong PIN');
