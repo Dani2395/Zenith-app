@@ -934,21 +934,10 @@
                     <span class="sidebar-icon">📅</span>
                     <span>Calendar</span>
                 </div>
-                <div class="sidebar-item" onclick="switchTab('goals'); closeSidebar();">
-                    <span class="sidebar-icon">🎯</span>
-                    <span>Goals</span>
-                </div>
                 <div class="sidebar-item" onclick="switchTab('habits'); closeSidebar();">
                     <span class="sidebar-icon">⭐</span>
                     <span>Habits</span>
                 </div>
-                <div class="sidebar-item" onclick="switchTab('workout'); closeSidebar();">
-                    <span class="sidebar-icon">💪</span>
-                    <span>Workout</span>
-                </div>
-                
-                <!-- Life Section -->
-                <div class="sidebar-section">Life</div>
                 <div class="sidebar-item" onclick="switchTab('notes'); closeSidebar();">
                     <span class="sidebar-icon">📝</span>
                     <span>Notes</span>
@@ -1091,13 +1080,34 @@
                 <div id="notes-list-view" class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h1 style="font-size: 24px; font-weight: 700;">📝 Notes</h1>
-                        <button class="btn btn-primary" onclick="openModal('note-modal')">+ Add Note</button>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button class="btn btn-secondary" onclick="toggleJournalView()" id="view-toggle-btn" style="font-size: 12px; padding: 6px 12px;">📔 Journal View</button>
+                            <button class="btn btn-primary" onclick="openModal('note-modal')">+ Add Note</button>
+                        </div>
                     </div>
                     
                     <div class="filters">
                         <div class="filter-btn active" onclick="filterNotes('all')">All</div>
                         <div class="filter-btn" onclick="filterNotes('locked')">🔒 Locked</div>
                         <div class="filter-btn" onclick="filterNotes('unlocked')">Unlocked</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px; display: block;">Filter by Category:</label>
+                        <div class="filters" style="flex-wrap: wrap;">
+                            <div class="filter-btn active" onclick="filterNotesByCategory('all')">All</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Work')">💼 Work</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Personal')">👤 Personal</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Ideas')">💡 Ideas</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Projects')">🚀 Projects</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Journal')">📔 Journal</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Recipes')">🍳 Recipes</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Study')">📚 Study</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Health')">💪 Health</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Finance')">💰 Finance</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Travel')">✈️ Travel</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('uncategorized')">📄 Uncategorized</div>
+                        </div>
                     </div>
                     
                     <input type="text" id="note-search" placeholder="Search notes..." oninput="searchNotes()">
@@ -1230,93 +1240,7 @@
             </div>
         </div>
 
-<!-- WORKOUT TAB -->
-        <div id="workout-tab" class="tab-content">
-            <div class="card">
-                <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">💪 Workout Tracker</h1>
-                
-                <!-- Workout Stats Summary -->
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-                    <div class="stat-card">
-                        <div class="stat-icon">🔥</div>
-                        <div class="stat-value" id="workout-streak">0</div>
-                        <div class="stat-label">Day Streak</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">💪</div>
-                        <div class="stat-value" id="workouts-this-week">0</div>
-                        <div class="stat-label">This Week</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📈</div>
-                        <div class="stat-value" id="total-workouts">0</div>
-                        <div class="stat-label">Total Workouts</div>
-                    </div>
-                </div>
-                
-                <!-- Tabs for different sections -->
-                <div class="filters" style="margin-bottom: 20px;">
-                    <div class="filter-btn active" onclick="switchWorkoutView('tracker')">📅 Tracker</div>
-                    <div class="filter-btn" onclick="switchWorkoutView('routines')">🏋️ Routines</div>
-                    <div class="filter-btn" onclick="switchWorkoutView('progress')">📊 Progress</div>
-                </div>
-                
-                <!-- TRACKER VIEW -->
-                <div id="workout-tracker-view">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h2 style="font-size: 18px; font-weight: 600;">📅 Workout Calendar</h2>
-                        <button class="btn btn-primary" onclick="logWorkout()">+ Log Workout</button>
-                    </div>
-                    
-                    <!-- Month Navigation -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 12px; background: var(--glass); border-radius: 8px;">
-                        <button class="btn btn-icon btn-secondary" onclick="prevWorkoutMonth()">‹</button>
-                        <div style="font-weight: 600; font-size: 16px;" id="workout-month-year">December 2025</div>
-                        <button class="btn btn-icon btn-secondary" onclick="nextWorkoutMonth()">›</button>
-                    </div>
-                    
-                    <!-- Workout Calendar -->
-                    <div id="workout-calendar" class="workout-calendar"></div>
-                </div>
-                
-                <!-- ROUTINES VIEW -->
-                <div id="workout-routines-view" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h2 style="font-size: 18px; font-weight: 600;">🏋️ Workout Routines</h2>
-                        <button class="btn btn-primary" onclick="openModal('routine-modal')">+ Add Routine</button>
-                    </div>
-                    <div id="routines-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;"></div>
-                </div>
-                
-                <!-- PROGRESS VIEW -->
-                <div id="workout-progress-view" style="display: none;">
-                    <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">📊 Progress Tracking</h2>
-                    
-                    <div class="card" style="margin-bottom: 16px; padding: 20px; background: var(--glass);">
-                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📏 Body Measurements</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                            <div>
-                                <label style="font-size: 13px; color: var(--text-dim);">Current Weight</label>
-                                <input type="number" id="current-weight" placeholder="lbs" style="margin-top: 4px;">
-                            </div>
-                            <div>
-                                <label style="font-size: 13px; color: var(--text-dim);">Goal Weight</label>
-                                <input type="number" id="goal-weight" placeholder="lbs" style="margin-top: 4px;">
-                            </div>
-                            <div>
-                                <label style="font-size: 13px; color: var(--text-dim);">Start Date</label>
-                                <input type="date" id="weight-start-date" style="margin-top: 4px;">
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" onclick="saveProgress()" style="margin-top: 12px;">Save Progress</button>
-                    </div>
-                    
-                    <div id="progress-history"></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- BOOKS TAB -->
+<!-- BOOKS TAB -->
         <div id="books-tab" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1346,32 +1270,6 @@
                     <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">📚 Want to Read</h2>
                     <div id="want-to-read" class="scrollable"></div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- GOALS TAB -->
-        <div id="goals-tab" class="tab-content">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h1 style="font-size: 28px; font-weight: 700;">✨ 2026 Vision Board</h1>
-                    <button class="btn btn-primary" onclick="openModal('goal-modal')">+ Add Vision</button>
-                </div>
-                
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 48px; margin-bottom: 8px;">🎯</div>
-                    <p style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">My 2026 Goals</p>
-                    <p style="font-size: 14px; color: var(--text-dim);">Visualize your dreams & make them reality</p>
-                </div>
-                
-                <div class="filters">
-                    <div class="filter-btn active" onclick="filterGoals('all')">All</div>
-                    <div class="filter-btn" onclick="filterGoals('personal')">💖 Personal</div>
-                    <div class="filter-btn" onclick="filterGoals('career')">💼 Career</div>
-                    <div class="filter-btn" onclick="filterGoals('health')">💪 Health</div>
-                    <div class="filter-btn" onclick="filterGoals('financial')">💰 Financial</div>
-                </div>
-                
-                <div id="goals-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;"></div>
             </div>
         </div>
         
@@ -1513,6 +1411,44 @@
             <div style="display: flex; gap: 8px;">
                 <button class="btn btn-secondary" onclick="closeModal('savings-modal')">Cancel</button>
                 <button class="btn btn-primary" onclick="saveSavings()">Add Savings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Budget Modal -->
+    <div id="edit-budget-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px;">✏️ Edit Budget Category</h2>
+            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Category Name</label>
+            <input type="text" id="edit-budget-name" placeholder="Category name" style="margin-bottom: 12px;">
+            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Monthly Budget</label>
+            <input type="number" id="edit-budget-amount" placeholder="Monthly budget amount" step="0.01" min="0" style="font-size: 18px; margin-bottom: 12px;">
+            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Icon (emoji)</label>
+            <input type="text" id="edit-budget-icon" placeholder="🍔" maxlength="2" style="margin-bottom: 12px;">
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn btn-secondary" onclick="closeModal('edit-budget-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEditedBudget()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div id="edit-transaction-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px;">✏️ Edit Transaction</h2>
+            <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 16px;">
+                <div style="font-size: 12px; color: var(--text-dim);">Type:</div>
+                <div style="font-size: 16px; font-weight: 600;" id="edit-transaction-type-display"></div>
+            </div>
+            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Amount</label>
+            <input type="number" id="edit-transaction-amount" placeholder="Amount" step="0.01" min="0" style="font-size: 18px; margin-bottom: 12px;">
+            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Description</label>
+            <input type="text" id="edit-transaction-description" placeholder="Description" style="margin-bottom: 12px;">
+            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Date</label>
+            <input type="date" id="edit-transaction-date" style="margin-bottom: 12px;">
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn btn-secondary" onclick="closeModal('edit-transaction-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEditedTransaction()">Save Changes</button>
             </div>
         </div>
     </div>
@@ -1989,10 +1925,7 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             if (tab === 'notes') renderNotes();
             if (tab === 'calendar') renderFullCalendar();
             if (tab === 'habits') renderHabits();
-            if (tab === 'workout') renderWorkout();
-            
             if (tab === 'books') renderBooks();
-            if (tab === 'goals') renderGoals();
             if (tab === 'gifts') {
                 checkGiftsLockState();
                 // Only render if unlocked
@@ -2282,6 +2215,7 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
                     note.locked = document.getElementById('note-locked').checked;
                     note.pinned = document.getElementById('note-pinned').checked;
                     note.date = document.getElementById('note-date').value;
+                    note.category = document.getElementById('note-category').value;
                     if (currentNoteImages.length > 0) note.images = currentNoteImages;
                     if (currentNoteVoice) note.voice = currentNoteVoice;
                 }
@@ -2297,6 +2231,7 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
                     images: currentNoteImages,
                     voice: currentNoteVoice,
                     date: document.getElementById('note-date').value,
+                    category: document.getElementById('note-category').value,
                     createdDate: formatDate(new Date())
                 });
             }
@@ -2306,6 +2241,7 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             currentNoteVoice = null;
             document.getElementById('note-name').value = '';
             document.getElementById('note-text').value = '';
+            document.getElementById('note-category').value = '';
             
             save();
             closeModal('note-modal');
@@ -2328,6 +2264,29 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             }
         }
         
+        let currentNoteCategoryFilter = 'all';
+        let journalViewMode = false;
+        
+        function toggleJournalView() {
+            journalViewMode = !journalViewMode;
+            const btn = document.getElementById('view-toggle-btn');
+            if (journalViewMode) {
+                btn.textContent = '📝 List View';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '📔 Journal View';
+                btn.classList.remove('active');
+            }
+            renderNotes();
+        }
+        
+        function filterNotesByCategory(category) {
+            currentNoteCategoryFilter = category;
+            document.querySelectorAll('#notes-tab .filters:nth-of-type(2) .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderNotes();
+        }
+        
         function filterNotes(filter) {
             currentNoteFilter = filter;
             document.querySelectorAll('#notes-tab .filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -2346,39 +2305,100 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             const searchEl = document.getElementById('note-search');
             const search = searchEl ? searchEl.value.toLowerCase() : '';
             
-            // Filter notes
+            const categoryIcons = {
+                'Work': '💼', 'Personal': '👤', 'Ideas': '💡', 'Projects': '🚀',
+                'Journal': '📔', 'Recipes': '🍳', 'Study': '📚', 'Health': '💪',
+                'Finance': '💰', 'Travel': '✈️'
+            };
+            
             let filtered = notes.filter(note => {
                 if (search && !note.name.toLowerCase().includes(search)) return false;
                 if (currentNoteFilter === 'locked') return note.locked;
                 if (currentNoteFilter === 'unlocked') return !note.locked;
+                
+                if (currentNoteCategoryFilter !== 'all') {
+                    if (currentNoteCategoryFilter === 'uncategorized') {
+                        if (note.category) return false;
+                    } else {
+                        if (note.category !== currentNoteCategoryFilter) return false;
+                    }
+                }
+                
                 return true;
             });
+            
+            if (journalViewMode) {
+                filtered.sort((a, b) => {
+                    const dateA = new Date(a.date || a.createdDate);
+                    const dateB = new Date(b.date || b.createdDate);
+                    return dateB - dateA;
+                });
+            }
             
             if (filtered.length === 0) {
                 list.innerHTML = '<div class="empty">No notes found</div>';
                 return;
             }
             
-            // Simple, fast rendering
-            list.innerHTML = filtered.map(note => `
-                <div class="item" onclick="viewNote(${note.id})" style="cursor: pointer;">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 15px; margin-bottom: 4px;">
-                                ${note.locked ? '🔒 ' : ''}${note.pinned ? '📌 ' : ''}${note.name}
+            if (journalViewMode) {
+                list.innerHTML = filtered.map(note => {
+                    const noteDate = note.date ? new Date(note.date) : new Date(note.createdDate);
+                    const dayName = noteDate.toLocaleDateString('en-US', { weekday: 'long' });
+                    const monthDay = noteDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    
+                    return `
+                    <div class="item" onclick="viewNote(${note.id})" style="cursor: pointer; margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); border-left: 4px solid var(--primary); position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 4px;">${dayName}</div>
+                                <div style="font-size: 18px; font-weight: 700; color: var(--primary);">${monthDay}</div>
                             </div>
-                            <div style="font-size: 13px; color: var(--text-dim);">
-                                ${note.text.substring(0, 100)}${note.text.length > 100 ? '...' : ''}
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                ${note.locked ? '<span style="font-size: 14px;">🔒</span>' : ''}
+                                ${note.pinned ? '<span style="font-size: 14px;">📌</span>' : ''}
+                                ${note.category ? `<span style="font-size: 11px; padding: 3px 10px; background: rgba(99, 102, 241, 0.2); border-radius: 12px; color: var(--primary);">${categoryIcons[note.category] || ''} ${note.category}</span>` : ''}
                             </div>
-                            ${note.date ? `<div style="font-size: 12px; color: var(--text-dim); margin-top: 6px;">📅 ${note.date}</div>` : ''}
                         </div>
-                        <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})" title="Delete">
-                            🗑️
-                        </button>
+                        <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px; font-family: 'Georgia', serif;">${note.name}</h3>
+                        <div style="font-size: 14px; line-height: 1.8; color: var(--text); font-family: 'Georgia', serif; margin-bottom: 12px;">
+                            ${note.text.substring(0, 200)}${note.text.length > 200 ? '...' : ''}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border);">
+                            <div style="font-size: 12px; color: var(--text-dim); font-style: italic;">
+                                ${note.text.split(' ').length} words
+                            </div>
+                            <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})" title="Delete" style="font-size: 12px;">
+                                🗑️
+                            </button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                    `;
+                }).join('');
+            } else {
+                list.innerHTML = filtered.map(note => `
+                    <div class="item" onclick="viewNote(${note.id})" style="cursor: pointer;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap;">
+                                    ${note.locked ? '<span style="font-size: 12px;">🔒</span>' : ''}
+                                    ${note.pinned ? '<span style="font-size: 12px;">📌</span>' : ''}
+                                    <div style="font-weight: 600; font-size: 15px;">${note.name}</div>
+                                    ${note.category ? `<span style="font-size: 11px; padding: 2px 8px; background: rgba(99, 102, 241, 0.2); border-radius: 12px; color: var(--primary);">${categoryIcons[note.category] || ''} ${note.category}</span>` : ''}
+                                </div>
+                                <div style="font-size: 13px; color: var(--text-dim);">
+                                    ${note.text.substring(0, 100)}${note.text.length > 100 ? '...' : ''}
+                                </div>
+                                ${note.date ? `<div style="font-size: 12px; color: var(--text-dim); margin-top: 6px;">📅 ${note.date}</div>` : ''}
+                            </div>
+                            <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteNote(${note.id})" title="Delete">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
+
         
         
         let currentUnlockNoteId = null;
@@ -2441,9 +2461,12 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         function editCurrentNote() {
             if (!currentNote) return;
             
-            // Populate modal with current note data
-            document.getElementById('note-title').value = currentNote.title;
-            document.getElementById('note-content').value = currentNote.content;
+            document.getElementById('note-name').value = currentNote.name;
+            document.getElementById('note-text').value = currentNote.text;
+            document.getElementById('note-locked').checked = currentNote.locked || false;
+            document.getElementById('note-pinned').checked = currentNote.pinned || false;
+            document.getElementById('note-date').value = currentNote.date || '';
+            document.getElementById('note-category').value = currentNote.category || '';
             currentNoteEdit = currentNote.id;
             openModal('note-modal');
         }
@@ -4855,23 +4878,116 @@ function renderBudgets() {
     }).join('');
 }
 
+let currentEditingBudgetId = null;
+let currentEditingTransactionId = null;
+
 function editBudget(id) {
     const budget = budgets.find(b => b.id === id);
     if (!budget) return;
     
-    const newAmount = prompt(`Edit budget amount for ${budget.name}:`, budget.amount);
-    if (newAmount === null || newAmount === '') return;
+    currentEditingBudgetId = id;
+    document.getElementById('edit-budget-name').value = budget.name;
+    document.getElementById('edit-budget-amount').value = budget.amount;
+    document.getElementById('edit-budget-icon').value = budget.icon;
+    openModal('edit-budget-modal');
+}
+
+function saveEditedBudget() {
+    const budget = budgets.find(b => b.id === currentEditingBudgetId);
+    if (!budget) return;
     
-    const amount = parseFloat(newAmount);
-    if (isNaN(amount) || amount <= 0) {
-        alert('Please enter a valid amount');
+    const name = document.getElementById('edit-budget-name').value;
+    const amount = parseFloat(document.getElementById('edit-budget-amount').value);
+    const icon = document.getElementById('edit-budget-icon').value;
+    
+    if (!name || !amount || amount <= 0) {
+        alert('Please fill in all fields with valid values');
         return;
     }
     
+    budget.name = name;
     budget.amount = amount;
+    budget.icon = icon || budget.icon;
+    
     localStorage.setItem('budgets', JSON.stringify(budgets));
+    closeModal('edit-budget-modal');
     renderBudgets();
-    showNotification('💰 Budget updated!', 'success');
+    currentEditingBudgetId = null;
+}
+
+function editTransaction(id) {
+    const transaction = transactions.find(t => t.id === id);
+    if (!transaction) return;
+    
+    currentEditingTransactionId = id;
+    document.getElementById('edit-transaction-amount').value = transaction.amount;
+    document.getElementById('edit-transaction-description').value = transaction.description || '';
+    document.getElementById('edit-transaction-date').value = transaction.date;
+    document.getElementById('edit-transaction-type-display').textContent = transaction.type === 'income' ? '💰 Income' : '💸 Expense';
+    openModal('edit-transaction-modal');
+}
+
+function saveEditedTransaction() {
+    const transaction = transactions.find(t => t.id === currentEditingTransactionId);
+    if (!transaction) return;
+    
+    const newAmount = parseFloat(document.getElementById('edit-transaction-amount').value);
+    const newDescription = document.getElementById('edit-transaction-description').value;
+    const newDate = document.getElementById('edit-transaction-date').value;
+    
+    if (!newAmount || newAmount <= 0 || !newDate) {
+        alert('Please enter valid amount and date');
+        return;
+    }
+    
+    const oldAmount = transaction.amount;
+    const oldDate = transaction.date;
+    
+    // Update budget if it's an expense with a budget category
+    if (transaction.type === 'expense' && transaction.budgetId) {
+        const budget = budgets.find(b => b.id === transaction.budgetId);
+        if (budget) {
+            budget.spent = budget.spent - oldAmount + newAmount;
+            localStorage.setItem('budgets', JSON.stringify(budgets));
+        }
+    }
+    
+    // Update old monthly data
+    const oldMonthYear = new Date(oldDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (monthlyData[oldMonthYear]) {
+        if (transaction.type === 'income') {
+            monthlyData[oldMonthYear].income -= oldAmount;
+        } else {
+            monthlyData[oldMonthYear].expenses -= oldAmount;
+        }
+        monthlyData[oldMonthYear].cashflow = monthlyData[oldMonthYear].income - monthlyData[oldMonthYear].expenses;
+    }
+    
+    // Update new monthly data
+    const newMonthYear = new Date(newDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (!monthlyData[newMonthYear]) {
+        monthlyData[newMonthYear] = { income: 0, expenses: 0, cashflow: 0 };
+    }
+    if (transaction.type === 'income') {
+        monthlyData[newMonthYear].income += newAmount;
+    } else {
+        monthlyData[newMonthYear].expenses += newAmount;
+    }
+    monthlyData[newMonthYear].cashflow = monthlyData[newMonthYear].income - monthlyData[newMonthYear].expenses;
+    
+    // Update transaction
+    transaction.amount = newAmount;
+    transaction.description = newDescription;
+    transaction.date = newDate;
+    
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+    
+    closeModal('edit-transaction-modal');
+    renderTransactions();
+    renderBudgets();
+    renderMonthlyMetrics();
+    currentEditingTransactionId = null;
 }
 
 function renderMonthlyMetrics() {
@@ -5826,23 +5942,19 @@ function renderRoutines() {
         list.innerHTML = '<div class="empty" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-dim);">No routines yet. Create your first workout routine!</div>';
         return;
     }
-    
-    var html = '';
-    for (var i = 0; i < routines.length; i++) {
-        var r = routines[i];
-        html += '<div class="routine-card" style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--glass);">';
-        html += '<div style="font-weight: 700; font-size: 16px; margin-bottom: 8px;">💪 ' + r.name + '</div>';
-        html += '<div style="font-size: 13px; color: var(--text-dim); white-space: pre-line; margin-bottom: 12px;">' + r.exercises + '</div>';
-        if (r.notes) {
-            html += '<div style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px; font-style: italic;">"' + r.notes + '"</div>';
-        }
-        html += '<div style="display: flex; gap: 8px;">';
-        html += '<button class="btn btn-primary" onclick="useRoutine(' + r.id + ')" style="flex: 1; font-size: 12px; padding: 8px;">📝 Log Workout</button>';
-        html += '<button class="btn btn-secondary" onclick="deleteRoutine(' + r.id + ')" style="font-size: 12px; padding: 8px;">🗑️</button>';
-        html += '</div></div>';
-    }
-    list.innerHTML = html;
+    list.innerHTML = routines.map((routine, index) => `
+        <div class="routine-card" style="padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--glass);">
+            <div style="font-weight: 700; font-size: 16px; margin-bottom: 8px;">💪 ${routine.name}</div>
+            <div style="font-size: 13px; color: var(--text-dim); white-space: pre-line; margin-bottom: 12px; max-height: 100px; overflow-y: auto;">${routine.exercises.split('\n').slice(0, 5).join('\n')}${routine.exercises.split('\n').length > 5 ? '\n...' : ''}</div>
+            ${routine.notes ? `<div style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px; font-style: italic;">"${routine.notes}"</div>` : ''}
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary" onclick="useRoutine(${routine.id})" style="flex: 1; font-size: 12px; padding: 8px;">📝 Log Workout</button>
+                <button class="btn btn-secondary" onclick="deleteRoutine(${routine.id})" style="font-size: 12px; padding: 8px;">🗑️</button>
+            </div>
+        </div>
+    `).join('');
 }
+
 function populateRoutineSelect() {
     const select = document.getElementById('workout-routine');
     if (!select) return;
