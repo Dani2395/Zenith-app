@@ -5781,6 +5781,7 @@ function saveWorkout() {
     document.getElementById('workout-notes').value = '';
     closeModal('workout-modal');
     renderWorkout();
+    showNotification('💪 Workout logged!', 'success');
 }
 
 function viewWorkoutDay(date) {
@@ -5817,6 +5818,7 @@ function saveRoutine() {
     closeModal('routine-modal');
     renderRoutines();
     populateRoutineSelect();
+    showNotification('🏋️ Routine saved!', 'success');
 }
 
 function renderRoutines() {
