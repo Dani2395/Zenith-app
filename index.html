@@ -1152,55 +1152,55 @@
         
         
         <!-- BUDGET TAB -->
-        <div id="budget-tab" class="tab-content">
+        <div id="budget-tab" class="tab-content" style="padding: 0;">
             <!-- Top Section: Budgets and Monthly Metrics -->
-            <div style="display: grid; grid-template-columns: 570px 1fr; gap: 16px; margin-bottom: 16px;">
+            <div style="display: grid; grid-template-columns: 450px 1fr; gap: 12px; margin-bottom: 12px;">
                 
                 <!-- Left: Budget Categories -->
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h2 style="font-size: 20px; font-weight: 700;">💰 Budgets</h2>
-                        <button class="btn btn-primary" onclick="openModal('budget-modal')" style="font-size: 12px; padding: 6px 12px;">+ New</button>
+                <div class="card" style="margin: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h2 style="font-size: 18px; font-weight: 700;">💰 Budgets</h2>
+                        <button class="btn btn-primary" onclick="openModal('budget-modal')" style="font-size: 11px; padding: 5px 10px;">+ New</button>
                     </div>
                     
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 6px 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                        <span style="font-size: 13px; font-weight: 600;">📅 This Month</span>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 5px 8px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                        <span style="font-size: 12px; font-weight: 600;">📅 This Month</span>
                     </div>
                     
-                    <div id="budgets-list" style="max-height: 400px; overflow-y: auto;"></div>
+                    <div id="budgets-list" style="max-height: 350px; overflow-y: auto;"></div>
                 </div>
                 
-                <!-- Right: Monthly Metrics (Editable) -->
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
-                        <h2 style="font-size: 20px; font-weight: 700;">📊 Monthly Metrics</h2>
-                        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-                            <button class="btn btn-primary" onclick="openIncomeModal()" style="font-size: 11px; padding: 5px 10px;">+ Income</button>
-                            <button class="btn btn-danger" onclick="openExpenseModalGeneral()" style="font-size: 11px; padding: 5px 10px;">+ Expense</button>
-                            <div style="width: 1px; height: 20px; background: var(--border);"></div>
-                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">All</button>
-                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">Q1</button>
-                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">Q2</button>
-                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">Q3</button>
-                            <button class="btn btn-secondary" style="font-size: 11px; padding: 5px 10px;">Q4</button>
+                <!-- Right: Monthly Metrics -->
+                <div class="card" style="margin: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px;">
+                        <h2 style="font-size: 18px; font-weight: 700;">📊 Monthly Metrics</h2>
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center;">
+                            <button class="btn btn-primary" onclick="openIncomeModal()" style="font-size: 10px; padding: 4px 8px;">+ Income</button>
+                            <button class="btn btn-danger" onclick="openExpenseModalGeneral()" style="font-size: 10px; padding: 4px 8px;">+ Expense</button>
+                            <div style="width: 1px; height: 16px; background: var(--border);"></div>
+                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">All</button>
+                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">Q1</button>
+                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">Q2</button>
+                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">Q3</button>
+                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">Q4</button>
                         </div>
                     </div>
                     
-                    <div id="monthly-metrics" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; max-height: 400px; overflow-y: auto;"></div>
+                    <div id="monthly-metrics" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto;"></div>
                 </div>
             </div>
             
             <!-- Middle Section: Transactions List -->
-            <div class="card" style="margin-bottom: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 style="font-size: 20px; font-weight: 700;">📋 All Transactions</h2>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-secondary" onclick="filterTransactions('all')" style="font-size: 11px; padding: 5px 10px;">All</button>
-                        <button class="btn btn-secondary" onclick="filterTransactions('income')" style="font-size: 11px; padding: 5px 10px;">Income</button>
-                        <button class="btn btn-secondary" onclick="filterTransactions('expense')" style="font-size: 11px; padding: 5px 10px;">Expenses</button>
+            <div class="card" style="margin: 0 0 12px 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h2 style="font-size: 18px; font-weight: 700;">📋 All Transactions</h2>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn btn-secondary" onclick="filterTransactions('all')" style="font-size: 10px; padding: 4px 8px;">All</button>
+                        <button class="btn btn-secondary" onclick="filterTransactions('income')" style="font-size: 10px; padding: 4px 8px;">Income</button>
+                        <button class="btn btn-secondary" onclick="filterTransactions('expense')" style="font-size: 10px; padding: 4px 8px;">Expenses</button>
                     </div>
                 </div>
-                <div id="transactions-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; max-height: 300px; overflow-y: auto;"></div>
+                <div id="transactions-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; max-height: 250px; overflow-y: auto;"></div>
             </div>
             
             <!-- Bottom Section: Database / Debt Tracker -->
