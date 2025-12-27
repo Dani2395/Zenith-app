@@ -5652,12 +5652,14 @@ function deleteTransaction(id) {
 }
 
 // ==================== WORKOUT TRACKER ====================
+console.log('WORKOUT SECTION LOADING...');
 let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
 let routines = JSON.parse(localStorage.getItem('routines') || '[]');
 let workoutProgress = JSON.parse(localStorage.getItem('workout-progress') || '{}');
 let currentWorkoutMonth = new Date().getMonth();
 let currentWorkoutYear = new Date().getFullYear();
 let currentWorkoutView = 'tracker';
+console.log('WORKOUT VARS LOADED:', workouts.length, 'workouts,', routines.length, 'routines');
 
 function renderWorkout() {
     renderWorkoutStats();
@@ -5798,13 +5800,17 @@ function viewWorkoutDay(date) {
 }
 
 function saveRoutine() {
+    console.log('saveRoutine() called!');
     const name = document.getElementById('routine-name').value;
     const exercises = document.getElementById('routine-exercises').value;
     const notes = document.getElementById('routine-notes').value;
+    console.log('Form values:', {name, exercises, notes});
     if (!name || !exercises) {
+        console.log('Validation failed - missing name or exercises');
         alert('Please fill in routine name and exercises');
         return;
     }
+    console.log('Creating routine...');
     routines.push({
         id: Date.now(),
         name,
@@ -5812,13 +5818,16 @@ function saveRoutine() {
         notes
     });
     localStorage.setItem('routines', JSON.stringify(routines));
+    console.log('Routine saved to localStorage. Total routines:', routines.length);
     document.getElementById('routine-name').value = '';
     document.getElementById('routine-exercises').value = '';
     document.getElementById('routine-notes').value = '';
     closeModal('routine-modal');
     renderRoutines();
     populateRoutineSelect();
+    console.log('Showing notification...');
     showNotification('🏋️ Routine saved!', 'success');
+    console.log('saveRoutine() complete!');
 }
 
 function renderRoutines() {
