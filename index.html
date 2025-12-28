@@ -1167,9 +1167,22 @@
         <!-- WORKOUT TAB -->
         <div id="workout-tab" class="tab-content">
             <div class="card">
-                <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">💪 Workout Log</h1>
-                <button class="btn btn-primary" onclick="openWorkoutModal()" style="margin-bottom: 20px;">+ Log Workout</button>
-                <div id="workout-list"></div>
+                <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">💪 Workout Tracker</h1>
+                
+                <div class="filters" style="margin-bottom: 16px;">
+                    <div class="filter-btn active" onclick="showWorkoutLog()">📋 Workout Log</div>
+                    <div class="filter-btn" onclick="showRoutines()">🏋️ Routines</div>
+                </div>
+                
+                <div id="workout-log-area">
+                    <button class="btn btn-primary" onclick="openWorkoutModal()" style="margin-bottom: 20px;">+ Log Workout</button>
+                    <div id="workout-list"></div>
+                </div>
+                
+                <div id="routines-area" style="display: none;">
+                    <button class="btn btn-primary" onclick="openModal('routine-modal')" style="margin-bottom: 20px;">+ Create Routine</button>
+                    <div id="routines-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;"></div>
+                </div>
             </div>
         </div>
         
@@ -1611,6 +1624,18 @@
                 <button class="btn btn-primary" onclick="saveWorkout()">Save</button>
             </div>
         </div>
+    
+    <div id="routine-modal" class="modal">
+        <div class="modal-content">
+            <h2>🏋️ Create Routine</h2>
+            <input type="text" id="routine-name" placeholder="Routine name (e.g., Push Day)" required>
+            <textarea id="routine-exercises" placeholder="Exercises (one per line)" style="min-height: 150px;" required></textarea>
+            <textarea id="routine-notes" placeholder="Notes (optional)" style="min-height: 60px;"></textarea>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('routine-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveRoutine()">Save</button>
+            </div>
+        </div>
     </div>
 
     
@@ -1808,20 +1833,6 @@
     </div>
     
     <!-- Routine Modal -->
-    <div id="routine-modal" class="modal">
-        <div class="modal-content">
-            <h2>🏋️ Create Routine</h2>
-            <input type="text" id="routine-name" placeholder="Routine Name (e.g., Push Day, Leg Day)">
-            <textarea id="routine-exercises" placeholder="Exercises (one per line)
-Example:
-Bench Press - 3x10
-Incline Dumbbell Press - 3x12
-Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
-            <textarea id="routine-notes" placeholder="Notes (optional)" style="min-height: 60px;"></textarea>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn btn-secondary" onclick="closeModal('routine-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="saveRoutine()">Save Routine</button>
-            </div>
         </div>
     </div>
     
@@ -5961,6 +5972,7 @@ function handleGoalImage() {
     
 // WORKOUT
 let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
+let routines = JSON.parse(localStorage.getItem('routines') || '[]');
 
 function openWorkoutModal() {
     document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
@@ -6023,6 +6035,88 @@ function deleteWorkout(id) {
     localStorage.setItem('workouts', JSON.stringify(workouts));
     renderWorkouts();
 }
+
+function showWorkoutLog() {
+    document.querySelectorAll('#workout-tab .filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('workout-log-area').style.display = 'block';
+    document.getElementById('routines-area').style.display = 'none';
+}
+
+function showRoutines() {
+    document.querySelectorAll('#workout-tab .filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('workout-log-area').style.display = 'none';
+    document.getElementById('routines-area').style.display = 'block';
+    renderRoutines();
+}
+
+function saveRoutine() {
+    const name = document.getElementById('routine-name').value;
+    const exercises = document.getElementById('routine-exercises').value;
+    const notes = document.getElementById('routine-notes').value;
+    
+    if (!name || !exercises) {
+        alert('Please enter routine name and exercises');
+        return;
+    }
+    
+    routines.push({
+        id: Date.now(),
+        name,
+        exercises,
+        notes
+    });
+    
+    localStorage.setItem('routines', JSON.stringify(routines));
+    
+    document.getElementById('routine-name').value = '';
+    document.getElementById('routine-exercises').value = '';
+    document.getElementById('routine-notes').value = '';
+    
+    closeModal('routine-modal');
+    renderRoutines();
+}
+
+function renderRoutines() {
+    const list = document.getElementById('routines-list');
+    if (!list) return;
+    
+    if (routines.length === 0) {
+        list.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">No routines yet. Create your first routine!</div>';
+        return;
+    }
+    
+    list.innerHTML = routines.map(r => `
+        <div class="item" style="padding: 16px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border-radius: 12px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                <div style="font-size: 18px; font-weight: 700;">🏋️ ${r.name}</div>
+                <button class="btn btn-icon btn-secondary" onclick="deleteRoutine(${r.id})" style="font-size: 12px;">🗑️</button>
+            </div>
+            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; white-space: pre-line; margin-bottom: 12px; font-size: 14px;">${r.exercises}</div>
+            ${r.notes ? '<div style="font-size: 13px; color: var(--text-dim); font-style: italic; margin-bottom: 12px;">💭 ' + r.notes + '</div>' : ''}
+            <button class="btn btn-primary" onclick="useRoutine(${r.id})" style="width: 100%; font-size: 13px;">📝 Use This Routine</button>
+        </div>
+    `).join('');
+}
+
+function useRoutine(id) {
+    const routine = routines.find(r => r.id === id);
+    if (!routine) return;
+    
+    document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('workout-name').value = routine.name;
+    document.getElementById('workout-exercises').value = routine.exercises;
+    openModal('workout-modal');
+}
+
+function deleteRoutine(id) {
+    if (!confirm('Delete this routine?')) return;
+    routines = routines.filter(r => r.id !== id);
+    localStorage.setItem('routines', JSON.stringify(routines));
+    renderRoutines();
+}
+
 
 
 // NOTIFICATION SYSTEM
