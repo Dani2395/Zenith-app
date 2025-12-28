@@ -1174,13 +1174,13 @@
                     <div class="filter-btn" onclick="showRoutines()">🏋️ Routines</div>
                 </div>
                 
-                <div id="workout-log-area">
+                <div id="workout-log-view">
                     <button class="btn btn-primary" onclick="openWorkoutModal()" style="margin-bottom: 20px;">+ Log Workout</button>
                     <div id="workout-list"></div>
                 </div>
                 
-                <div id="routines-area" style="display: none;">
-                    <button class="btn btn-primary" onclick="console.log('Button clicked'); openModal('routine-modal'); console.log('Modal opened');" style="margin-bottom: 20px;">+ Create Routine</button>
+                <div id="routines-view" style="display: none;">
+                    <button class="btn btn-primary" onclick="openRoutineModal()" style="margin-bottom: 20px;">+ Create Routine</button>
                     <div id="routines-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;"></div>
                 </div>
             </div>
@@ -1637,6 +1637,7 @@
             </div>
         </div>
     </div>
+    </div>
 
     
     <div id="book-modal" class="modal">
@@ -1833,6 +1834,20 @@
     </div>
     
     <!-- Routine Modal -->
+    <div id="routine-modal" class="modal">
+        <div class="modal-content">
+            <h2>🏋️ Create Routine</h2>
+            <input type="text" id="routine-name" placeholder="Routine Name (e.g., Push Day, Leg Day)">
+            <textarea id="routine-exercises" placeholder="Exercises (one per line)
+Example:
+Bench Press - 3x10
+Incline Dumbbell Press - 3x12
+Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
+            <textarea id="routine-notes" placeholder="Notes (optional)" style="min-height: 60px;"></textarea>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('routine-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveRoutine()">Save Routine</button>
+            </div>
         </div>
     </div>
     
@@ -2060,31 +2075,29 @@
         
         // Quick task templates
         function addQuickTask(prefix, category) {
-            document.getElementById('task-name').value = '';
-            document.getElementById('task-desc').value = '';
-            document.getElementById('task-priority').value = 'medium';
-            document.getElementById('task-date').value = formatDate(new Date());
-            document.getElementById('task-time').value = '';
-            document.getElementById('task-recurring').value = 'none';
+            const taskText = prompt(`${prefix} - What needs to be done?`);
+            if (!taskText) return;
             
-            window.currentQuickTaskPrefix = prefix;
-            window.currentQuickTaskCategory = category;
-            
-            openModal('task-modal');
+            const today = formatDate(new Date());
+            tasks.push({
+                id: Date.now(),
+                name: `${prefix}: ${taskText}`,
+                desc: '',
+                priority: 'medium',
+                date: today,
+                time: '',
+                recurring: 'none',
+                completed: false,
+                category: category,
+                createdDate: today
+            });
+            save();
+            renderTasks();
+            showNotification('Task added!', 'success');
         }
         
         function saveTask() {
             const name = document.getElementById('task-name').value;
-            
-            // If this is a quick task, add prefix and set category
-            let finalName = name;
-            let finalCategory = '';
-            if (window.currentQuickTaskPrefix && name && !name.startsWith(window.currentQuickTaskPrefix)) {
-                finalName = window.currentQuickTaskPrefix + ': ' + name;
-                finalCategory = window.currentQuickTaskCategory || '';
-                window.currentQuickTaskPrefix = null;
-                window.currentQuickTaskCategory = null;
-            }
             if (!name) return alert('Please enter task name');
             
             tasks.push({
@@ -5202,12 +5215,8 @@ function renderTransactions() {
                     <div style="font-weight: 600; font-size: 11px;">
                         ${isIncome ? '💰' : '💸'} ${isIncome ? t.description || 'Income' : (budget?.name || 'Expense')}
                     </div>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <div style="font-weight: 700; font-size: 12px; color: ${isIncome ? 'var(--success)' : 'var(--danger)'};">
-                            ${isIncome ? '+' : '-'}$${t.amount.toFixed(2)}
-                        </div>
-                        <button class="btn btn-icon btn-secondary" onclick="editTransaction(${t.id})" style="font-size: 10px; padding: 2px 6px;">✏️</button>
-                        <button class="btn btn-icon btn-secondary" onclick="deleteTransaction(${t.id})" style="font-size: 10px; padding: 2px 6px;">🗑️</button>
+                    <div style="font-weight: 700; font-size: 12px; color: ${isIncome ? 'var(--success)' : 'var(--danger)'};">
+                        ${isIncome ? '+' : '-'}$${t.amount.toFixed(2)}
                     </div>
                 </div>
                 ${t.description && !isIncome ? `<div style="font-size: 10px; color: var(--text-dim); margin-bottom: 2px;">${t.description}</div>` : ''}
@@ -5700,9 +5709,3 @@ function processRecurringEvents() {
         localStorage.setItem('recurringEvents', JSON.stringify(recurringEvents));
         localStorage.setItem('events', JSON.stringify(events));
     }
-}
-
-// Check recurring events
-setInterval(processRecurringEvents, 60000);
-processRecurringEvents();
-
