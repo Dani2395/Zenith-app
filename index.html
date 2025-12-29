@@ -485,7 +485,13 @@
             text-decoration: line-through;
         }
         
-        /* MODAL */
+        
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(2);
+            cursor: pointer;
+        }
+        
+/* MODAL */
         .modal {
             position: fixed;
             inset: 0;
@@ -987,12 +993,6 @@
                 </div>
             </div>
             
-            <!-- Today's Schedule - All in One -->
-            <div class="card" style="margin-bottom: 20px;">
-                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">📅 Today's Schedule</h3>
-                <div id="daily-schedule" style="display: flex; flex-direction: column; gap: 12px;"></div>
-            </div>
-            
             <!-- Top 5 Tasks + Today's Habits (Side by Side) -->
             <div class="home-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
                 <!-- Top 5 Priorities -->
@@ -1042,9 +1042,11 @@
             
             <!-- Today's Schedule -->
             <div class="card" style="margin-bottom: 20px;">
-                <div class="card-title">📋 Today's Schedule</div>
-                <div id="overdue-alert"></div>
-                <div class="scrollable" id="timeline"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin: 0;">📅 Today's Schedule</h3>
+                    <div id="schedule-date-display" style="font-size: 13px; color: var(--text-dim);"></div>
+                </div>
+                <div id="daily-schedule" style="display: flex; flex-direction: column; gap: 12px;"></div>
             </div>
         </div>
         
@@ -1053,21 +1055,17 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h1 style="font-size: 24px; font-weight: 700;">✅ Tasks</h1>
-                    <button class="btn btn-primary" onclick="openModal('task-modal')">+ Add Task</button>
+                    <button class="btn btn-primary" onclick="populateTaskListDropdown(); openModal('task-modal')">+ Add Task</button>
                 </div>
                 
                 
                 <!-- Quick Task Templates -->
                 <div style="margin-bottom: 16px;">
-                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-dim);">Quick Add:</div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn btn-secondary" onclick="addQuickTask('🛒 Shopping', 'groceries')" style="font-size: 12px; padding: 6px 12px;">🛒 Shopping</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('💪 Workout', 'fitness')" style="font-size: 12px; padding: 6px 12px;">💪 Workout</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('📚 Study', 'education')" style="font-size: 12px; padding: 6px 12px;">📚 Study</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('🏠 Chores', 'home')" style="font-size: 12px; padding: 6px 12px;">🏠 Chores</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('💼 Work', 'work')" style="font-size: 12px; padding: 6px 12px;">💼 Work</button>
-                        <button class="btn btn-secondary" onclick="addQuickTask('📞 Call', 'calls')" style="font-size: 12px; padding: 6px 12px;">📞 Call</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-size: 13px; font-weight: 600; color: var(--text-dim);">Task Lists:</div>
+                        <button class="btn btn-secondary" onclick="openModal('add-list-modal')" style="font-size: 12px; padding: 4px 8px;">+ New List</button>
                     </div>
+                    <div id="task-lists-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;"></div>
                 </div>
                 <div class="filters">
                     <div class="filter-btn active" onclick="filterTasks('all')">All</div>
@@ -1173,19 +1171,9 @@
         <!-- WORKOUT TAB -->
         <div id="workout-tab" class="tab-content">
             <div class="card">
-                <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">💪 My Workout Routines</h1>
-                
-                <!-- Create Routine Form -->
-                <div style="padding: 16px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(99, 102, 241, 0.3);">
-                    <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">✨ Create New Routine</h3>
-                    <input type="text" id="new-routine-name" placeholder="Routine name (e.g., Push Day, Leg Day)" style="margin-bottom: 10px; font-size: 14px;">
-                    <textarea id="new-routine-exercises" placeholder="Exercises (one per line)&#10;Example:&#10;Bench Press - 3x10&#10;Shoulder Press - 3x12&#10;Triceps Dips - 3x15" style="min-height: 100px; margin-bottom: 10px; font-size: 13px;"></textarea>
-                    <button class="btn btn-primary" onclick="createRoutineNow()" style="width: 100%; font-size: 14px;">💾 Save Routine</button>
-                </div>
-                
-                <!-- Saved Routines -->
-                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">📋 Saved Routines</h3>
-                <div id="routines-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;"></div>
+                <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">💪 Workout Log</h1>
+                <button class="btn btn-primary" onclick="openWorkoutModal()" style="margin-bottom: 20px;">+ Log Workout</button>
+                <div id="workout-list"></div>
             </div>
         </div>
         
@@ -1468,54 +1456,19 @@
     <div id="edit-transaction-modal" class="modal">
         <div class="modal-content">
             <h2 style="margin-bottom: 20px;">✏️ Edit Transaction</h2>
-            
-            <!-- Type Selection -->
-            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Transaction Type</label>
-            <select id="edit-transaction-type" style="margin-bottom: 12px; font-size: 14px;" onchange="updateEditTransactionType()">
-                <option value="income">💰 Income</option>
-                <option value="expense">💸 Expense</option>
-            </select>
-            
-            <!-- Budget Category (only for expenses) -->
-            <div id="edit-transaction-budget-section" style="display: none;">
-                <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Budget Category</label>
-                <select id="edit-transaction-budget" style="margin-bottom: 12px; font-size: 14px;">
-                    <option value="">Select category</option>
-                </select>
+            <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; margin-bottom: 16px;">
+                <div style="font-size: 12px; color: var(--text-dim);">Type:</div>
+                <div style="font-size: 16px; font-weight: 600;" id="edit-transaction-type-display"></div>
             </div>
-            
-            <!-- Amount -->
             <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Amount</label>
-            <div style="position: relative; margin-bottom: 12px;">
-                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--text-dim);">$</span>
-                <input type="number" id="edit-transaction-amount" placeholder="0.00" step="0.01" min="0" style="font-size: 18px; padding-left: 30px;">
-            </div>
-            
-            <!-- Description/Name -->
-            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Description / Name</label>
-            <input type="text" id="edit-transaction-description" placeholder="e.g., Grocery shopping, Salary, etc." style="margin-bottom: 12px; font-size: 14px;">
-            
-            <!-- Date -->
+            <input type="number" id="edit-transaction-amount" placeholder="Amount" step="0.01" min="0" style="font-size: 18px; margin-bottom: 12px;">
+            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Description</label>
+            <input type="text" id="edit-transaction-description" placeholder="Description" style="margin-bottom: 12px;">
             <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Date</label>
-            <input type="date" id="edit-transaction-date" style="margin-bottom: 12px; font-size: 14px;">
-            
-            <!-- Notes (optional) -->
-            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Notes (optional)</label>
-            <textarea id="edit-transaction-notes" placeholder="Add any additional notes..." style="min-height: 60px; margin-bottom: 12px; font-size: 13px;"></textarea>
-            
-            <!-- Recurring (optional) -->
-            <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Recurring</label>
-            <select id="edit-transaction-recurring" style="margin-bottom: 16px; font-size: 14px;">
-                <option value="none">One-time</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
-            </select>
-            
+            <input type="date" id="edit-transaction-date" style="margin-bottom: 12px;">
             <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn btn-secondary" onclick="closeModal('edit-transaction-modal')" style="flex: 1;">Cancel</button>
-                <button class="btn btn-primary" onclick="saveEditedTransaction()" style="flex: 1;">💾 Save Changes</button>
+                <button class="btn btn-secondary" onclick="closeModal('edit-transaction-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEditedTransaction()">Save Changes</button>
             </div>
         </div>
     </div>
@@ -1572,6 +1525,9 @@
             </select>
             <input type="date" id="task-date">
             <input type="time" id="task-time">
+            <select id="task-list">
+                <option value="">No List</option>
+            </select>
             <select id="task-recurring">
                 <option value="none">Does not repeat</option>
                 <option value="daily">Daily</option>
@@ -1618,7 +1574,20 @@
                 <input type="checkbox" id="note-pinned">
                 <span>📌 Pin to home page</span>
             </label>
-            <input type="date" id="note-date">
+            <input type="date" id="note-date" placeholder="Date">
+            <select id="note-category" style="margin-bottom: 12px;">
+                <option value="">Select Category</option>
+                <option value="Personal">Personal</option>
+                <option value="Work">Work</option>
+                <option value="Ideas">Ideas</option>
+                <option value="Journal">Journal</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Health">Health</option>
+                <option value="Finance">Finance</option>
+                <option value="Learning">Learning</option>
+                <option value="Projects">Projects</option>
+                <option value="Other">Other</option>
+            </select>
             <div style="display: flex; gap: 12px;">
                 <button class="btn btn-secondary" onclick="closeModal('note-modal')">Cancel</button>
                 <button class="btn btn-primary" onclick="saveNote()">Save Note</button>
@@ -1662,35 +1631,6 @@
                 <button class="btn btn-primary" onclick="saveWorkout()">Save</button>
             </div>
         </div>
-    
-    <!-- Edit Workout Modal -->
-    <div id="edit-workout-modal" class="modal">
-        <div class="modal-content">
-            <h2>✏️ Edit Workout</h2>
-            <input type="date" id="edit-workout-date" required>
-            <input type="text" id="edit-workout-name" placeholder="Workout name">
-            <textarea id="edit-workout-exercises" placeholder="Exercises" style="min-height: 120px;" required></textarea>
-            <input type="number" id="edit-workout-duration" placeholder="Duration (minutes)">
-            <textarea id="edit-workout-notes" placeholder="Notes" style="min-height: 60px;"></textarea>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn btn-secondary" onclick="closeModal('edit-workout-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="saveEditedWorkout()">Save Changes</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Edit Routine Modal -->
-    <div id="edit-routine-modal" class="modal">
-        <div class="modal-content">
-            <h2>✏️ Edit Routine</h2>
-            <input type="text" id="edit-routine-name" placeholder="Routine name" required>
-            <textarea id="edit-routine-exercises" placeholder="Exercises (one per line)" style="min-height: 120px;" required></textarea>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn btn-secondary" onclick="closeModal('edit-routine-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="saveEditedRoutine()">Save Changes</button>
-            </div>
-        </div>
-    </div>
     </div>
 
     
@@ -1956,6 +1896,20 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         let lastSyncTime = Date.now();
         
         // ==================== UTILITY FUNCTIONS ====================
+
+// Task Lists
+let taskLists = JSON.parse(localStorage.getItem('taskLists')) || [
+    { id: 1, name: 'Personal', icon: '👤', color: '#6366f1' },
+    { id: 2, name: 'Work', icon: '💼', color: '#8b5cf6' },
+    { id: 3, name: 'Shopping', icon: '🛒', color: '#ec4899' },
+    { id: 4, name: 'Fitness', icon: '💪', color: '#10b981' }
+];
+
+function saveTaskLists() {
+    localStorage.setItem('taskLists', JSON.stringify(taskLists));
+}
+
+
         function save() {
             localStorage.setItem('tasks', JSON.stringify(tasks));
             localStorage.setItem('notes', JSON.stringify(notes));
@@ -2032,6 +1986,7 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
             if (tabContent) tabContent.classList.add('active');
             
             // Render content for the tab
+            if (tab === 'home') { renderHomeWidgets(); renderDailySchedule(); }
             if (tab === 'tasks') renderTasks();
             if (tab === 'notes') renderNotes();
             if (tab === 'calendar') renderFullCalendar();
@@ -2129,43 +2084,29 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         
         // Quick task templates
         function addQuickTask(prefix, category) {
-            // Pre-fill the task modal with category info
-            document.getElementById('task-name').value = '';
-            document.getElementById('task-desc').value = '';
-            document.getElementById('task-priority').value = 'medium';
-            document.getElementById('task-date').value = formatDate(new Date());
-            document.getElementById('task-time').value = '';
-            document.getElementById('task-recurring').value = 'none';
+            const taskText = prompt(`${prefix} - What needs to be done?`);
+            if (!taskText) return;
             
-            // Store the prefix and category for when they save
-            window.currentTaskPrefix = prefix;
-            window.currentTaskCategory = category;
-            
-            // Update modal title
-            const modalTitle = document.querySelector('#task-modal h2');
-            if (modalTitle) modalTitle.textContent = prefix + ' - Add Task';
-            
-            openModal('task-modal');
+            const today = formatDate(new Date());
+            tasks.push({
+                id: Date.now(),
+                name: `${prefix}: ${taskText}`,
+                desc: '',
+                priority: 'medium',
+                date: today,
+                time: '',
+                recurring: 'none',
+                completed: false,
+                category: category,
+                createdDate: today
+            });
+            save();
+            renderTasks();
+            showNotification('Task added!', 'success');
         }
         
         function saveTask() {
-            let name = document.getElementById('task-name').value;
-            
-            // If this is from a quick task button, add prefix and category
-            if (window.currentTaskPrefix && name) {
-                if (!name.startsWith(window.currentTaskPrefix)) {
-                    name = window.currentTaskPrefix + ': ' + name;
-                }
-            }
-            const category = window.currentTaskCategory || '';
-            
-            // Clear quick task data
-            window.currentTaskPrefix = null;
-            window.currentTaskCategory = null;
-            
-            // Reset modal title
-            const modalTitle = document.querySelector('#task-modal h2');
-            if (modalTitle) modalTitle.textContent = 'Add Task';
+            const name = document.getElementById('task-name').value;
             if (!name) return alert('Please enter task name');
             
             tasks.push({
@@ -3486,6 +3427,7 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         // ==================== TIMELINE ====================
         function renderTimeline() {
             const container = document.getElementById('timeline');
+            if (!container) return;
             const today = formatDate(new Date());
             
             // Get today's items
@@ -5041,48 +4983,20 @@ function saveEditedBudget() {
     currentEditingBudgetId = null;
 }
 
-
-function updateEditTransactionType() {
-    const type = document.getElementById('edit-transaction-type').value;
-    const budgetSection = document.getElementById('edit-transaction-budget-section');
-    if (type === 'expense') {
-        budgetSection.style.display = 'block';
-        populateEditBudgetSelect();
-    } else {
-        budgetSection.style.display = 'none';
-    }
-}
-
-function populateEditBudgetSelect() {
-    const select = document.getElementById('edit-transaction-budget');
-    if (!select) return;
-    select.innerHTML = '<option value="">No category</option>' + 
-        budgets.map(b => `<option value="${b.id}">${b.icon} ${b.name}</option>`).join('');
-}
-
 function editTransaction(id) {
+    console.log('editTransaction called with id:', id);
     const transaction = transactions.find(t => t.id === id);
-    if (!transaction) return;
+    console.log('Found transaction:', transaction);
+    if (!transaction) {
+        console.log('Transaction not found');
+        return;
+    }
     
     currentEditingTransactionId = id;
-    
-    // Populate form
-    document.getElementById('edit-transaction-type').value = transaction.type;
     document.getElementById('edit-transaction-amount').value = transaction.amount;
-    document.getElementById('edit-transaction-description').value = transaction.description || '';
+    document.getElementById('edit-transaction-description').value = transaction.desc || '';
     document.getElementById('edit-transaction-date').value = transaction.date;
-    document.getElementById('edit-transaction-notes').value = transaction.notes || '';
-    document.getElementById('edit-transaction-recurring').value = transaction.recurring || 'none';
-    
-    // Handle budget category
-    if (transaction.type === 'expense') {
-        document.getElementById('edit-transaction-budget-section').style.display = 'block';
-        populateEditBudgetSelect();
-        document.getElementById('edit-transaction-budget').value = transaction.budgetId || '';
-    } else {
-        document.getElementById('edit-transaction-budget-section').style.display = 'none';
-    }
-    
+    document.getElementById('edit-transaction-type-display').textContent = transaction.type === 'income' ? '💰 Income' : '💸 Expense';
     openModal('edit-transaction-modal');
 }
 
@@ -5090,13 +5004,9 @@ function saveEditedTransaction() {
     const transaction = transactions.find(t => t.id === currentEditingTransactionId);
     if (!transaction) return;
     
-    const newType = document.getElementById('edit-transaction-type').value;
     const newAmount = parseFloat(document.getElementById('edit-transaction-amount').value);
     const newDescription = document.getElementById('edit-transaction-description').value;
     const newDate = document.getElementById('edit-transaction-date').value;
-    const newNotes = document.getElementById('edit-transaction-notes').value;
-    const newRecurring = document.getElementById('edit-transaction-recurring').value;
-    const newBudgetId = newType === 'expense' ? (document.getElementById('edit-transaction-budget').value || null) : null;
     
     if (!newAmount || newAmount <= 0 || !newDate) {
         alert('Please enter valid amount and date');
@@ -5104,37 +5014,53 @@ function saveEditedTransaction() {
     }
     
     const oldAmount = transaction.amount;
-    const oldBudgetId = transaction.budgetId;
-    const oldType = transaction.type;
+    const oldDate = transaction.date;
     
-    // Update old budget if it was an expense
-    if (oldType === 'expense' && oldBudgetId) {
-        const oldBudget = budgets.find(b => b.id === oldBudgetId);
-        if (oldBudget) oldBudget.spent -= oldAmount;
+    // Update budget if it's an expense with a budget category
+    if (transaction.type === 'expense' && transaction.budgetId) {
+        const budget = budgets.find(b => b.id === transaction.budgetId);
+        if (budget) {
+            budget.spent = budget.spent - oldAmount + newAmount;
+            localStorage.setItem('budgets', JSON.stringify(budgets));
+        }
     }
     
-    // Update new budget if it's an expense
-    if (newType === 'expense' && newBudgetId) {
-        const newBudget = budgets.find(b => b.id === parseInt(newBudgetId));
-        if (newBudget) newBudget.spent += newAmount;
+    // Update old monthly data
+    const oldMonthYear = new Date(oldDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (monthlyData[oldMonthYear]) {
+        if (transaction.type === 'income') {
+            monthlyData[oldMonthYear].income -= oldAmount;
+        } else {
+            monthlyData[oldMonthYear].expenses -= oldAmount;
+        }
+        monthlyData[oldMonthYear].cashflow = monthlyData[oldMonthYear].income - monthlyData[oldMonthYear].expenses;
     }
+    
+    // Update new monthly data
+    const newMonthYear = new Date(newDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (!monthlyData[newMonthYear]) {
+        monthlyData[newMonthYear] = { income: 0, expenses: 0, cashflow: 0 };
+    }
+    if (transaction.type === 'income') {
+        monthlyData[newMonthYear].income += newAmount;
+    } else {
+        monthlyData[newMonthYear].expenses += newAmount;
+    }
+    monthlyData[newMonthYear].cashflow = monthlyData[newMonthYear].income - monthlyData[newMonthYear].expenses;
     
     // Update transaction
-    transaction.type = newType;
     transaction.amount = newAmount;
-    transaction.description = newDescription;
+    transaction.desc = newDescription;
     transaction.date = newDate;
-    transaction.notes = newNotes;
-    transaction.recurring = newRecurring;
-    transaction.budgetId = newBudgetId ? parseInt(newBudgetId) : null;
     
     localStorage.setItem('transactions', JSON.stringify(transactions));
-    localStorage.setItem('budgets', JSON.stringify(budgets));
+    localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
     
     closeModal('edit-transaction-modal');
     renderTransactions();
     renderBudgets();
     renderMonthlyMetrics();
+    currentEditingTransactionId = null;
 }
 
 function renderMonthlyMetrics() {
@@ -5309,8 +5235,11 @@ function renderTransactions() {
                     </div>
                 </div>
                 ${t.description && !isIncome ? `<div style="font-size: 10px; color: var(--text-dim); margin-bottom: 2px;">${t.description}</div>` : ''}
-                <div style="font-size: 10px; color: var(--text-dim);">
-                    ${new Date(t.date).toLocaleDateString()}
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 10px; color: var(--text-dim);">
+                        ${new Date(t.date).toLocaleDateString()}
+                    </div>
+                    <button onclick="editTransaction(${t.id})" class="btn btn-secondary" style="font-size: 10px; padding: 3px 8px;">✏️ Edit</button>
                 </div>
             </div>
         `;
@@ -5855,49 +5784,23 @@ function renderTransactions() {
 }
 
 function editTransaction(id) {
+    console.log('editTransaction called with id:', id);
     const transaction = transactions.find(t => t.id === id);
-    if (!transaction) return;
+    console.log('Found transaction:', transaction);
     
-    const newAmount = prompt(`Edit amount for ${transaction.description || (transaction.type === 'income' ? 'Income' : 'Expense')}:`, transaction.amount);
-    if (newAmount === null || newAmount === '') return;
-    
-    const amount = parseFloat(newAmount);
-    if (isNaN(amount) || amount <= 0) {
-        alert('Please enter a valid amount');
+    if (!transaction) {
+        console.log('Transaction not found');
         return;
     }
     
-    // Update transaction amount
-    const oldAmount = transaction.amount;
-    transaction.amount = amount;
+    currentEditingTransactionId = id;
+    document.getElementById('edit-transaction-amount').value = transaction.amount;
+    document.getElementById('edit-transaction-description').value = transaction.desc || '';
+    document.getElementById('edit-transaction-date').value = transaction.date;
+    document.getElementById('edit-transaction-type-display').textContent = transaction.type === 'income' ? '💰 Income' : '💸 Expense';
     
-    // Update budget if it's an expense with a budget category
-    if (transaction.type === 'expense' && transaction.budgetId) {
-        const budget = budgets.find(b => b.id === transaction.budgetId);
-        if (budget) {
-            budget.spent = budget.spent - oldAmount + amount;
-            localStorage.setItem('budgets', JSON.stringify(budgets));
-        }
-    }
-    
-    // Update monthly data
-    const monthYear = new Date(transaction.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    if (monthlyData[monthYear]) {
-        if (transaction.type === 'income') {
-            monthlyData[monthYear].income = monthlyData[monthYear].income - oldAmount + amount;
-        } else {
-            monthlyData[monthYear].expenses = monthlyData[monthYear].expenses - oldAmount + amount;
-        }
-        monthlyData[monthYear].cashflow = monthlyData[monthYear].income - monthlyData[monthYear].expenses;
-        localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
-    }
-    
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-    populateYearFilter();
-    renderTransactions();
-    renderBudgets();
-    renderMonthlyMetrics();
-    showNotification('✏️ Transaction updated!', 'success');
+    console.log('Opening modal');
+    openModal('edit-transaction-modal');
 }
 
 function filterTransactions(type) {
@@ -5906,7 +5809,7 @@ function filterTransactions(type) {
 }
 
 function deleteTransaction(id) {
-    if (!confirm('Delete this transaction?')) return;
+    // Delete without confirm
     
     const transaction = transactions.find(t => t.id === id);
     if (!transaction) return;
@@ -6083,6 +5986,39 @@ function openWorkoutModal() {
 }
 
 function saveWorkout() {
+    // Check if editing
+    if (editingWorkoutId) {
+        const workout = workouts.find(w => w.id === editingWorkoutId);
+        if (workout) {
+            workout.date = document.getElementById('workout-date').value;
+            workout.name = document.getElementById('workout-name').value || 'Workout';
+            workout.exercises = document.getElementById('workout-exercises').value;
+            workout.duration = parseInt(document.getElementById('workout-duration').value) || 0;
+            workout.notes = document.getElementById('workout-notes').value;
+            
+            if (!workout.date || !workout.exercises) {
+                alert('Please enter date and exercises');
+                return;
+            }
+            
+            localStorage.setItem('workouts', JSON.stringify(workouts));
+            editingWorkoutId = null;
+            
+            document.querySelector('#workout-modal h2').textContent = '💪 Log Workout';
+            document.getElementById('workout-name').value = '';
+            document.getElementById('workout-exercises').value = '';
+            document.getElementById('workout-duration').value = '';
+            document.getElementById('workout-notes').value = '';
+            
+            closeModal('workout-modal');
+            renderWorkouts();
+            renderDailySchedule();
+            return;
+        }
+    }
+    
+    // Original create code
+    
     const w = {
         id: Date.now(),
         date: document.getElementById('workout-date').value,
@@ -6122,8 +6058,9 @@ function renderWorkouts() {
         '<div class="item" style="padding:16px;border-left:4px solid var(--primary);margin-bottom:16px">' +
         '<div style="display:flex;justify-content:space-between;margin-bottom:12px">' +
         '<div><div style="font-size:18px;font-weight:700">' + w.name + '</div>' +
-        '<div style="font-size:14px;color:var(--text-dim)">' + new Date(w.date).toLocaleDateString() + '</div></div>' +
+        '<div style="font-size:14px;color:var(--text-dim)">' + w.date + '</div></div>' +
         '<div style="display:flex;gap:8px">' +
+        '<button class="btn btn-secondary" onclick="editWorkout(' + w.id + ')" style="font-size:11px;padding:4px 8px;">✏️</button>' +
         (w.duration ? '<span style="padding:4px 8px;background:rgba(99,102,241,0.2);border-radius:8px;font-size:12px">⏱️ ' + w.duration + ' min</span>' : '') +
         '<button class="btn btn-icon btn-secondary" onclick="deleteWorkout(' + w.id + ')">🗑️</button></div></div>' +
         '<div style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;white-space:pre-line">' + w.exercises + '</div>' +
@@ -6133,10 +6070,10 @@ function renderWorkouts() {
 }
 
 function deleteWorkout(id) {
-    if (!confirm('Delete?')) return;
     workouts = workouts.filter(w => w.id !== id);
     localStorage.setItem('workouts', JSON.stringify(workouts));
     renderWorkouts();
+    renderDailySchedule();
 }
 
 
@@ -6290,272 +6227,201 @@ setTimeout(() => {
 
 
         
-// WORKOUT ROUTINES
-let myRoutines = JSON.parse(localStorage.getItem('myRoutines') || '[]');
-
-function createRoutineNow() {
-    const nameInput = document.getElementById('new-routine-name');
-    const exercisesInput = document.getElementById('new-routine-exercises');
+// TODAY'S SCHEDULE
+function renderDailySchedule() {
+    const container = document.getElementById('daily-schedule');
+    if (!container) return;
     
-    const name = nameInput.value.trim();
-    const exercises = exercisesInput.value.trim();
-    
-    if (!name || !exercises) {
-        alert('Please enter both routine name and exercises');
-        return;
+    const today = formatDate(new Date());
+    const dateDisplay = document.getElementById('schedule-date-display');
+    if (dateDisplay) {
+        const date = new Date(today);
+        dateDisplay.textContent = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     }
     
-    myRoutines.push({
-        id: Date.now(),
-        name: name,
-        exercises: exercises
+    let items = [];
+    
+    tasks.filter(t => t.date === today).forEach(task => {
+        items.push({ type: 'task', time: task.time || '00:00', icon: '✅', title: task.name, details: task.desc || '', priority: task.priority, id: task.id, completed: task.completed });
     });
     
-    localStorage.setItem('myRoutines', JSON.stringify(myRoutines));
-    nameInput.value = '';
-    exercisesInput.value = '';
-    showRoutines();
-}
-
-function showRoutines() {
-    const grid = document.getElementById('routines-grid');
-    if (!grid) return;
+    events.filter(e => e.date === today).forEach(event => {
+        items.push({ type: 'event', time: event.time || '00:00', icon: '📅', title: event.name, details: event.location || '', id: event.id });
+    });
     
-    if (myRoutines.length === 0) {
-        grid.innerHTML = '<div class="empty" style="grid-column: 1 / -1; text-align: center; padding: 40px;">No routines yet. Create your first routine above! 💪</div>';
+    workouts.filter(w => w.date === today).forEach(workout => {
+        items.push({ type: 'workout', time: '00:00', icon: '💪', title: workout.name || 'Workout', details: workout.duration ? workout.duration + ' min' : '', id: workout.id });
+    });
+    
+    notes.filter(n => n.date === today).forEach(note => {
+        items.push({ type: 'note', time: '00:00', icon: '📝', title: note.title || 'Note', details: (note.content || '').substring(0, 50), id: note.id });
+    });
+    
+    items.sort((a, b) => a.time < b.time ? -1 : 1);
+    
+    if (items.length === 0) {
+        container.innerHTML = '<div class="empty" style="text-align: center; padding: 30px;">Nothing scheduled for today 🎉</div>';
         return;
     }
     
-    grid.innerHTML = myRoutines.map(r => `
-        <div style="padding: 18px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12)); border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.25); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.3)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 14px;">
-                <div style="font-size: 18px; font-weight: 700;">🏋️ ${r.name}</div>
-                <div style="display: flex; gap: 6px;">
-                    <button onclick="editRoutine(${r.id})" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️ Edit</button>
-                    <button onclick="deleteRoutine(${r.id})" class="btn btn-icon" style="font-size: 11px; padding: 4px 6px;">🗑️</button>
-                </div>
-            </div>
-            <div style="background: rgba(0, 0, 0, 0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; color: var(--text-dim); line-height: 1.6; white-space: pre-line;">${r.exercises}</div>
-            <button onclick="quickLog(${r.id})" class="btn btn-primary" style="width: 100%; font-size: 13px;">📝 Log This Workout</button>
-        </div>
-    `).join('');
+    container.innerHTML = items.map(item => {
+        const color = item.priority === 'high' ? 'var(--danger)' : item.priority === 'medium' ? 'var(--warning)' : 'var(--success)';
+        const time = item.time !== '00:00' ? item.time : '';
+        const completed = item.completed ? 'text-decoration: line-through; opacity: 0.6;' : '';
+        return '<div style="display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid ' + (item.type === 'task' ? color : 'var(--primary)') + ';"><div style="font-size: 20px;">' + item.icon + '</div><div style="flex: 1; ' + completed + '"><div style="font-weight: 600; font-size: 14px;">' + item.title + '</div>' + (item.details ? '<div style="font-size: 12px; color: var(--text-dim);">' + item.details + '</div>' : '') + '</div>' + (item.type === 'task' ? '<button onclick="toggleTask(' + item.id + '); setTimeout(renderDailySchedule, 100);" class="btn btn-success" style="font-size: 11px; padding: 4px 8px;">✓</button>' : '') + (item.type === 'workout' ? '<button onclick="editWorkout(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</button>' : '') + (item.type === 'note' ? '<button onclick="viewNote(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">👁️</button>' : '') + '</div>';
+    }).join('');
 }
 
-function quickLog(routineId) {
-    const routine = myRoutines.find(r => r.id === routineId);
-    if (!routine) return;
-    
-    document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
-    document.getElementById('workout-name').value = routine.name;
-    document.getElementById('workout-exercises').value = routine.exercises;
-    openModal('workout-modal');
-}
 
-function deleteRoutine(id) {
-    if (!confirm('Delete this routine?')) return;
-    myRoutines = myRoutines.filter(r => r.id !== id);
-    localStorage.setItem('myRoutines', JSON.stringify(myRoutines));
-    showRoutines();
-}
-
-// Show routines when switching to workout tab
-const originalSwitchTab = switchTab;
-switchTab = function(tab) {
-    originalSwitchTab(tab);
-    if (tab === 'workout') showRoutines();
-};
-
-
-// EDIT FUNCTIONS
 let editingWorkoutId = null;
-let editingRoutineId = null;
 
 function editWorkout(id) {
     const workout = workouts.find(w => w.id === id);
     if (!workout) return;
     
     editingWorkoutId = id;
-    document.getElementById('edit-workout-date').value = workout.date;
-    document.getElementById('edit-workout-name').value = workout.name || '';
-    document.getElementById('edit-workout-exercises').value = workout.exercises;
-    document.getElementById('edit-workout-duration').value = workout.duration || '';
-    document.getElementById('edit-workout-notes').value = workout.notes || '';
     
-    openModal('edit-workout-modal');
-}
-
-function saveEditedWorkout() {
-    const workout = workouts.find(w => w.id === editingWorkoutId);
-    if (!workout) return;
+    // Pre-fill with null checks
+    const dateEl = document.getElementById('workout-date');
+    const nameEl = document.getElementById('workout-name');
+    const exercisesEl = document.getElementById('workout-exercises');
+    const durationEl = document.getElementById('workout-duration');
+    const notesEl = document.getElementById('workout-notes');
+    const titleEl = document.querySelector('#workout-modal h2');
     
-    workout.date = document.getElementById('edit-workout-date').value;
-    workout.name = document.getElementById('edit-workout-name').value;
-    workout.exercises = document.getElementById('edit-workout-exercises').value;
-    workout.duration = parseInt(document.getElementById('edit-workout-duration').value) || 0;
-    workout.notes = document.getElementById('edit-workout-notes').value;
+    if (dateEl) dateEl.value = workout.date;
+    if (nameEl) nameEl.value = workout.name || '';
+    if (exercisesEl) exercisesEl.value = workout.exercises;
+    if (durationEl) durationEl.value = workout.duration || '';
+    if (notesEl) notesEl.value = workout.notes || '';
+    if (titleEl) titleEl.textContent = '✏️ Edit Workout';
     
-    localStorage.setItem('workouts', JSON.stringify(workouts));
-    closeModal('edit-workout-modal');
-    renderWorkouts();
-}
-
-function editRoutine(id) {
-    const routine = myRoutines.find(r => r.id === id);
-    if (!routine) return;
-    
-    editingRoutineId = id;
-    document.getElementById('edit-routine-name').value = routine.name;
-    document.getElementById('edit-routine-exercises').value = routine.exercises;
-    
-    openModal('edit-routine-modal');
-}
-
-function saveEditedRoutine() {
-    const routine = myRoutines.find(r => r.id === editingRoutineId);
-    if (!routine) return;
-    
-    routine.name = document.getElementById('edit-routine-name').value.trim();
-    routine.exercises = document.getElementById('edit-routine-exercises').value.trim();
-    
-    if (!routine.name || !routine.exercises) {
-        alert('Please enter both name and exercises');
-        return;
-    }
-    
-    localStorage.setItem('myRoutines', JSON.stringify(myRoutines));
-    closeModal('edit-routine-modal');
-    showRoutines();
+    openModal('workout-modal');
 }
 
 
+function showNotification(message, type = 'success') {
+    console.log('Notification:', message, type);
+    // Simple notification - just log for now
+}
 
-// DAILY SCHEDULE - Shows everything for today
-function renderDailySchedule() {
-    const container = document.getElementById('daily-schedule');
+
+let currentTaskList = null;
+
+function renderTaskLists() {
+    const container = document.getElementById('task-lists-buttons');
     if (!container) return;
     
-    const today = formatDate(new Date());
-    let scheduleItems = [];
+    container.innerHTML = '<button class="btn" onclick="filterTasksByList(null)" style="font-size: 12px; padding: 6px 12px; ' + (currentTaskList === null ? 'background: var(--primary); color: white;' : 'background: rgba(255,255,255,0.05);') + '">All Tasks</button>' +
+        taskLists.map(list => 
+            '<button class="btn" onclick="filterTasksByList(' + list.id + ')" oncontextmenu="deleteTaskListConfirm(' + list.id + '); return false;" ontouchstart="handleTaskListLongPress(' + list.id + ', event)" ontouchend="cancelTaskListLongPress()" style="font-size: 12px; padding: 6px 12px; ' + (currentTaskList === list.id ? 'background: ' + list.color + '; color: white;' : 'background: rgba(255,255,255,0.05);') + '">' + list.icon + ' ' + list.name + '</button>'
+        ).join('');
+}
+
+function filterTasksByList(listId) {
+    currentTaskList = listId;
+    renderTaskLists();
+    renderTasks();
+}
+
+function createTaskList() {
+    const name = document.getElementById('list-name').value.trim();
+    const icon = document.getElementById('list-icon').value.trim() || '📋';
+    const color = document.getElementById('list-color').value;
     
-    // Get today's tasks
-    const todayTasks = tasks.filter(t => t.date === today && !t.completed);
-    todayTasks.forEach(task => {
-        scheduleItems.push({
-            type: 'task',
-            time: task.time || '00:00',
-            icon: '✅',
-            title: task.name,
-            details: task.desc || '',
-            priority: task.priority,
-            id: task.id
-        });
-    });
-    
-    // Get today's events
-    const todayEvents = events.filter(e => e.date === today);
-    todayEvents.forEach(event => {
-        scheduleItems.push({
-            type: 'event',
-            time: event.time || '00:00',
-            icon: '📅',
-            title: event.name,
-            details: event.location || '',
-            id: event.id
-        });
-    });
-    
-    // Get today's workouts
-    const todayWorkouts = workouts.filter(w => w.date === today);
-    todayWorkouts.forEach(workout => {
-        scheduleItems.push({
-            type: 'workout',
-            time: '00:00',
-            icon: '💪',
-            title: workout.name || 'Workout',
-            details: workout.duration ? workout.duration + ' min' : '',
-            id: workout.id
-        });
-    });
-    
-    // Get today's notes
-    const todayNotes = notes.filter(n => n.date === today);
-    todayNotes.forEach(note => {
-        scheduleItems.push({
-            type: 'note',
-            time: '00:00',
-            icon: '📝',
-            title: note.title || 'Note',
-            details: note.content.substring(0, 50) + (note.content.length > 50 ? '...' : ''),
-            id: note.id
-        });
-    });
-    
-    // Sort by time
-    scheduleItems.sort((a, b) => {
-        if (a.time === b.time) return 0;
-        return a.time < b.time ? -1 : 1;
-    });
-    
-    // Render
-    if (scheduleItems.length === 0) {
-        container.innerHTML = '<div class="empty" style="text-align: center; padding: 30px; color: var(--text-dim);">Nothing scheduled for today. Enjoy your free time! 🎉</div>';
+    if (!name) {
+        alert('Please enter a list name');
         return;
     }
     
-    container.innerHTML = scheduleItems.map(item => {
-        const priorityColor = item.priority === 'high' ? 'var(--danger)' : item.priority === 'medium' ? 'var(--warning)' : 'var(--success)';
-        const timeDisplay = item.time !== '00:00' ? formatTime12Hour(item.time) : '';
-        
-        return `
-            <div style="display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid ${item.type === 'task' ? priorityColor : 'var(--primary)'};">
-                <div style="font-size: 20px; flex-shrink: 0;">${item.icon}</div>
-                <div style="flex: 1; min-width: 0;">
-                    <div style="display: flex; gap: 8px; align-items: start; margin-bottom: 4px;">
-                        ${timeDisplay ? '<div style="font-size: 12px; color: var(--text-dim); min-width: 65px;">' + timeDisplay + '</div>' : ''}
-                        <div style="font-weight: 600; font-size: 14px;">${item.title}</div>
-                    </div>
-                    ${item.details ? '<div style="font-size: 12px; color: var(--text-dim);">' + item.details + '</div>' : ''}
-                </div>
-                <div style="display: flex; gap: 4px; flex-shrink: 0;">
-                    ${item.type === 'task' ? '<button onclick="toggleTask(' + item.id + ')" class="btn btn-icon btn-secondary" style="font-size: 11px; padding: 4px 6px;">✓</button>' : ''}
-                    <button onclick="viewScheduleItem('' + item.type + '', ' + item.id + ')" class="btn btn-icon btn-secondary" style="font-size: 11px; padding: 4px 6px;">→</button>
-                </div>
-            </div>
-        `;
-    }).join('');
+    const newList = {
+        id: Date.now(),
+        name: name,
+        icon: icon,
+        color: color
+    };
+    
+    taskLists.push(newList);
+    saveTaskLists();
+    renderTaskLists();
+    
+    document.getElementById('list-name').value = '';
+    document.getElementById('list-icon').value = '';
+    document.getElementById('list-color').value = '#6366f1';
+    
+    closeModal('add-list-modal');
+    showNotification('Task list created! 📋', 'success');
 }
 
-function formatTime12Hour(time24) {
-    if (!time24) return '';
-    const [hours, minutes] = time24.split(':');
-    const h = parseInt(hours);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 || 12;
-    return h12 + ':' + minutes + ' ' + ampm;
+
+function populateTaskListDropdown() {
+    const select = document.getElementById('task-list');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">No List</option>' + 
+        taskLists.map(list => '<option value="' + list.id + '">' + list.icon + ' ' + list.name + '</option>').join('');
 }
 
-function viewScheduleItem(type, id) {
-    switch(type) {
-        case 'task':
-            switchTab('tasks');
-            break;
-        case 'event':
-            switchTab('calendar');
-            break;
-        case 'workout':
-            switchTab('workout');
-            break;
-        case 'note':
-            switchTab('notes');
-            break;
+
+function deleteTaskList(listId) {
+    const list = taskLists.find(l => l.id === listId);
+    if (!list) return;
+    
+    // Remove from array
+    taskLists = taskLists.filter(l => l.id !== listId);
+    saveTaskLists();
+    
+    // If currently viewing this list, switch to all
+    if (currentTaskList === listId) {
+        currentTaskList = null;
+    }
+    
+    renderTaskLists();
+    renderTasks();
+    showNotification('List deleted! 🗑️', 'success');
+}
+
+
+let longPressTimer = null;
+
+function deleteTaskListConfirm(listId) {
+    const list = taskLists.find(l => l.id === listId);
+    if (!list) return;
+    
+    if (confirm('Delete "' + list.name + '" list? Tasks in this list will not be deleted.')) {
+        deleteTaskList(listId);
     }
 }
 
-// Daily schedule renders with home
-// Called from switchTab when tab === 'home'
+function handleTaskListLongPress(listId, event) {
+    longPressTimer = setTimeout(() => {
+        deleteTaskListConfirm(listId);
+    }, 800); // 800ms long press
+}
 
-
+function cancelTaskListLongPress() {
+    if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
+}
 
 </script>
+
+<!-- Add List Modal -->
+<div id="add-list-modal" class="modal">
+    <div class="modal-content">
+        <h2>📋 Create Task List</h2>
+        <input type="text" id="list-name" placeholder="List name" style="margin-bottom: 12px;">
+        <input type="text" id="list-icon" placeholder="Icon (emoji)" maxlength="2" style="margin-bottom: 12px;">
+        <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Color</label>
+        <input type="color" id="list-color" value="#6366f1" style="margin-bottom: 16px; height: 40px;">
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary" onclick="closeModal('add-list-modal')">Cancel</button>
+            <button class="btn btn-primary" onclick="createTaskList()">Create List</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
