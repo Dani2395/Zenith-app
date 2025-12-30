@@ -1205,11 +1205,11 @@
                             <button class="btn btn-primary" onclick="openIncomeModal()" style="font-size: 10px; padding: 4px 8px;">+ Income</button>
                             <button class="btn btn-danger" onclick="openExpenseModalGeneral()" style="font-size: 10px; padding: 4px 8px;">+ Expense</button>
                             <div style="width: 1px; height: 16px; background: var(--border);"></div>
-                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">All</button>
-                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">Q1</button>
-                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">Q2</button>
-                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">Q3</button>
-                            <button class="btn btn-secondary" style="font-size: 10px; padding: 4px 8px;">Q4</button>
+                            <button class="btn btn-secondary" onclick="filterMetricsByQuarter('all')" style="font-size: 10px; padding: 4px 8px;">All</button>
+                            <button class="btn btn-secondary" onclick="filterMetricsByQuarter('Q1')" style="font-size: 10px; padding: 4px 8px;">Q1</button>
+                            <button class="btn btn-secondary" onclick="filterMetricsByQuarter('Q2')" style="font-size: 10px; padding: 4px 8px;">Q2</button>
+                            <button class="btn btn-secondary" onclick="filterMetricsByQuarter('Q3')" style="font-size: 10px; padding: 4px 8px;">Q3</button>
+                            <button class="btn btn-secondary" onclick="filterMetricsByQuarter('Q4')" style="font-size: 10px; padding: 4px 8px;">Q4</button>
                         </div>
                     </div>
                     
@@ -1754,16 +1754,47 @@
     
     <div id="quick-capture-modal" class="modal">
         <div class="modal-content">
-            <h2>Quick Capture</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                <button class="btn btn-primary" onclick="quickCaptureTask()">📋 Task</button>
-                <button class="btn btn-primary" onclick="quickCaptureNote()">📝 Note</button>
-                <button class="btn btn-primary" onclick="quickCaptureEvent()">📅 Event</button>
-                <button class="btn btn-primary" onclick="quickCaptureHoliday()">🎉 Holiday</button>
+            <h2 id="quick-capture-title">Quick Capture</h2>
+            
+            <!-- Type Selector -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+                <button class="btn btn-primary" onclick="setQuickCaptureType('task')">📋 Task</button>
+                <button class="btn btn-primary" onclick="setQuickCaptureType('note')">📝 Note</button>
+                <button class="btn btn-primary" onclick="setQuickCaptureType('event')">📅 Event</button>
+                <button class="btn btn-primary" onclick="setQuickCaptureType('holiday')">🎉 Holiday</button>
             </div>
-            <textarea id="quick-capture-text" placeholder="Type or speak..." style="min-height: 100px; margin-bottom: 12px;"></textarea>
-            <button class="btn btn-secondary" onclick="startVoiceCapture()" style="width: 100%; margin-bottom: 16px;">🎤 Voice Capture</button>
-            <button class="btn btn-secondary" onclick="closeModal('quick-capture-modal')" style="width: 100%;">Cancel</button>
+            
+            <!-- Common Fields -->
+            <input type="text" id="quick-name" placeholder="Title/Name *" style="margin-bottom: 12px;">
+            <textarea id="quick-description" placeholder="Description/Notes" style="min-height: 80px; margin-bottom: 12px;"></textarea>
+            
+            <!-- Task/Event Specific Fields -->
+            <div id="quick-datetime-fields">
+                <input type="date" id="quick-date" style="margin-bottom: 12px;">
+                <input type="time" id="quick-time" style="margin-bottom: 12px;">
+            </div>
+            
+            <!-- Task Specific -->
+            <div id="quick-task-fields" style="display: none;">
+                <select id="quick-priority" style="margin-bottom: 12px;">
+                    <option value="low">Low Priority</option>
+                    <option value="medium" selected>Medium Priority</option>
+                    <option value="high">High Priority</option>
+                </select>
+                <select id="quick-task-list" style="margin-bottom: 12px;">
+                    <option value="">No List</option>
+                </select>
+            </div>
+            
+            <!-- Event Specific -->
+            <div id="quick-event-fields" style="display: none;">
+                <input type="text" id="quick-location" placeholder="Location" style="margin-bottom: 12px;">
+            </div>
+            
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn btn-secondary" onclick="closeModal('quick-capture-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveQuickCapture()">Save</button>
+            </div>
         </div>
     </div>
     
@@ -1949,6 +1980,15 @@ function saveTaskLists() {
         
         // ==================== TAB SWITCHING ====================
         function switchTab(tab) {
+            // Add to browser history (with error handling)
+            try {
+                if (window.history.state?.tab !== tab) {
+                    window.history.pushState({ tab: tab }, '', '#' + tab);
+                }
+            } catch(e) {
+                // History API not available in this context
+            }
+            
             // Auto-relock gifts when leaving the tab
             // Don't auto-relock gifts - let user lock manually
             
@@ -2004,6 +2044,7 @@ function saveTaskLists() {
                 initBudgets();
                 renderBudgets();
                 renderMonthlyMetrics();
+                populateMetricsYears();
                 renderDebts();
                 renderSavings();
                 renderTransactions();
@@ -2210,7 +2251,7 @@ function saveTaskLists() {
                                 <span style="color: ${task.priority === 'high' ? 'var(--danger)' : task.priority === 'medium' ? 'var(--warning)' : 'var(--success)'}">
                                     ${task.priority.toUpperCase()}
                                 </span>
-                                ${task.completed ? `<span style="color: var(--success);">✅ COMPLETED</span>` : ''}
+                                ${task.completed ? `<span style="color: var(--success);">✅ COMPLETED</span>` : task.date && isPast(task.date) ? `<span style="color: var(--danger); font-weight: 700;">⚠️ OVERDUE</span>` : ''}
                             </div>
                         </div>
                         <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteTask(${task.id})" style="flex-shrink: 0;">🗑️</button>
@@ -4340,92 +4381,125 @@ function saveTaskLists() {
         
         function openQuickCapture() {
             openModal('quick-capture-modal');
-            document.getElementById('quick-capture-text').focus();
+            const nameField = document.getElementById('quick-name'); if (nameField) nameField.focus();
         }
         
-        function quickCaptureTask() {
-            console.log("quickCaptureTask called");
-            const text = document.getElementById('quick-capture-text').value.trim();
-            if (!text) { showNotification('Please enter task name', 'error'); return; }
-            
-            tasks.push({
-                id: Date.now(),
-                name: text,
-                desc: '',
-                priority: 'medium',
-                date: formatDate(new Date()),
-                time: '',
-                recurring: 'none',
-                completed: false,
-                createdDate: formatDate(new Date())
-            });
-            
-            save();
-            closeModal('quick-capture-modal');
-            document.getElementById('quick-capture-text').value = '';
-            renderTasks();
-            renderTimeline();
-            showNotification('Task added! ✅', 'success');
-        }
         
-        function quickCaptureNote() {
-            const text = document.getElementById('quick-capture-text').value.trim();
-            if (!text) return alert('Please enter note content');
-            
-            notes.push({
-                id: Date.now(),
-                name: 'Quick Note',
-                text: text,
-                locked: false,
-                pinned: false,
-                images: [],
-                voice: null,
-                date: formatDate(new Date()),
-                createdDate: formatDate(new Date())
-            });
-            
-            save();
-            closeModal('quick-capture-modal');
-            document.getElementById('quick-capture-text').value = '';
-            renderNotes();
-            showNotification('Note added! ✅', 'success');
-        }
-        
-        function quickCaptureEvent() {
-            console.log('quickCaptureEvent called');
-            const textEl = document.getElementById('quick-capture-text');
-            const text = textEl ? textEl.value.trim() : '';
-            console.log('Event text:', text);
-            
-            if (!text) { 
-                showNotification('Please enter event name', 'error'); 
-                return; 
-            }
-            
-            // Create event for today
-            events.push({
-                id: Date.now(),
-                name: text,
-                desc: '',
-                date: formatDate(new Date()),
-                time: '',
-                location: '',
-                recurring: 'none',
-                createdDate: formatDate(new Date())
-            });
-            
-            save();
-            closeModal('quick-capture-modal');
-            document.getElementById('quick-capture-text').value = '';
-            
-            renderDailySchedule();
-            showNotification('Event added to today! 📅', 'success');
-        }
-        
-        function quickCaptureHoliday() {
-            closeModal('quick-capture-modal');
-            openModal('custom-holiday-modal');
-        }
+let quickCaptureType = 'task';
+
+function setQuickCaptureType(type) {
+    quickCaptureType = type;
+    
+    // Update title
+    const titleMap = {
+        'task': '📋 Quick Task',
+        'note': '📝 Quick Note', 
+        'event': '📅 Quick Event',
+        'holiday': '🎉 Quick Holiday'
+    };
+    document.getElementById('quick-capture-title').textContent = titleMap[type];
+    
+    // Show/hide fields
+    document.getElementById('quick-datetime-fields').style.display = (type === 'task' || type === 'event') ? 'block' : 'none';
+    document.getElementById('quick-task-fields').style.display = type === 'task' ? 'block' : 'none';
+    document.getElementById('quick-event-fields').style.display = type === 'event' ? 'block' : 'none';
+    
+    // Populate task list if task
+    if (type === 'task') {
+        const listSelect = document.getElementById('quick-task-list');
+        listSelect.innerHTML = '<option value="">No List</option>' + 
+            taskLists.map(l => '<option value="' + l.id + '">' + l.icon + ' ' + l.name + '</option>').join('');
+    }
+    
+    // Set default date to today
+    document.getElementById('quick-date').value = formatDate(new Date());
+}
+
+function saveQuickCapture() {
+    const name = document.getElementById('quick-name').value.trim();
+    if (!name) {
+        showNotification('Please enter a name', 'error');
+        return;
+    }
+    
+    if (quickCaptureType === 'task') {
+        tasks.push({
+            id: Date.now(),
+            name: name,
+            desc: document.getElementById('quick-description').value,
+            priority: document.getElementById('quick-priority').value,
+            date: document.getElementById('quick-date').value,
+            time: document.getElementById('quick-time').value,
+            listId: document.getElementById('quick-task-list').value || null,
+            recurring: 'none',
+            completed: false,
+            createdDate: formatDate(new Date())
+        });
+        renderTasks();
+        showNotification('Task added! ✅', 'success');
+    } 
+    else if (quickCaptureType === 'note') {
+        notes.push({
+            id: Date.now(),
+            title: name,
+            content: document.getElementById('quick-description').value,
+            date: formatDate(new Date()),
+            locked: false,
+            pinned: false,
+            images: [],
+            voice: null,
+            createdDate: formatDate(new Date())
+        });
+        renderNotes();
+        showNotification('Note added! ✅', 'success');
+    }
+    else if (quickCaptureType === 'event') {
+        events.push({
+            id: Date.now(),
+            name: name,
+            desc: document.getElementById('quick-description').value,
+            date: document.getElementById('quick-date').value,
+            time: document.getElementById('quick-time').value,
+            location: document.getElementById('quick-location').value,
+            recurring: 'none',
+            createdDate: formatDate(new Date())
+        });
+        renderDailySchedule();
+        showNotification('Event added! 📅', 'success');
+    }
+    
+    save();
+    closeModal('quick-capture-modal');
+    clearQuickCapture();
+}
+
+function clearQuickCapture() {
+    document.getElementById('quick-name').value = '';
+    document.getElementById('quick-description').value = '';
+    document.getElementById('quick-date').value = '';
+    document.getElementById('quick-time').value = '';
+    document.getElementById('quick-location').value = '';
+}
+
+// Old functions redirect to new system
+function quickCaptureTask() {
+    setQuickCaptureType('task');
+}
+
+function quickCaptureNote() {
+    setQuickCaptureType('note');
+}
+
+function quickCaptureEvent() {
+    setQuickCaptureType('event');
+}
+
+function quickCaptureHoliday() {
+    closeModal('quick-capture-modal');
+    switchTab('holidays');
+}
+
+
         
         function startVoiceCapture() {
             if (!('webkitSpeechRecognition' in window)) {
@@ -5095,40 +5169,7 @@ function saveEditedTransaction() {
     currentEditingTransactionId = null;
 }
 
-function renderMonthlyMetrics() {
-    const container = document.getElementById('monthly-metrics');
-    if (!container) return;
-    
-    container.innerHTML = Object.entries(monthlyData).map(([month, data]) => {
-        const hasData = data.income > 0 || data.expenses > 0;
-        const monthId = month.replace(/\s/g, '-');
-        
-        return `
-            <div class="item" style="padding: 12px; border: 1px solid var(--border); border-radius: 10px; ${!hasData ? 'opacity: 0.4;' : ''}">
-                <!-- Collapsible Header -->
-                <div onclick="toggleMonthExpand('${monthId}')" style="cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                    <span id="expand-icon-${monthId}" style="font-size: 14px; transition: transform 0.2s;">▶</span>
-                    <span style="font-weight: 600; font-size: 12px;">📅 ${month}</span>
-                </div>
-                
-                <!-- Expandable Content -->
-                <div id="month-content-${monthId}" style="display: none;">
-                    <div style="margin-bottom: 6px;">
-                        <div style="font-size: 10px; color: #6b9b6e;">Income: <span style="font-size: 14px; font-weight: 700; color: var(--success);">$${data.income.toFixed(2)}</span></div>
-                    </div>
-                    
-                    <div style="margin-bottom: 6px;">
-                        <div style="font-size: 10px; color: #c77c7c;">Expense: <span style="font-size: 14px; font-weight: 700; color: var(--danger);">$${data.expenses.toFixed(2)}</span></div>
-                    </div>
-                    
-                    <div style="padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <div style="font-size: 12px; font-weight: 600;">Cashflow: <span style="font-weight: 700; color: ${data.cashflow >= 0 ? 'var(--success)' : 'var(--danger)'};">${data.cashflow >= 0 ? '+' : ''}$${data.cashflow.toFixed(2)}</span></div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+
 
 function toggleMonthExpand(monthId) {
     const content = document.getElementById(`month-content-${monthId}`);
@@ -5769,6 +5810,7 @@ processRecurringEvents();
 let transactionFilter = 'all';
 
 function renderTransactions() {
+    populateTransactionYears();
     const container = document.getElementById('transactions-list');
     if (!container) return;
     
@@ -6260,6 +6302,16 @@ setTimeout(() => {
 
         
 // TODAY'S SCHEDULE
+
+function formatTime12Hour(time24) {
+    if (!time24 || time24 === '00:00') return '';
+    const [hours, minutes] = time24.split(':');
+    let h = parseInt(hours);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ':' + minutes + ' ' + ampm;
+}
+
 function renderDailySchedule() {
     const container = document.getElementById('daily-schedule');
     if (!container) return;
@@ -6273,8 +6325,15 @@ function renderDailySchedule() {
     
     let items = [];
     
+    // Add overdue tasks first
+    tasks.filter(t => !t.completed && isPast(t.date) && t.date !== today).forEach(task => {
+        items.push({ type: 'task', time: task.time || '00:00', icon: '⚠️', title: task.name + ' (OVERDUE)', details: 'Due: ' + task.date, priority: task.priority, id: task.id, completed: task.completed, overdue: true });
+    });
+    
     tasks.filter(t => t.date === today).forEach(task => {
-        items.push({ type: 'task', time: task.time || '00:00', icon: '✅', title: task.name, details: task.desc || '', priority: task.priority, id: task.id, completed: task.completed });
+        // Check if overdue
+        const isOverdue = !task.completed && isPast(task.date);
+        items.push({ type: 'task', time: task.time || '00:00', icon: isOverdue ? '⚠️' : '✅', title: task.name, details: task.desc || '', priority: task.priority, id: task.id, completed: task.completed, overdue: isOverdue });
     });
     
     events.filter(e => e.date === today).forEach(event => {
@@ -6300,7 +6359,9 @@ function renderDailySchedule() {
         const color = item.priority === 'high' ? 'var(--danger)' : item.priority === 'medium' ? 'var(--warning)' : 'var(--success)';
         const time = item.time !== '00:00' ? item.time : '';
         const completed = item.completed ? 'text-decoration: line-through; opacity: 0.6;' : '';
-        return '<div style="display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid ' + (item.type === 'task' ? color : 'var(--primary)') + ';"><div style="font-size: 20px;">' + item.icon + '</div><div style="flex: 1; ' + completed + '"><div style="font-weight: 600; font-size: 14px;">' + item.title + '</div>' + (item.details ? '<div style="font-size: 12px; color: var(--text-dim);">' + item.details + '</div>' : '') + '</div>' + (item.type === 'task' ? '<button onclick="toggleTask(' + item.id + '); setTimeout(renderDailySchedule, 100);" class="btn btn-success" style="font-size: 11px; padding: 4px 8px;">✓</button>' : '') + (item.type === 'workout' ? '<button onclick="editWorkout(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</button>' : '') + (item.type === 'note' ? '<button onclick="viewNote(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">👁️</button>' : '') + (item.type === 'event' ? '<button onclick="editEvent(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</button>' : '') + (item.type === 'event' ? '<button onclick="deleteEvent(' + item.id + ')" class="btn btn-danger" style="font-size: 11px; padding: 4px 8px;">🗑️</button>' : '') + '</div>';
+        const timeDisplay = item.time && item.time !== '00:00' ? '<span style="color: var(--primary); margin-right: 8px; font-weight: 500;">' + formatTime12Hour(item.time) + '</span>' : '';
+        const overdueStyle = item.overdue ? 'background: rgba(239, 68, 68, 0.1); border-color: var(--danger);' : 'background: rgba(255,255,255,0.03);';
+        return '<div style="display: flex; gap: 12px; padding: 12px; ' + overdueStyle + ' border-radius: 8px; border-left: 3px solid ' + (item.overdue ? 'var(--danger)' : item.type === 'task' ? color : 'var(--primary)') + ';"><div style="font-size: 20px;">' + item.icon + '</div><div style="flex: 1; ' + completed + '"><div style="font-weight: 600; font-size: 14px;">' + timeDisplay + item.title + '</div>' + (item.details ? '<div style="font-size: 12px; color: var(--text-dim);">' + item.details + '</div>' : '') + '</div>' + (item.type === 'task' ? '<div style="display: flex; gap: 4px;"><button onclick="editTask(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</button><button onclick="toggleTask(' + item.id + '); setTimeout(renderDailySchedule, 100);" class="btn btn-success" style="font-size: 11px; padding: 4px 8px;">✓</button></div>' : '') + (item.type === 'workout' ? '<button onclick="editWorkout(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</button>' : '') + (item.type === 'note' ? '<button onclick="viewNote(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">👁️</button>' : '') + (item.type === 'event' ? '<button onclick="editEvent(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</button>' : '') + (item.type === 'event' ? '<button onclick="deleteEvent(' + item.id + ')" class="btn btn-danger" style="font-size: 11px; padding: 4px 8px;">🗑️</button>' : '') + '</div>';
     }).join('');
 }
 
@@ -6460,6 +6521,163 @@ function deleteEvent(id) {
     save();
     renderDailySchedule();
     showNotification('Event deleted! 🗑️', 'success');
+}
+
+
+let currentQuarter = 'all';
+let selectedMetricsYear = new Date().getFullYear();
+
+
+function populateMetricsYears() {
+    const years = new Set();
+    transactions.forEach(t => {
+        if (t.date) years.add(new Date(t.date).getFullYear());
+    });
+    
+    // Always include current year
+    years.add(new Date().getFullYear());
+    
+    const selector = document.getElementById('metrics-year-selector');
+    if (!selector) return;
+    
+    selector.innerHTML = '';
+    Array.from(years).sort((a,b) => b-a).forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === selectedMetricsYear) option.selected = true;
+        selector.appendChild(option);
+    });
+}
+
+function changeMetricsYear() {
+    const selector = document.getElementById('metrics-year-selector');
+    if (selector) {
+        selectedMetricsYear = parseInt(selector.value);
+        renderMonthlyMetrics();
+    }
+}
+
+
+function filterMetricsByQuarter(quarter) {
+    currentQuarter = quarter;
+    renderMonthlyMetrics();
+    populateMetricsYears();
+}
+
+function renderMonthlyMetrics() {
+    console.log('renderMonthlyMetrics CALLED');
+    const container = document.getElementById('monthly-metrics');
+    console.log('Container:', container);
+    if (!container) {
+        console.log('Container not found!');
+        return;
+    }
+    
+    const currentYear = selectedMetricsYear;
+    const currentMonth = new Date().getMonth();
+    
+    // Generate all 12 months for current year
+    const allMonths = [];
+    for (let i = 0; i < 12; i++) {
+        const date = new Date(currentYear, i, 1);
+        const monthYear = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        allMonths.push(monthYear);
+    }
+    console.log('All months generated:', allMonths);
+    
+    let months = allMonths;
+    console.log('Months before filter:', months);
+    console.log('Current quarter filter:', currentQuarter);
+    
+    // Filter by quarter
+    if (currentQuarter !== 'all') {
+        months = months.filter(monthYear => {
+            const date = new Date(monthYear);
+            const month = date.getMonth(); // 0-11
+            
+            if (currentQuarter === 'Q1') return month >= 0 && month <= 2;
+            if (currentQuarter === 'Q2') return month >= 3 && month <= 5;
+            if (currentQuarter === 'Q3') return month >= 6 && month <= 8;
+            if (currentQuarter === 'Q4') return month >= 9 && month <= 11;
+            return true;
+        });
+    }
+    
+    if (months.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 20px;">No transactions</div>';
+        return;
+    }
+    
+    container.innerHTML = months.map(monthYear => {
+        const monthTransactions = transactions.filter(t => {
+            const date = new Date(t.date);
+            return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) === monthYear;
+        });
+        
+        const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        const net = income - expenses;
+        
+        return `
+            <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 12px; border-left: 3px solid ${net >= 0 ? 'var(--success)' : 'var(--danger)'};">
+                <div style="font-size: 11px; color: var(--text-dim); margin-bottom: 6px;">${monthYear}</div>
+                <div style="font-size: 13px; margin-bottom: 4px;">
+                    <span style="color: var(--success);">+$${income.toFixed(2)}</span>
+                </div>
+                <div style="font-size: 13px; margin-bottom: 4px;">
+                    <span style="color: var(--danger);">-$${expenses.toFixed(2)}</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 700; color: ${net >= 0 ? 'var(--success)' : 'var(--danger)'}; padding-top: 6px; border-top: 1px solid var(--border);">
+                    ${net >= 0 ? '+' : ''}$${net.toFixed(2)}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+
+function populateTransactionYears() {
+    const years = new Set();
+    transactions.forEach(t => {
+        if (t.date) years.add(new Date(t.date).getFullYear());
+    });
+    
+    // Always include current year
+    years.add(new Date().getFullYear());
+    
+    const dropdown = document.getElementById('transaction-year-filter');
+    if (!dropdown) return;
+    
+    const currentValue = dropdown.value;
+    dropdown.innerHTML = '<option value="all">All Years</option>';
+    
+    Array.from(years).sort((a,b) => b-a).forEach(year => {
+        dropdown.innerHTML += '<option value="' + year + '">' + year + '</option>';
+    });
+    
+    dropdown.value = currentValue;
+}
+
+function filterTransactionsByYear() {
+    renderTransactions();
+}
+
+
+// Handle back button
+window.addEventListener('popstate', function(event) {
+    if (event.state && event.state.tab) {
+        switchTab(event.state.tab);
+    } else {
+        switchTab('home');
+    }
+});
+
+// Set initial state (with error handling)
+try {
+    window.history.replaceState({ tab: 'home' }, '', '#home');
+} catch(e) {
+    // History API not available in this context
 }
 
 </script>
