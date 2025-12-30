@@ -2107,7 +2107,7 @@ function saveTaskLists() {
         
         function saveTask() {
             const name = document.getElementById('task-name').value;
-            if (!name) return alert('Please enter task name');
+            if (!name) { showNotification('Please enter task name', 'error'); return; }
             
             tasks.push({
                 id: Date.now(),
@@ -2222,6 +2222,26 @@ function saveTaskLists() {
         
         // ==================== EVENTS ====================
         function saveEvent() {
+            // Check if editing
+            if (window.editingEventId) {
+                const event = events.find(e => e.id === window.editingEventId);
+                if (event) {
+                    event.name = document.getElementById('event-name').value.trim();
+                    event.desc = document.getElementById('event-desc').value.trim();
+                    event.date = document.getElementById('event-date').value;
+                    event.time = document.getElementById('event-time').value;
+                    
+                    save();
+                    window.editingEventId = null;
+                    closeModal('event-modal');
+                    renderDailySchedule();
+                    showNotification('Event updated! 📅', 'success');
+                    return;
+                }
+            }
+            
+            // Original create code
+            
             const name = document.getElementById('event-name').value;
             const recurring = document.getElementById('event-recurring').value;
             if (!name) return alert('Please enter event name');
@@ -4324,8 +4344,9 @@ function saveTaskLists() {
         }
         
         function quickCaptureTask() {
+            console.log("quickCaptureTask called");
             const text = document.getElementById('quick-capture-text').value.trim();
-            if (!text) return alert('Please enter task name');
+            if (!text) { showNotification('Please enter task name', 'error'); return; }
             
             tasks.push({
                 id: Date.now(),
@@ -4344,7 +4365,7 @@ function saveTaskLists() {
             document.getElementById('quick-capture-text').value = '';
             renderTasks();
             renderTimeline();
-            alert('✅ Task added!');
+            showNotification('Task added! ✅', 'success');
         }
         
         function quickCaptureNote() {
@@ -4367,27 +4388,38 @@ function saveTaskLists() {
             closeModal('quick-capture-modal');
             document.getElementById('quick-capture-text').value = '';
             renderNotes();
-            alert('✅ Note added!');
+            showNotification('Note added! ✅', 'success');
         }
         
         function quickCaptureEvent() {
-            const text = document.getElementById('quick-capture-text').value.trim();
-            if (!text) return alert('Please enter event name');
+            console.log('quickCaptureEvent called');
+            const textEl = document.getElementById('quick-capture-text');
+            const text = textEl ? textEl.value.trim() : '';
+            console.log('Event text:', text);
             
+            if (!text) { 
+                showNotification('Please enter event name', 'error'); 
+                return; 
+            }
+            
+            // Create event for today
             events.push({
                 id: Date.now(),
                 name: text,
                 desc: '',
                 date: formatDate(new Date()),
                 time: '',
+                location: '',
+                recurring: 'none',
                 createdDate: formatDate(new Date())
             });
             
             save();
             closeModal('quick-capture-modal');
             document.getElementById('quick-capture-text').value = '';
-            renderTimeline();
-            alert('✅ Event added!');
+            
+            renderDailySchedule();
+            showNotification('Event added to today! 📅', 'success');
         }
         
         function quickCaptureHoliday() {
@@ -5953,475 +5985,3 @@ function handleGoalImage() {
             }
         }
         
-        // ==================== PWA SETUP ====================
-        function setupPWA() {
-            const manifest = {
-                name: "Zenith v2.0",
-                short_name: "Zenith",
-                start_url: "/",
-                display: "standalone",
-                background_color: "#0a0a0f",
-                theme_color: "#6366f1",
-                icons: [{
-                    src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%236366f1' width='100' height='100' rx='20'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial Black'>Z</text></svg>",
-                    sizes: "512x512",
-                    type: "image/svg+xml"
-                }]
-            };
-            
-            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            const manifestURL = URL.createObjectURL(blob);
-            document.getElementById('manifest-link').setAttribute('href', manifestURL);
-        }
-        
-        // Start the app
-        init();
-    
-// WORKOUT
-let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
-
-function openWorkoutModal() {
-    document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
-    openModal('workout-modal');
-}
-
-function saveWorkout() {
-    // Check if editing
-    if (editingWorkoutId) {
-        const workout = workouts.find(w => w.id === editingWorkoutId);
-        if (workout) {
-            workout.date = document.getElementById('workout-date').value;
-            workout.name = document.getElementById('workout-name').value || 'Workout';
-            workout.exercises = document.getElementById('workout-exercises').value;
-            workout.duration = parseInt(document.getElementById('workout-duration').value) || 0;
-            workout.notes = document.getElementById('workout-notes').value;
-            
-            if (!workout.date || !workout.exercises) {
-                alert('Please enter date and exercises');
-                return;
-            }
-            
-            localStorage.setItem('workouts', JSON.stringify(workouts));
-            editingWorkoutId = null;
-            
-            document.querySelector('#workout-modal h2').textContent = '💪 Log Workout';
-            document.getElementById('workout-name').value = '';
-            document.getElementById('workout-exercises').value = '';
-            document.getElementById('workout-duration').value = '';
-            document.getElementById('workout-notes').value = '';
-            
-            closeModal('workout-modal');
-            renderWorkouts();
-            renderDailySchedule();
-            return;
-        }
-    }
-    
-    // Original create code
-    
-    const w = {
-        id: Date.now(),
-        date: document.getElementById('workout-date').value,
-        name: document.getElementById('workout-name').value || 'Workout',
-        exercises: document.getElementById('workout-exercises').value,
-        duration: parseInt(document.getElementById('workout-duration').value) || 0,
-        notes: document.getElementById('workout-notes').value
-    };
-    
-    if (!w.date || !w.exercises) {
-        alert('Please enter date and exercises');
-        return;
-    }
-    
-    workouts.push(w);
-    localStorage.setItem('workouts', JSON.stringify(workouts));
-    
-    document.getElementById('workout-name').value = '';
-    document.getElementById('workout-exercises').value = '';
-    document.getElementById('workout-duration').value = '';
-    document.getElementById('workout-notes').value = '';
-    
-    closeModal('workout-modal');
-    renderWorkouts();
-}
-
-function renderWorkouts() {
-    const list = document.getElementById('workout-list');
-    if (!list) return;
-    
-    if (workouts.length === 0) {
-        list.innerHTML = '<div class="empty">No workouts yet</div>';
-        return;
-    }
-    
-    list.innerHTML = workouts.sort((a,b) => new Date(b.date) - new Date(a.date)).map(w => 
-        '<div class="item" style="padding:16px;border-left:4px solid var(--primary);margin-bottom:16px">' +
-        '<div style="display:flex;justify-content:space-between;margin-bottom:12px">' +
-        '<div><div style="font-size:18px;font-weight:700">' + w.name + '</div>' +
-        '<div style="font-size:14px;color:var(--text-dim)">' + w.date + '</div></div>' +
-        '<div style="display:flex;gap:8px">' +
-        '<button class="btn btn-secondary" onclick="editWorkout(' + w.id + ')" style="font-size:11px;padding:4px 8px;">✏️</button>' +
-        (w.duration ? '<span style="padding:4px 8px;background:rgba(99,102,241,0.2);border-radius:8px;font-size:12px">⏱️ ' + w.duration + ' min</span>' : '') +
-        '<button class="btn btn-icon btn-secondary" onclick="deleteWorkout(' + w.id + ')">🗑️</button></div></div>' +
-        '<div style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;white-space:pre-line">' + w.exercises + '</div>' +
-        (w.notes ? '<div style="margin-top:8px;font-style:italic;color:var(--text-dim)">' + w.notes + '</div>' : '') +
-        '</div>'
-    ).join('');
-}
-
-function deleteWorkout(id) {
-    workouts = workouts.filter(w => w.id !== id);
-    localStorage.setItem('workouts', JSON.stringify(workouts));
-    renderWorkouts();
-    renderDailySchedule();
-}
-
-
-// NOTIFICATION SYSTEM
-let notificationPermission = 'default';
-
-async function requestNotificationPermission() {
-    if (!('Notification' in window)) {
-        console.log('This browser does not support notifications');
-        return false;
-    }
-    
-    if (Notification.permission === 'granted') {
-        notificationPermission = 'granted';
-        return true;
-    }
-    
-    if (Notification.permission !== 'denied') {
-        const permission = await Notification.requestPermission();
-        notificationPermission = permission;
-        return permission === 'granted';
-    }
-    
-    return false;
-}
-
-function sendNotification(title, options = {}) {
-    if (notificationPermission !== 'granted') return;
-    
-    const defaultOptions = {
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="80">✨</text></svg>',
-        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="75" font-size="80">Z</text></svg>',
-        vibrate: [200, 100, 200],
-        requireInteraction: false
-    };
-    
-    const notification = new Notification(title, { ...defaultOptions, ...options });
-    
-    notification.onclick = function() {
-        window.focus();
-        notification.close();
-    };
-    
-    return notification;
-}
-
-// Task reminders
-function scheduleTaskReminders() {
-    const now = new Date();
-    const today = formatDate(now);
-    
-    tasks.forEach(task => {
-        if (task.completed || !task.date || task.date !== today) return;
-        
-        if (task.time) {
-            const taskDateTime = new Date(task.date + 'T' + task.time);
-            const timeDiff = taskDateTime - now;
-            
-            // Notify 10 minutes before
-            if (timeDiff > 0 && timeDiff <= 600000) {
-                sendNotification('⏰ Task Reminder', {
-                    body: `${task.name} in 10 minutes`,
-                    tag: 'task-' + task.id
-                });
-            }
-        }
-    });
-}
-
-// Habit reminders
-function sendHabitReminder() {
-    const today = formatDate(new Date());
-    const incomplete = habits.filter(h => !h.completedDates?.includes(today));
-    
-    if (incomplete.length > 0) {
-        sendNotification('⭐ Daily Habits', {
-            body: `You have ${incomplete.length} habit${incomplete.length > 1 ? 's' : ''} to complete today!`,
-            tag: 'habits-daily'
-        });
-    }
-}
-
-// Budget warnings
-function checkBudgetWarnings() {
-    budgets.forEach(budget => {
-        const percentage = (budget.spent / budget.amount) * 100;
-        
-        if (percentage >= 90 && percentage < 100) {
-            sendNotification('⚠️ Budget Alert', {
-                body: `${budget.icon} ${budget.name}: ${Math.round(percentage)}% spent`,
-                tag: 'budget-' + budget.id
-            });
-        } else if (percentage >= 100) {
-            sendNotification('🚨 Budget Exceeded', {
-                body: `${budget.icon} ${budget.name}: Over budget by $${(budget.spent - budget.amount).toFixed(2)}`,
-                tag: 'budget-exceeded-' + budget.id,
-                requireInteraction: true
-            });
-        }
-    });
-}
-
-// Daily summary
-function sendDailySummary() {
-    const today = formatDate(new Date());
-    const todayTasks = tasks.filter(t => t.date === today).length;
-    const completedTasks = tasks.filter(t => t.date === today && t.completed).length;
-    const todayHabits = habits.length;
-    const completedHabits = habits.filter(h => h.completedDates?.includes(today)).length;
-    
-    const message = `Tasks: ${completedTasks}/${todayTasks} | Habits: ${completedHabits}/${todayHabits}`;
-    
-    sendNotification('📊 Daily Summary', {
-        body: message,
-        tag: 'daily-summary'
-    });
-}
-
-// Initialize notifications on app load
-function initNotifications() {
-    requestNotificationPermission().then(granted => {
-        if (granted) {
-            // Check task reminders every minute
-            setInterval(scheduleTaskReminders, 60000);
-            
-            // Send habit reminder at 9 AM daily
-            const now = new Date();
-            if (now.getHours() === 9 && now.getMinutes() < 5) {
-                sendHabitReminder();
-            }
-            
-            // Send daily summary at 8 PM
-            if (now.getHours() === 20 && now.getMinutes() < 5) {
-                sendDailySummary();
-            }
-            
-            // Check budget warnings when budget tab is opened
-            checkBudgetWarnings();
-        }
-    });
-}
-
-// Auto-request on first load
-setTimeout(() => {
-    if (Notification.permission === 'default') {
-        requestNotificationPermission();
-    } else if (Notification.permission === 'granted') {
-        notificationPermission = 'granted';
-    }
-}, 2000);
-
-
-        
-// TODAY'S SCHEDULE
-function renderDailySchedule() {
-    const container = document.getElementById('daily-schedule');
-    if (!container) return;
-    
-    const today = formatDate(new Date());
-    const dateDisplay = document.getElementById('schedule-date-display');
-    if (dateDisplay) {
-        const date = new Date(today);
-        dateDisplay.textContent = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    }
-    
-    let items = [];
-    
-    tasks.filter(t => t.date === today).forEach(task => {
-        items.push({ type: 'task', time: task.time || '00:00', icon: '✅', title: task.name, details: task.desc || '', priority: task.priority, id: task.id, completed: task.completed });
-    });
-    
-    events.filter(e => e.date === today).forEach(event => {
-        items.push({ type: 'event', time: event.time || '00:00', icon: '📅', title: event.name, details: event.location || '', id: event.id });
-    });
-    
-    workouts.filter(w => w.date === today).forEach(workout => {
-        items.push({ type: 'workout', time: '00:00', icon: '💪', title: workout.name || 'Workout', details: workout.duration ? workout.duration + ' min' : '', id: workout.id });
-    });
-    
-    notes.filter(n => n.date === today).forEach(note => {
-        items.push({ type: 'note', time: '00:00', icon: '📝', title: note.title || 'Note', details: (note.content || '').substring(0, 50), id: note.id });
-    });
-    
-    items.sort((a, b) => a.time < b.time ? -1 : 1);
-    
-    if (items.length === 0) {
-        container.innerHTML = '<div class="empty" style="text-align: center; padding: 30px;">Nothing scheduled for today 🎉</div>';
-        return;
-    }
-    
-    container.innerHTML = items.map(item => {
-        const color = item.priority === 'high' ? 'var(--danger)' : item.priority === 'medium' ? 'var(--warning)' : 'var(--success)';
-        const time = item.time !== '00:00' ? item.time : '';
-        const completed = item.completed ? 'text-decoration: line-through; opacity: 0.6;' : '';
-        return '<div style="display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid ' + (item.type === 'task' ? color : 'var(--primary)') + ';"><div style="font-size: 20px;">' + item.icon + '</div><div style="flex: 1; ' + completed + '"><div style="font-weight: 600; font-size: 14px;">' + item.title + '</div>' + (item.details ? '<div style="font-size: 12px; color: var(--text-dim);">' + item.details + '</div>' : '') + '</div>' + (item.type === 'task' ? '<button onclick="toggleTask(' + item.id + '); setTimeout(renderDailySchedule, 100);" class="btn btn-success" style="font-size: 11px; padding: 4px 8px;">✓</button>' : '') + (item.type === 'workout' ? '<button onclick="editWorkout(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</button>' : '') + (item.type === 'note' ? '<button onclick="viewNote(' + item.id + ')" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">👁️</button>' : '') + '</div>';
-    }).join('');
-}
-
-
-let editingWorkoutId = null;
-
-function editWorkout(id) {
-    const workout = workouts.find(w => w.id === id);
-    if (!workout) return;
-    
-    editingWorkoutId = id;
-    
-    // Pre-fill with null checks
-    const dateEl = document.getElementById('workout-date');
-    const nameEl = document.getElementById('workout-name');
-    const exercisesEl = document.getElementById('workout-exercises');
-    const durationEl = document.getElementById('workout-duration');
-    const notesEl = document.getElementById('workout-notes');
-    const titleEl = document.querySelector('#workout-modal h2');
-    
-    if (dateEl) dateEl.value = workout.date;
-    if (nameEl) nameEl.value = workout.name || '';
-    if (exercisesEl) exercisesEl.value = workout.exercises;
-    if (durationEl) durationEl.value = workout.duration || '';
-    if (notesEl) notesEl.value = workout.notes || '';
-    if (titleEl) titleEl.textContent = '✏️ Edit Workout';
-    
-    openModal('workout-modal');
-}
-
-
-function showNotification(message, type = 'success') {
-    console.log('Notification:', message, type);
-    // Simple notification - just log for now
-}
-
-
-let currentTaskList = null;
-
-function renderTaskLists() {
-    const container = document.getElementById('task-lists-buttons');
-    if (!container) return;
-    
-    container.innerHTML = '<button class="btn" onclick="filterTasksByList(null)" style="font-size: 12px; padding: 6px 12px; ' + (currentTaskList === null ? 'background: var(--primary); color: white;' : 'background: rgba(255,255,255,0.05);') + '">All Tasks</button>' +
-        taskLists.map(list => 
-            '<button class="btn" onclick="filterTasksByList(' + list.id + ')" oncontextmenu="deleteTaskListConfirm(' + list.id + '); return false;" ontouchstart="handleTaskListLongPress(' + list.id + ', event)" ontouchend="cancelTaskListLongPress()" style="font-size: 12px; padding: 6px 12px; ' + (currentTaskList === list.id ? 'background: ' + list.color + '; color: white;' : 'background: rgba(255,255,255,0.05);') + '">' + list.icon + ' ' + list.name + '</button>'
-        ).join('');
-}
-
-function filterTasksByList(listId) {
-    currentTaskList = listId;
-    renderTaskLists();
-    renderTasks();
-}
-
-function createTaskList() {
-    const name = document.getElementById('list-name').value.trim();
-    const icon = document.getElementById('list-icon').value.trim() || '📋';
-    const color = document.getElementById('list-color').value;
-    
-    if (!name) {
-        alert('Please enter a list name');
-        return;
-    }
-    
-    const newList = {
-        id: Date.now(),
-        name: name,
-        icon: icon,
-        color: color
-    };
-    
-    taskLists.push(newList);
-    saveTaskLists();
-    renderTaskLists();
-    
-    document.getElementById('list-name').value = '';
-    document.getElementById('list-icon').value = '';
-    document.getElementById('list-color').value = '#6366f1';
-    
-    closeModal('add-list-modal');
-    showNotification('Task list created! 📋', 'success');
-}
-
-
-function populateTaskListDropdown() {
-    const select = document.getElementById('task-list');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">No List</option>' + 
-        taskLists.map(list => '<option value="' + list.id + '">' + list.icon + ' ' + list.name + '</option>').join('');
-}
-
-
-function deleteTaskList(listId) {
-    const list = taskLists.find(l => l.id === listId);
-    if (!list) return;
-    
-    // Remove from array
-    taskLists = taskLists.filter(l => l.id !== listId);
-    saveTaskLists();
-    
-    // If currently viewing this list, switch to all
-    if (currentTaskList === listId) {
-        currentTaskList = null;
-    }
-    
-    renderTaskLists();
-    renderTasks();
-    showNotification('List deleted! 🗑️', 'success');
-}
-
-
-let longPressTimer = null;
-
-function deleteTaskListConfirm(listId) {
-    const list = taskLists.find(l => l.id === listId);
-    if (!list) return;
-    
-    if (confirm('Delete "' + list.name + '" list? Tasks in this list will not be deleted.')) {
-        deleteTaskList(listId);
-    }
-}
-
-function handleTaskListLongPress(listId, event) {
-    longPressTimer = setTimeout(() => {
-        deleteTaskListConfirm(listId);
-    }, 800); // 800ms long press
-}
-
-function cancelTaskListLongPress() {
-    if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-    }
-}
-
-</script>
-
-<!-- Add List Modal -->
-<div id="add-list-modal" class="modal">
-    <div class="modal-content">
-        <h2>📋 Create Task List</h2>
-        <input type="text" id="list-name" placeholder="List name" style="margin-bottom: 12px;">
-        <input type="text" id="list-icon" placeholder="Icon (emoji)" maxlength="2" style="margin-bottom: 12px;">
-        <label style="font-size: 13px; color: var(--text-dim); margin-bottom: 4px; display: block;">Color</label>
-        <input type="color" id="list-color" value="#6366f1" style="margin-bottom: 16px; height: 40px;">
-        <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary" onclick="closeModal('add-list-modal')">Cancel</button>
-            <button class="btn btn-primary" onclick="createTaskList()">Create List</button>
-        </div>
-    </div>
-</div>
-
-</body>
-</html>
