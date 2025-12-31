@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -966,6 +965,10 @@
                     <span class="sidebar-icon">💰</span>
                     <span>Budget</span>
                 </div>
+                <div class="sidebar-item" onclick="switchTab('bingo'); closeSidebar();">
+                    <span class="sidebar-icon">🎯</span>
+                    <span>2026 Bingo</span>
+                </div>
 
             </div>
         </div>
@@ -1104,18 +1107,18 @@
                     <div style="margin-bottom: 12px;">
                         <label style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px; display: block;">Filter by Category:</label>
                         <div class="filters" style="flex-wrap: wrap;">
-                            <div class="filter-btn active" onclick="filterNotesByCategory('all')">All</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Work')">💼 Work</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Personal')">👤 Personal</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Ideas')">💡 Ideas</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Projects')">🚀 Projects</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Journal')">📔 Journal</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Recipes')">🍳 Recipes</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Study')">📚 Study</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Health')">💪 Health</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Finance')">💰 Finance</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('Travel')">✈️ Travel</div>
-                            <div class="filter-btn" onclick="filterNotesByCategory('uncategorized')">📄 Uncategorized</div>
+                            <div class="filter-btn active" onclick="filterNotesByCategory('all', this)">All</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Work', this)">💼 Work</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Personal', this)">👤 Personal</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Ideas', this)">💡 Ideas</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Projects', this)">🚀 Projects</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Journal', this)">📔 Journal</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Recipes', this)">🍳 Recipes</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Study', this)">📚 Study</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Health', this)">💪 Health</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Finance', this)">💰 Finance</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('Travel', this)">✈️ Travel</div>
+                            <div class="filter-btn" onclick="filterNotesByCategory('uncategorized', this)">📄 Uncategorized</div>
                         </div>
                     </div>
                     
@@ -1577,7 +1580,7 @@
             </label>
             <input type="date" id="note-date" placeholder="Date">
             <select id="note-category" style="margin-bottom: 12px;">
-                <option value="">Select Category</option>
+                <option value="">No Category</option>
                 <option value="Personal">Personal</option>
                 <option value="Work">Work</option>
                 <option value="Ideas">Ideas</option>
@@ -1886,6 +1889,18 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
     </div>
 
     <!-- Note PIN Modal -->
+    <div id="set-pin-modal" class="modal">
+        <div class="modal-content">
+            <h2>Set Notes PIN</h2>
+            <p style="margin-bottom: 12px; color: var(--text-dim);">Create a 4-digit PIN to lock/unlock notes</p>
+            <input type="password" id="new-pin-input" placeholder="Enter 4-digit PIN" maxlength="4" style="width: 100%; padding: 12px; margin-bottom: 12px;">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="closeModal('set-pin-modal')" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="saveNewPin()" style="flex: 1;">Set PIN</button>
+            </div>
+        </div>
+    </div>
+    
     <div id="note-pin-modal" class="modal">
         <div class="modal-content" style="max-width: 350px; text-align: center;">
             <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
@@ -1899,11 +1914,41 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
         </div>
     </div>
     
+            <div id="bingo-tab" class="tab-content">
+            <div style="padding: 20px;">
+                <h1 style="text-align: center; font-size: 32px; margin-bottom: 10px;">🎯 2026 BINGO</h1>
+                <button class="btn btn-secondary" onclick="document.getElementById('bingoBgUpload').click()" style="display: block; margin: 0 auto 10px; font-size: 12px; padding: 8px 16px;">🖼️ Change Background</button>
+                <input type="file" id="bingoBgUpload" accept="image/*" style="display: none;">
+                
+                <div id="bingoStatus" style="text-align: center; font-size: 18px; font-weight: 700; margin: 15px 0; min-height: 25px;"></div>
+                <div id="bingoGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 600px; margin: 0 auto; padding: 16px; border-radius: 16px; background-size: cover; background-position: center;"></div>
+            </div>
+        </div>
+        
+        <div id="bingoEditModal" class="modal">
+            <div class="modal-content">
+                <h2>Edit Goal</h2>
+                <input type="text" id="bingoEmojiInput" placeholder="Emoji (or leave blank for image)" style="width: 100%; padding: 10px; margin: 8px 0; background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 6px;">
+                <button class="btn btn-secondary" onclick="document.getElementById('bingoImgUpload').click()" style="width: 100%; margin: 8px 0;">📷 Upload Image</button>
+                <input type="file" id="bingoImgUpload" accept="image/*" style="display: none;">
+                <img id="bingoImgPreview" style="width: 100%; max-height: 150px; object-fit: cover; border-radius: 6px; margin: 8px 0; display: none;">
+                <input type="text" id="bingoTextInput" placeholder="Goal text" style="width: 100%; padding: 10px; margin: 8px 0; background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 6px;">
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                    <button class="btn btn-secondary" onclick="closeBingoModal()" style="flex: 1;">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveBingoEdit()" style="flex: 1;">Save</button>
+                </div>
+            </div>
+        </div>
+        
     <script>
         // ==================== DATA STORAGE ====================
         let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
         let notes = JSON.parse(localStorage.getItem('notes') || '[]');
         let events = JSON.parse(localStorage.getItem('events') || '[]');
+        let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
+        let bingoData = JSON.parse(localStorage.getItem('bingo2026') || '[{"e":"📚","t":"Read 12 books","d":false},{"e":"🏃","t":"Run 5K","d":false},{"e":"🎓","t":"Learn skill","d":false},{"e":"✈️","t":"Visit 3 places","d":false},{"e":"💰","t":"Save $5000","d":false},{"e":"👨‍🍳","t":"Cook recipes","d":false},{"e":"🧘","t":"Meditate","d":false},{"e":"❤️","t":"Volunteer","d":false},{"e":"🌱","t":"Garden","d":false},{"e":"🧹","t":"Clean house","d":false},{"e":"🎨","t":"Master hobby","d":false},{"e":"💑","t":"Date nights","d":false},{"e":"⭐","t":"FREE SPACE","d":true},{"e":"💧","t":"Drink water","d":false},{"e":"📞","t":"Call family","d":false},{"e":"👔","t":"Organize","d":false},{"e":"🎸","t":"Instrument","d":false},{"e":"🍽️","t":"Restaurants","d":false},{"e":"🌅","t":"Sunrise","d":false},{"e":"👋","t":"New friend","d":false},{"e":"🔧","t":"Fix thing","d":false},{"e":"🧩","t":"Puzzle","d":false},{"e":"📝","t":"Journal","d":false},{"e":"🎁","t":"Kindness","d":false},{"e":"✨","t":"Build habit","d":false}]');
+        let bingoEditingIndex = -1;
+        let bingoTempImage = null;
         let recurringEvents = JSON.parse(localStorage.getItem('recurringEvents') || '[]');
         let habits = JSON.parse(localStorage.getItem('habits') || '[]');
         let priorities = JSON.parse(localStorage.getItem('priorities') || '{}');
@@ -1956,11 +2001,15 @@ function saveTaskLists() {
             localStorage.setItem('notification-settings', JSON.stringify(notificationSettings));
             localStorage.setItem('gift-people', JSON.stringify(giftPeople));
             
+            renderDailySchedule();
             triggerSync();
         }
         
         function formatDate(date) {
-            return date.toISOString().split('T')[0];
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
         
         function formatTime(date) {
@@ -2017,7 +2066,8 @@ function saveTaskLists() {
                 
                 'books': 'Books',
                 'goals': 'Goals',
-                'gifts': 'Gifts'
+                'gifts': 'Gifts',
+                'bingo': '2026 Bingo'
             };
             const tabNameEl = document.getElementById('current-tab-name');
             if (tabNameEl) tabNameEl.textContent = tabNames[tab] || 'Zenith';
@@ -2050,6 +2100,7 @@ function saveTaskLists() {
                 renderSavings();
                 renderTransactions();
             }
+            if (tab === 'bingo') renderBingo();
         }
         
         function toggleSidebar() {
@@ -2106,6 +2157,9 @@ function saveTaskLists() {
                     document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
                 }
             });
+            
+            // Load Today's Schedule on page load
+            renderDailySchedule();
         });
         
         // ==================== MODAL FUNCTIONS ====================
@@ -2147,7 +2201,65 @@ function saveTaskLists() {
             showNotification('Task added!', 'success');
         }
         
-        function saveTask() {
+        
+let editingTaskId = null;
+
+function editTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    
+    editingTaskId = id;
+    
+    document.getElementById('task-name').value = task.name;
+    document.getElementById('task-desc').value = task.desc || '';
+    document.getElementById('task-priority').value = task.priority;
+    document.getElementById('task-date').value = task.date;
+    document.getElementById('task-time').value = task.time || '';
+    document.getElementById('task-recurring').value = task.recurring || 'none';
+    
+    if (task.listId) {
+        document.getElementById('task-list').value = task.listId;
+    }
+    
+    const modalTitle = document.querySelector('#task-modal h2');
+    if (modalTitle) modalTitle.textContent = '✏️ Edit Task';
+    
+    populateTaskListDropdown();
+    openModal('task-modal');
+}
+
+function saveTask() {
+            if (editingTaskId) {
+                const task = tasks.find(t => t.id === editingTaskId);
+                if (task) {
+                    const name = document.getElementById('task-name').value.trim();
+                    if (!name) {
+                        showNotification('Please enter task name', 'error');
+                        return;
+                    }
+                    
+                    task.name = name;
+                    task.desc = document.getElementById('task-desc').value;
+                    task.priority = document.getElementById('task-priority').value;
+                    task.date = document.getElementById('task-date').value;
+                    task.time = document.getElementById('task-time').value;
+                    task.recurring = document.getElementById('task-recurring').value;
+                    task.listId = document.getElementById('task-list').value || null;
+                    
+                    save();
+                    editingTaskId = null;
+                    
+                    const modalTitle = document.querySelector('#task-modal h2');
+                    if (modalTitle) modalTitle.textContent = 'Add Task';
+                    
+                    closeModal('task-modal');
+                    renderTasks();
+                    renderDailySchedule();
+                    showNotification('Task updated! ✅', 'success');
+                    return;
+                }
+            }
+            
             const name = document.getElementById('task-name').value;
             if (!name) { showNotification('Please enter task name', 'error'); return; }
             
@@ -2167,6 +2279,7 @@ function saveTaskLists() {
             closeModal('task-modal');
             renderTasks();
             renderTimeline();
+            renderDailySchedule();
             scheduleNotification('task', tasks[tasks.length - 1]);
         }
         
@@ -2182,16 +2295,17 @@ function saveTaskLists() {
                 save();
                 renderTasks();
                 renderTimeline();
+            renderDailySchedule();
             }
         }
         
         function deleteTask(id) {
-            if (confirm('Delete this task?')) {
-                tasks = tasks.filter(t => t.id !== id);
-                save();
-                renderTasks();
-                renderTimeline();
-            }
+            tasks = tasks.filter(t => t.id !== id);
+            save();
+            renderTasks();
+            renderTimeline();
+            renderDailySchedule();
+            showNotification('Task deleted! 🗑️', 'success');
         }
         
         function filterTasks(filter) {
@@ -2255,7 +2369,10 @@ function saveTaskLists() {
                                 ${task.completed ? `<span style="color: var(--success);">✅ COMPLETED</span>` : task.date && isPast(task.date) ? `<span style="color: var(--danger); font-weight: 700;">⚠️ OVERDUE</span>` : ''}
                             </div>
                         </div>
-                        <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteTask(${task.id})" style="flex-shrink: 0;">🗑️</button>
+                        <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                            <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); editTask(${task.id})" title="Edit">✏️</button>
+                            <button class="btn btn-icon btn-secondary" onclick="event.stopPropagation(); deleteTask(${task.id})" title="Delete">🗑️</button>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -2313,6 +2430,7 @@ function saveTaskLists() {
             save();
             closeModal('event-modal');
             renderTimeline();
+            renderDailySchedule();
             renderFullCalendar();
             
             if (recurring !== 'none') {
@@ -2325,6 +2443,7 @@ function saveTaskLists() {
                 events = events.filter(e => e.id !== id);
                 save();
                 renderTimeline();
+            renderDailySchedule();
                 renderFullCalendar();
             }
         }
@@ -2333,7 +2452,11 @@ function saveTaskLists() {
         function saveNote() {
             const name = document.getElementById('note-name').value;
             const text = document.getElementById('note-text').value;
-            if (!name || !text) return alert('Please fill in all fields');
+            console.log('Saving note - name:', name, 'text length:', text.length);
+            if (!name || !text) { 
+                showNotification('Please enter both title and content', 'error'); 
+                return; 
+            }
             
             if (currentNoteEdit) {
                 // Editing existing note
@@ -2376,6 +2499,7 @@ function saveTaskLists() {
             closeModal('note-modal');
             renderNotes();
             renderTimeline();
+            renderDailySchedule();
             renderPinnedNotes();
             
             // If we were in detail view, go back to it
@@ -2385,12 +2509,11 @@ function saveTaskLists() {
         }
         
         function deleteNote(id) {
-            if (confirm('Delete this note?')) {
-                notes = notes.filter(n => n.id !== id);
-                save();
-                renderNotes();
-                renderTimeline();
-            }
+            notes = notes.filter(n => n.id !== id);
+            save();
+            renderNotes();
+            renderTimeline();
+            showNotification('Note deleted! 🗑️', 'success');
         }
         
         let currentNoteCategoryFilter = 'all';
@@ -2409,10 +2532,28 @@ function saveTaskLists() {
             renderNotes();
         }
         
-        function filterNotesByCategory(category) {
-            currentNoteCategoryFilter = category;
-            document.querySelectorAll('#notes-tab .filters:nth-of-type(2) .filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        function filterNotesByCategory(category, element) {
+            // Toggle: if clicking the same category, reset to 'all'
+            if (currentNoteCategoryFilter === category) {
+                currentNoteCategoryFilter = 'all';
+            } else {
+                currentNoteCategoryFilter = category;
+            }
+            
+            // Update all button highlights
+            document.querySelectorAll('#notes-tab .filters:nth-of-type(2) .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Highlight the correct button
+            if (currentNoteCategoryFilter === 'all') {
+                // Highlight the "All" button
+                document.querySelector('#notes-tab .filters:nth-of-type(2) .filter-btn').classList.add('active');
+            } else {
+                // Highlight the clicked category button
+                if (element) element.classList.add('active');
+            }
+            
             renderNotes();
         }
         
@@ -2490,7 +2631,7 @@ function saveTaskLists() {
                         </div>
                         <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px; font-family: 'Georgia', serif;">${note.name}</h3>
                         <div style="font-size: 14px; line-height: 1.8; color: var(--text); font-family: 'Georgia', serif; margin-bottom: 12px;">
-                            ${note.text.substring(0, 200)}${note.text.length > 200 ? '...' : ''}
+                            ${(note.text || '').substring(0, 200)}${(note.text || '').length > 200 ? '...' : ''}
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border);">
                             <div style="font-size: 12px; color: var(--text-dim); font-style: italic;">
@@ -2515,7 +2656,7 @@ function saveTaskLists() {
                                     ${note.category ? `<span style="font-size: 11px; padding: 2px 8px; background: rgba(99, 102, 241, 0.2); border-radius: 12px; color: var(--primary);">${categoryIcons[note.category] || ''} ${note.category}</span>` : ''}
                                 </div>
                                 <div style="font-size: 13px; color: var(--text-dim);">
-                                    ${note.text.substring(0, 100)}${note.text.length > 100 ? '...' : ''}
+                                    ${(note.text || '').substring(0, 100)}${(note.text || '').length > 100 ? '...' : ''}
                                 </div>
                                 ${note.date ? `<div style="font-size: 12px; color: var(--text-dim); margin-top: 6px;">📅 ${note.date}</div>` : ''}
                             </div>
@@ -2538,13 +2679,31 @@ function saveTaskLists() {
             
             const notesPin = localStorage.getItem('notes-pin');
             if (!notesPin) {
-                alert('No PIN set for locked notes');
+                currentUnlockNoteId = id;
+                document.getElementById('new-pin-input').value = '';
+                openModal('set-pin-modal');
                 return;
             }
             
             currentUnlockNoteId = id;
             document.getElementById('note-pin-input').value = '';
             openModal('note-pin-modal');
+        }
+        
+        function saveNewPin() {
+            const pin = document.getElementById('new-pin-input').value;
+            if (pin.length < 4) {
+                showNotification('PIN must be at least 4 digits', 'error');
+                return;
+            }
+            localStorage.setItem('notes-pin', pin);
+            closeModal('set-pin-modal');
+            showNotification('PIN set! Now unlocking note...', 'success');
+            // Now open the unlock modal
+            if (currentUnlockNoteId) {
+                document.getElementById('note-pin-input').value = '';
+                openModal('note-pin-modal');
+            }
         }
         
         function unlockNoteWithModal() {
@@ -2554,14 +2713,20 @@ function saveTaskLists() {
             if (enteredPin === notesPin) {
                 const note = notes.find(n => n.id === currentUnlockNoteId);
                 if (note) {
-                    note.locked = false;
-                    save();
+                    // Don't permanently unlock - just open for viewing
                     closeModal('note-pin-modal');
-                    renderNotes();
-                    showNotification('Note unlocked! ✅', 'success');
+                    // Open the note (it's still locked, but we'll allow viewing)
+                    currentNoteEdit = currentUnlockNoteId;
+                    document.getElementById('note-name').value = note.name;
+                    document.getElementById('note-text').value = note.text;
+                    document.getElementById('note-locked').checked = note.locked || false;
+                    document.getElementById('note-pinned').checked = note.pinned || false;
+                    document.getElementById('note-date').value = note.date || '';
+                    document.getElementById('note-category').value = note.category || '';
+                    openModal('note-modal');
                 }
             } else {
-                alert('❌ Incorrect PIN');
+                showNotification('Incorrect PIN', 'error');
                 document.getElementById('note-pin-input').value = '';
             }
         }
@@ -3642,6 +3807,7 @@ function saveTaskLists() {
             renderPriorities();
             renderHabitsSummary();
             renderTimeline();
+            renderDailySchedule();
             renderMoodEntries();
             renderMiniCalendar();
             renderPinnedNotes();
@@ -4084,7 +4250,7 @@ function saveTaskLists() {
                     <div style="background: linear-gradient(135deg, ${color} 0%, ${color} 100%); padding: 24px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transform: rotate(-1deg); border-top: 20px solid rgba(255, 223, 0, 0.3); position: relative; min-height: 180px;">
                         <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 15px; background: rgba(255, 223, 0, 0.5); border-radius: 2px;"></div>
                         <div style="font-weight: 700; font-size: 18px; margin-bottom: 12px; color: #333; font-family: 'Comic Sans MS', cursive, sans-serif;">${item.locked ? '🔒 ' : ''}${item.name}</div>
-                        <div style="color: #333; font-size: 14px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6; white-space: pre-wrap;">${item.text.substring(0, 200)}${item.text.length > 200 ? '...' : ''}</div>
+                        <div style="color: #333; font-size: 14px; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6; white-space: pre-wrap;">${(item.text || '').substring(0, 200)}${(item.text || '').length > 200 ? '...' : ''}</div>
                         ${item.date ? `<div style="font-size: 11px; color: #666; margin-top: 12px; font-family: 'Comic Sans MS', cursive, sans-serif;">📅 ${item.date}</div>` : ''}
                         <div style="text-align: center; margin-top: 16px; color: #666; font-size: 12px; font-family: 'Comic Sans MS', cursive, sans-serif;">
                             Note ${currentWidgetIndex + 1} of ${items.length}
@@ -4116,7 +4282,7 @@ function saveTaskLists() {
             content.style.background = `linear-gradient(135deg, ${color} 0%, ${color} 100%)`;
             content.innerHTML = `
                 <div style="font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #333; font-family: 'Comic Sans MS', cursive, sans-serif;">${note.locked ? '🔒 ' : ''}${note.name}</div>
-                <div style="font-size: 14px; color: #333; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6;">${note.text.substring(0, 150)}${note.text.length > 150 ? '...' : ''}</div>
+                <div style="font-size: 14px; color: #333; font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6;">${(note.text || '').substring(0, 150)}${(note.text || '').length > 150 ? '...' : ''}</div>
             `;
             indicator.textContent = `${currentPinnedIndex + 1} / ${pinnedNotes.length}`;
         }
@@ -5885,6 +6051,7 @@ function processRecurringEvents() {
     if (processed) {
         localStorage.setItem('recurringEvents', JSON.stringify(recurringEvents));
         localStorage.setItem('events', JSON.stringify(events));
+        renderDailySchedule();
     }
 }
 
@@ -6138,7 +6305,6 @@ function handleGoalImage() {
         init();
     
 // WORKOUT
-let workouts = JSON.parse(localStorage.getItem('workouts') || '[]');
 
 function openWorkoutModal() {
     document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
@@ -6765,6 +6931,39 @@ try {
 } catch(e) {
     // History API not available in this context
 }
+
+
+// Initialize Today's Schedule on page load - multiple triggers
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        if (typeof renderDailySchedule === 'function') {
+            renderDailySchedule();
+        }
+    }, 100);
+});
+
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        if (typeof renderDailySchedule === 'function') {
+            renderDailySchedule();
+        }
+    }, 200);
+});
+
+// Fallback: immediate call after script loads
+if (typeof renderDailySchedule === 'function') {
+    setTimeout(renderDailySchedule, 300);
+}
+
+
+// ==================== BINGO FUNCTIONS ====================
+function checkBingo(){let h=false;for(let r=0;r<5;r++){if(bingoData[r*5].d&&bingoData[r*5+1].d&&bingoData[r*5+2].d&&bingoData[r*5+3].d&&bingoData[r*5+4].d){h=true;break;}}if(!h){for(let c=0;c<5;c++){if(bingoData[c].d&&bingoData[c+5].d&&bingoData[c+10].d&&bingoData[c+15].d&&bingoData[c+20].d){h=true;break;}}}if(!h){if(bingoData[0].d&&bingoData[6].d&&bingoData[12].d&&bingoData[18].d&&bingoData[24].d)h=true;if(bingoData[4].d&&bingoData[8].d&&bingoData[12].d&&bingoData[16].d&&bingoData[20].d)h=true;}let a=bingoData.every(x=>x.d);let s=document.getElementById('bingoStatus');if(s){if(a){s.innerHTML='🎉🎉🎉 BLACKOUT! 🎉🎉🎉';s.style.color='#FFD700';}else if(h){s.innerHTML='🎉 BINGO! 🎉';s.style.color='#667eea';}else{s.innerHTML=bingoData.filter(x=>x.d).length+'/25 completed';s.style.color='#888';}}}
+function renderBingo(){let g=document.getElementById('bingoGrid');if(!g)return;let h='';bingoData.forEach((x,i)=>{let e=x.t!=='FREE SPACE'?'<button onclick="event.stopPropagation(); editBingo('+i+')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.7);border:none;border-radius:4px;color:white;padding:4px 8px;font-size:14px;cursor:pointer;z-index:10;">✏️</button>':'';let v='';if(x.img){v='<img src="'+x.img+'" style="width:100%;height:60px;object-fit:cover;border-radius:6px;margin-bottom:6px;pointer-events:none;">';}else if(x.e){v='<div style="font-size:28px;pointer-events:none;">'+x.e+'</div>';}let bg=x.d?'linear-gradient(135deg,rgba(102,126,234,0.9),rgba(118,75,162,0.9))':'#2a2a2a';let b=x.d?'#764ba2':'#444';h+='<div onclick="toggleBingo('+i+')" style="min-height:100px;background:'+bg+';border:2px solid '+b+';border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;position:relative;overflow:hidden;">'+e+v+'<div style="font-size:11px;font-weight:600;pointer-events:none;">'+x.t+'</div></div>';});g.innerHTML=h;let bg=localStorage.getItem('bingoBg');if(bg)g.style.backgroundImage='url('+bg+')';checkBingo();}
+function toggleBingo(i){if(bingoData[i].t!=='FREE SPACE'){bingoData[i].d=!bingoData[i].d;localStorage.setItem('bingo2026',JSON.stringify(bingoData));renderBingo();}}
+function editBingo(i){if(bingoData[i].t!=='FREE SPACE'){bingoEditingIndex=i;bingoTempImage=bingoData[i].img||null;document.getElementById('bingoEmojiInput').value=bingoData[i].e||'';document.getElementById('bingoTextInput').value=bingoData[i].t;let p=document.getElementById('bingoImgPreview');if(bingoData[i].img){p.src=bingoData[i].img;p.style.display='block';}else{p.style.display='none';}openModal('bingoEditModal');}}
+function saveBingoEdit(){if(bingoEditingIndex>=0){bingoData[bingoEditingIndex].e=document.getElementById('bingoEmojiInput').value;bingoData[bingoEditingIndex].t=document.getElementById('bingoTextInput').value;bingoData[bingoEditingIndex].img=bingoTempImage;localStorage.setItem('bingo2026',JSON.stringify(bingoData));renderBingo();}closeBingoModal();}
+function closeBingoModal(){closeModal('bingoEditModal');document.getElementById('bingoImgPreview').style.display='none';bingoEditingIndex=-1;bingoTempImage=null;}
+document.addEventListener('DOMContentLoaded',function(){let bg=document.getElementById('bingoBgUpload');if(bg){bg.onchange=function(e){let f=e.target.files[0];if(f){let r=new FileReader();r.onload=function(ev){localStorage.setItem('bingoBg',ev.target.result);let g=document.getElementById('bingoGrid');if(g)g.style.backgroundImage='url('+ev.target.result+')';};r.readAsDataURL(f);}};}let im=document.getElementById('bingoImgUpload');if(im){im.onchange=function(e){let f=e.target.files[0];if(f){let r=new FileReader();r.onload=function(ev){bingoTempImage=ev.target.result;let p=document.getElementById('bingoImgPreview');p.src=bingoTempImage;p.style.display='block';};r.readAsDataURL(f);}};}});
 
 </script>
 
