@@ -3594,14 +3594,14 @@ function saveTask() {
             const holidays = getAllHolidays(year);
             const holiday = holidays.find(h => h.date === dateStr);
             
-            // If holiday is clicked, trigger animations ONLY for that day
+            // If holiday is clicked, trigger animations
             if (holiday) {
                 checkHolidayAnimations(dateStr);
-                // Don't show modal for holidays - just show animation
-            } else {
-                // For non-holidays, open the day modal
-                openDayModal(dateStr);
             }
+            
+            // Switch to home page and show that day's schedule
+            switchTab('home');
+            renderDailySchedule(dateStr);
         }
         
         function openDayModal(dateStr) {
@@ -6584,14 +6584,14 @@ function formatTime12Hour(time24) {
     return h + ':' + minutes + ' ' + ampm;
 }
 
-function renderDailySchedule() {
+function renderDailySchedule(dateOverride) {
     const container = document.getElementById('daily-schedule');
     if (!container) return;
     
-    const today = formatDate(new Date());
+    const today = dateOverride || formatDate(new Date());
     const dateDisplay = document.getElementById('schedule-date-display');
     if (dateDisplay) {
-        const date = new Date(today);
+        const date = dateOverride ? new Date(dateOverride + 'T00:00:00') : new Date();
         dateDisplay.textContent = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     }
     
