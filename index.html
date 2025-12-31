@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2105,9 +2106,6 @@ function saveTaskLists() {
                     document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
                 }
             });
-            
-            // Load Today's Schedule on page load
-            renderDailySchedule();
         });
         
         // ==================== MODAL FUNCTIONS ====================
@@ -2149,65 +2147,7 @@ function saveTaskLists() {
             showNotification('Task added!', 'success');
         }
         
-        
-let editingTaskId = null;
-
-function editTask(id) {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
-    
-    editingTaskId = id;
-    
-    document.getElementById('task-name').value = task.name;
-    document.getElementById('task-desc').value = task.desc || '';
-    document.getElementById('task-priority').value = task.priority;
-    document.getElementById('task-date').value = task.date;
-    document.getElementById('task-time').value = task.time || '';
-    document.getElementById('task-recurring').value = task.recurring || 'none';
-    
-    if (task.listId) {
-        document.getElementById('task-list').value = task.listId;
-    }
-    
-    const modalTitle = document.querySelector('#task-modal h2');
-    if (modalTitle) modalTitle.textContent = '✏️ Edit Task';
-    
-    populateTaskListDropdown();
-    openModal('task-modal');
-}
-
-function saveTask() {
-            if (editingTaskId) {
-                const task = tasks.find(t => t.id === editingTaskId);
-                if (task) {
-                    const name = document.getElementById('task-name').value.trim();
-                    if (!name) {
-                        showNotification('Please enter task name', 'error');
-                        return;
-                    }
-                    
-                    task.name = name;
-                    task.desc = document.getElementById('task-desc').value;
-                    task.priority = document.getElementById('task-priority').value;
-                    task.date = document.getElementById('task-date').value;
-                    task.time = document.getElementById('task-time').value;
-                    task.recurring = document.getElementById('task-recurring').value;
-                    task.listId = document.getElementById('task-list').value || null;
-                    
-                    save();
-                    editingTaskId = null;
-                    
-                    const modalTitle = document.querySelector('#task-modal h2');
-                    if (modalTitle) modalTitle.textContent = 'Add Task';
-                    
-                    closeModal('task-modal');
-                    renderTasks();
-                    renderDailySchedule();
-                    showNotification('Task updated! ✅', 'success');
-                    return;
-                }
-            }
-            
+        function saveTask() {
             const name = document.getElementById('task-name').value;
             if (!name) { showNotification('Please enter task name', 'error'); return; }
             
