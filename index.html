@@ -1233,6 +1233,8 @@
                         <button class="btn btn-secondary" onclick="filterTransactions('all')" style="font-size: 10px; padding: 4px 8px;">All</button>
                         <button class="btn btn-secondary" onclick="filterTransactions('income')" style="font-size: 10px; padding: 4px 8px;">Income</button>
                         <button class="btn btn-secondary" onclick="filterTransactions('expense')" style="font-size: 10px; padding: 4px 8px;">Expenses</button>
+                        <button class="btn btn-secondary" onclick="openBankStatementImport()" style="font-size: 10px; padding: 4px 8px;">📂 Import CSV</button>
+                        <input type="file" id="bank-statement-file" accept=".csv,.txt" style="display:none;" onchange="handleBankStatementFile(event)">
                     </div>
                 </div>
                 <div id="transactions-list" style="display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 250px; overflow-y: auto;"></div>
@@ -6985,6 +6987,237 @@ function saveBingoEdit(){if(bingoEditingIndex>=0){bingoData[bingoEditingIndex].e
 function closeBingoModal(){closeModal('bingoEditModal');document.getElementById('bingoImgPreview').style.display='none';bingoEditingIndex=-1;bingoTempImage=null;}
 document.addEventListener('DOMContentLoaded',function(){let bg=document.getElementById('bingoBgUpload');if(bg){bg.onchange=function(e){let f=e.target.files[0];if(f){let r=new FileReader();r.onload=function(ev){localStorage.setItem('bingoBg',ev.target.result);let g=document.getElementById('bingoGrid');if(g)g.style.backgroundImage='url('+ev.target.result+')';};r.readAsDataURL(f);}};}let im=document.getElementById('bingoImgUpload');if(im){im.onchange=function(e){let f=e.target.files[0];if(f){let r=new FileReader();r.onload=function(ev){bingoTempImage=ev.target.result;let p=document.getElementById('bingoImgPreview');p.src=bingoTempImage;p.style.display='block';};r.readAsDataURL(f);}};}});
 
+// ==================== BANK STATEMENT IMPORT ====================
+let bankStatementRows = [];
+let bankStatementHeaders = [];
+
+function openBankStatementImport() {
+    const fileInput = document.getElementById('bank-statement-file');
+    fileInput.value = '';
+    fileInput.click();
+}
+
+function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+    if (lines.length === 0) return { headers: [], rows: [] };
+
+    function splitCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (ch === '"') {
+                if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+                else { inQuotes = !inQuotes; }
+            } else if (ch === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += ch;
+            }
+        }
+        result.push(current.trim());
+        return result;
+    }
+
+    const headers = splitCSVLine(lines[0]);
+    const rows = lines.slice(1).map(l => splitCSVLine(l));
+    return { headers, rows };
+}
+
+function handleBankStatementFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const { headers, rows } = parseCSV(e.target.result);
+        if (headers.length === 0 || rows.length === 0) {
+            alert('Could not parse the CSV file. Please check the file format.');
+            return;
+        }
+
+        bankStatementHeaders = headers;
+        bankStatementRows = rows;
+
+        // Populate column selectors
+        const noneOption = '<option value="-1">-- none --</option>';
+        const headerOptions = headers.map((h, i) => `<option value="${i}">${h || 'Column ' + (i + 1)}</option>`).join('');
+
+        document.getElementById('bs-col-date').innerHTML = headerOptions;
+        document.getElementById('bs-col-amount').innerHTML = headerOptions;
+        document.getElementById('bs-col-desc').innerHTML = noneOption + headerOptions;
+
+        // Auto-guess columns by common header names
+        const lower = headers.map(h => h.toLowerCase());
+        const guessIdx = (keywords) => lower.findIndex(h => keywords.some(k => h.includes(k)));
+
+        const dateIdx = guessIdx(['date', 'posted', 'trans date', 'transaction date']);
+        const amtIdx = guessIdx(['amount', 'debit', 'credit', 'withdrawl', 'deposit']);
+        const descIdx = guessIdx(['description', 'memo', 'payee', 'merchant', 'details', 'narrative']);
+
+        if (dateIdx >= 0) document.getElementById('bs-col-date').value = dateIdx;
+        if (amtIdx >= 0) document.getElementById('bs-col-amount').value = amtIdx;
+        if (descIdx >= 0) document.getElementById('bs-col-desc').value = descIdx;
+
+        // Hide preview until user clicks Preview
+        document.getElementById('bs-preview').style.display = 'none';
+        document.getElementById('bs-import-btn').disabled = true;
+
+        openModal('bank-statement-modal');
+    };
+    reader.readAsText(file);
+}
+
+function previewBankStatement() {
+    const dateCol = parseInt(document.getElementById('bs-col-date').value);
+    const amtCol = parseInt(document.getElementById('bs-col-amount').value);
+    const descCol = parseInt(document.getElementById('bs-col-desc').value);
+    const typeMode = document.getElementById('bs-type-mode').value;
+
+    const parsed = bankStatementRows.map(row => parseBSRow(row, dateCol, amtCol, descCol, typeMode)).filter(r => r !== null);
+
+    if (parsed.length === 0) {
+        alert('No valid transactions found. Check your column selections.');
+        return;
+    }
+
+    // Build preview table
+    const thead = document.getElementById('bs-preview-head');
+    const tbody = document.getElementById('bs-preview-body');
+
+    thead.innerHTML = `<tr style="border-bottom: 1px solid var(--border);">
+        <th style="text-align:left; padding: 6px 8px; color: var(--text-dim); font-weight:600;">Date</th>
+        <th style="text-align:left; padding: 6px 8px; color: var(--text-dim); font-weight:600;">Description</th>
+        <th style="text-align:right; padding: 6px 8px; color: var(--text-dim); font-weight:600;">Amount</th>
+        <th style="text-align:center; padding: 6px 8px; color: var(--text-dim); font-weight:600;">Type</th>
+    </tr>`;
+
+    tbody.innerHTML = parsed.slice(0, 10).map(t => `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 5px 8px; font-size: 11px;">${t.date}</td>
+            <td style="padding: 5px 8px; font-size: 11px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${t.desc}</td>
+            <td style="padding: 5px 8px; font-size: 11px; text-align:right; color: ${t.type === 'income' ? 'var(--success)' : 'var(--danger)'};">
+                ${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}
+            </td>
+            <td style="padding: 5px 8px; font-size: 11px; text-align:center;">${t.type === 'income' ? '💰' : '💸'}</td>
+        </tr>
+    `).join('');
+
+    const more = parsed.length > 10 ? `<tr><td colspan="4" style="text-align:center; padding: 6px; font-size: 11px; color: var(--text-dim);">... and ${parsed.length - 10} more</td></tr>` : '';
+    tbody.innerHTML += more;
+
+    document.getElementById('bs-preview-count').textContent = `${parsed.length} transaction${parsed.length !== 1 ? 's' : ''} ready to import`;
+    document.getElementById('bs-preview').style.display = 'block';
+    document.getElementById('bs-import-btn').disabled = false;
+    document.getElementById('bs-import-btn').textContent = `Import ${parsed.length} Transaction${parsed.length !== 1 ? 's' : ''}`;
+}
+
+function parseBSRow(row, dateCol, amtCol, descCol, typeMode) {
+    const rawDate = (row[dateCol] || '').trim();
+    const rawAmt = (row[amtCol] || '').replace(/[$,\s]/g, '').trim();
+    const desc = descCol >= 0 ? (row[descCol] || '').trim() : '';
+
+    if (!rawDate || !rawAmt) return null;
+
+    // Parse amount — strip parentheses used for negatives by some banks
+    let amount = parseFloat(rawAmt.replace(/[()]/g, ''));
+    if (isNaN(amount) || amount === 0) return null;
+    const isNegativeRaw = rawAmt.startsWith('-') || rawAmt.startsWith('(');
+
+    // Normalise to absolute value for storage
+    amount = Math.abs(amount);
+
+    // Determine type
+    let type;
+    if (typeMode === 'expense') {
+        type = 'expense';
+    } else if (typeMode === 'income') {
+        type = 'income';
+    } else {
+        // auto: negative amounts = expense, positive = income
+        type = isNegativeRaw ? 'expense' : 'income';
+    }
+
+    // Normalise date to YYYY-MM-DD
+    const date = normaliseBSDate(rawDate);
+    if (!date) return null;
+
+    return { date, amount, desc, type };
+}
+
+function normaliseBSDate(raw) {
+    // Already ISO
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+    // MM/DD/YYYY or MM-DD-YYYY
+    let m = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (m) return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+
+    // DD/MM/YYYY (less common in US banks but handle it)
+    m = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})$/);
+    if (m) {
+        const year = parseInt(m[3]) + 2000;
+        return `${year}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+    }
+
+    // Try native Date parse as fallback
+    const d = new Date(raw);
+    if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+
+    return null;
+}
+
+function confirmBankStatementImport() {
+    const dateCol = parseInt(document.getElementById('bs-col-date').value);
+    const amtCol = parseInt(document.getElementById('bs-col-amount').value);
+    const descCol = parseInt(document.getElementById('bs-col-desc').value);
+    const typeMode = document.getElementById('bs-type-mode').value;
+
+    const parsed = bankStatementRows.map(row => parseBSRow(row, dateCol, amtCol, descCol, typeMode)).filter(r => r !== null);
+
+    if (parsed.length === 0) {
+        alert('No valid transactions to import.');
+        return;
+    }
+
+    let imported = 0;
+    parsed.forEach(t => {
+        transactions.push({
+            id: Date.now() + imported,
+            amount: t.amount,
+            description: t.desc,
+            date: t.date,
+            type: t.type
+        });
+
+        const monthYear = new Date(t.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        if (!monthlyData[monthYear]) {
+            monthlyData[monthYear] = { income: 0, expenses: 0, cashflow: 0 };
+        }
+        if (t.type === 'income') {
+            monthlyData[monthYear].income += t.amount;
+        } else {
+            monthlyData[monthYear].expenses += t.amount;
+        }
+        monthlyData[monthYear].cashflow = monthlyData[monthYear].income - monthlyData[monthYear].expenses;
+        imported++;
+    });
+
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+
+    closeModal('bank-statement-modal');
+    populateYearFilter();
+    renderTransactions();
+    renderMonthlyMetrics();
+    showNotification(`✅ Imported ${imported} transaction${imported !== 1 ? 's' : ''} from bank statement!`, 'success');
+
+    bankStatementRows = [];
+    bankStatementHeaders = [];
+}
+
 </script>
 
 <!-- Add List Modal -->
@@ -6998,6 +7231,58 @@ document.addEventListener('DOMContentLoaded',function(){let bg=document.getEleme
         <div style="display: flex; gap: 8px;">
             <button class="btn btn-secondary" onclick="closeModal('add-list-modal')">Cancel</button>
             <button class="btn btn-primary" onclick="createTaskList()">Create List</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bank Statement Import Modal -->
+<div id="bank-statement-modal" class="modal">
+    <div class="modal-content" style="max-width: 620px;">
+        <h2 style="margin-bottom: 6px;">📂 Import Bank Statement</h2>
+        <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 20px;">Map your CSV columns then preview before importing.</p>
+
+        <!-- Column mapping -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div>
+                <label style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px; display: block;">Date column</label>
+                <select id="bs-col-date" style="margin-bottom: 0;"></select>
+            </div>
+            <div>
+                <label style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px; display: block;">Amount column</label>
+                <select id="bs-col-amount" style="margin-bottom: 0;"></select>
+            </div>
+            <div>
+                <label style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px; display: block;">Description column</label>
+                <select id="bs-col-desc" style="margin-bottom: 0;"></select>
+            </div>
+            <div>
+                <label style="font-size: 12px; color: var(--text-dim); margin-bottom: 4px; display: block;">Transaction type</label>
+                <select id="bs-type-mode" style="margin-bottom: 0;">
+                    <option value="auto">Auto-detect (negative = expense)</option>
+                    <option value="expense">All expenses</option>
+                    <option value="income">All income</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn btn-secondary" onclick="previewBankStatement()" style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+            🔍 Preview Transactions
+        </button>
+
+        <!-- Preview table -->
+        <div id="bs-preview" style="display: none; margin-bottom: 16px;">
+            <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px;" id="bs-preview-count"></div>
+            <div style="overflow-x: auto; max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px;">
+                <table id="bs-preview-table" style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                    <thead id="bs-preview-head" style="position: sticky; top: 0; background: var(--bg-card);"></thead>
+                    <tbody id="bs-preview-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+            <button class="btn btn-secondary" onclick="closeModal('bank-statement-modal')" style="flex: 1;">Cancel</button>
+            <button class="btn btn-primary" id="bs-import-btn" onclick="confirmBankStatementImport()" style="flex: 1;" disabled>Import</button>
         </div>
     </div>
 </div>
