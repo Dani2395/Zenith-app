@@ -969,6 +969,10 @@
                     <span class="sidebar-icon">🎯</span>
                     <span>2026 Bingo</span>
                 </div>
+                <div class="sidebar-item" onclick="switchTab('test'); closeSidebar();">
+                    <span class="sidebar-icon">🧪</span>
+                    <span>Test</span>
+                </div>
 
             </div>
         </div>
@@ -1927,7 +1931,14 @@ Cable Flyes - 3x15" style="min-height: 150px;"></textarea>
                 <div id="bingoGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 600px; margin: 0 auto; padding: 16px; border-radius: 16px; background-size: cover; background-position: center;"></div>
             </div>
         </div>
-        
+
+        <div id="test-tab" class="tab-content">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh;">
+                <h1 style="font-size: 48px; font-weight: 700; margin-bottom: 24px;">Test</h1>
+                <p style="font-size: 28px; color: var(--text-dim);">got you</p>
+            </div>
+        </div>
+
         <div id="bingoEditModal" class="modal">
             <div class="modal-content">
                 <h2>Edit Goal</h2>
@@ -2070,7 +2081,8 @@ function saveTaskLists() {
                 'books': 'Books',
                 'goals': 'Goals',
                 'gifts': 'Gifts',
-                'bingo': '2026 Bingo'
+                'bingo': '2026 Bingo',
+                'test': 'Test'
             };
             const tabNameEl = document.getElementById('current-tab-name');
             if (tabNameEl) tabNameEl.textContent = tabNames[tab] || 'Zenith';
